@@ -1,0 +1,35 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+
+main {
+    padding: 16px;
+    display: flex;
+
+}
+
+.block {
+    border: 2px solid black;
+    padding: 10px;
+}
+.block * {
+    width: 100%;
+}
+
+.fill {
+    display: inline-block;
+    background-color: #00FF00;
+    width: 32px;
+    height: 1em;
+
+    border: 2px solid black;
+    vertical-align: middle;
+}
+
+textarea {
+    border: 2px solid black;
+    margin-top: 16px;
+    height: 200px;
+}

@@ -1,0 +1,15 @@
+{
+  "name": "forum-mafia-helper",
+  "version": "1.0.0",
+  "description": "A collection of tools to help with Forum Mafia games.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jack Nash",
+  "license": "MIT",
+  "dependencies": {
+    "express.js": "^1.0.0",
+    "socket.io": "^3.0.4"
+  }
+}

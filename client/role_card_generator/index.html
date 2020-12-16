@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Card Formatter | FMHelp</title>
+
+    <link rel="stylesheet" href="/role_card_generator/role_card.css">
+</head>
+<body>
+    <main>
+        <div>
+            <form class="block" id="singular-role" autocomplete="off">
+                <label for="rname">Role Name:</label><br>
+                <input type="text" id="rname" name="rname" value="Cop" placeholder="Cop"><br>
+                <label for="align">Alignment:</label><br>
+                <input type="text" id="align" name="align" value="Town" placeholder="Town"><br>
+                <label for="salign">Sub-Alignment (if applicable):</label><br>
+                <input type="text" id="salign" name="salign" value="Investigative" placeholder="Investigative"><br>
+                <label for="rcolour">Role Colour (in hex without #):</label><br>
+                <input type="text" id="rcolour" name="rcolour" value="00FF00" placeholder="00FF00"><br><br>
+
+                <label for="abilities">Abilities.</label><br>
+                <textarea name="abilities" id='abilities'>You can check a player each night to see if they're a member of the Mafia or not.</textarea><br><br>
+                
+                <label for="wincon">Win Condition</label><br>
+                <input type="text" id="wincon" name="wincon" value="You win when all threats to the Town are eliminated." placeholder="You win when all threats to the Town are eliminated."><br><br>
+
+
+                <label for="role_template">Role Template.</label>
+                <textarea id="role_template">[quote][b][size=200][color=#{{rcolour}}]{{align}} {{rname}}[/color][/size][/b]&#10;{{abilities}}&#10;{{wincon}}[/quote]</textarea><br>
+
+                <input type="submit" value="Generate">
+            </form>
+        </div>
+        <div class="block">
+            <textarea id='singular-result'>Generated result will be shown here</textarea><br>
+            <button id='singular-result-copy'>Copy Result to Clipboard</button><br>
+            <button id="singular-result-send">Send RC through Town of Salem PMs</button>
+        </div>
+    </main>
+
+    <script src="/res/jquery-3.5.1.min.js"></script>
+    <script src="/role_card_generator/role_card.js"></script>
+</body>
+</html>
