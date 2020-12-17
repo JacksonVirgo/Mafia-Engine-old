@@ -9,8 +9,9 @@
 </head>
 <body>
     <main>
-        <div>
+        <div>          
             <form class="block" id="singular-role" autocomplete="off">
+                
                 <label for="rname">Role Name:</label><br>
                 <input type="text" id="rname" name="rname" value="Cop" placeholder="Cop"><br>
                 <label for="align">Alignment:</label><br>
@@ -26,17 +27,26 @@
                 <label for="wincon">Win Condition</label><br>
                 <input type="text" id="wincon" name="wincon" value="You win when all threats to the Town are eliminated." placeholder="You win when all threats to the Town are eliminated."><br><br>
 
-
-                <label for="role_template">Role Template.</label>
+                <label for="role_template" id="template-lbl">Role Template.</label>
                 <textarea id="role_template">[quote][b][size=200][color=#{{rcolour}}]{{align}} {{rname}}[/color][/size][/b]&#10;{{abilities}}&#10;{{wincon}}[/quote]</textarea><br>
 
-                <input type="submit" value="Generate">
+                <input type="submit" value="Generate" id="generate-btn">
             </form>
+            <button id="add-field">Add Field</button>
         </div>
         <div class="block">
             <textarea id='singular-result'>Generated result will be shown here</textarea><br>
             <button id='singular-result-copy'>Copy Result to Clipboard</button><br>
-            <button id="singular-result-send">Send RC through Town of Salem PMs</button>
+
+            <br><br>
+            <form id="send-as-pm">
+                <label for="forum">Choose a Forum:</label>
+                <select name="forum" id="form">
+                    <option value="tos">Town of Salem</option>
+                    <option value="ms">MafiaScum</option>
+                </select>
+                <input type='submit' value="Send PM">
+            </form>
         </div>
     </main>
 

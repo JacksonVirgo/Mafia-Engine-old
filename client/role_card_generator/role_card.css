@@ -1,18 +1,24 @@
 * {
     margin: 0;
     padding: 0;
+    color: white;
 }
-
-
+body {
+    background-color: #1A1A1A;
+}
 main {
     padding: 16px;
-    display: flex;
-
+}
+form input, form textarea {
+    background-color: #D0D0D0;
+    color: black;
 }
 
 .block {
     border: 2px solid black;
     padding: 10px;
+    background-color: #353535;
+
 }
 .block * {
     width: 100%;
@@ -32,4 +38,29 @@ textarea {
     border: 2px solid black;
     margin-top: 16px;
     height: 200px;
+}
+
+/* Singular Role Form */
+#singular-role {
+    display: table;
+}
+.form-cmpt {
+    display: table-row;
+}
+.form-cmpt label, .form-cmpt input, .form-cmpt .test-rmv {
+    display: table-cell;
+}
+#test-lbl {
+    display: inline-flex;
+}
+.test-rmv {
+    display: inline-flex;
+    border-radius: 5px;
+    background-color: orangered;
+    color: white;
+    width: 75px;
+    text-align: center;
+    height: 1.5em;
+    display: table-cell;
+    vertical-align: middle;
 }
