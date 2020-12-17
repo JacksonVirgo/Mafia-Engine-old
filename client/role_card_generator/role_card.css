@@ -1,23 +1,14 @@
 * {
     margin: 0;
     padding: 0;
-    color: white;
-}
-body {
-    background-color: #1A1A1A;
 }
 main {
     padding: 16px;
+    display: flex;
 }
-form input, form textarea {
-    background-color: #D0D0D0;
-    color: black;
-}
-
 .block {
     border: 2px solid black;
     padding: 10px;
-    background-color: #353535;
 
 }
 .block * {
