@@ -5,35 +5,28 @@
 main {
     padding: 16px;
     display: flex;
+    justify-content: space-around;
 }
 .block {
     border: 2px solid black;
     padding: 10px;
-
+    flex-grow: 1;
 }
 .block * {
     width: 100%;
 }
 
-.fill {
-    display: inline-block;
-    background-color: #00FF00;
-    width: 32px;
-    height: 1em;
-
-    border: 2px solid black;
-    vertical-align: middle;
+/* Singular Role Form */
+label {
+    margin-top: 8px;
 }
-
+#singular-role {
+    display: table;
+}
 textarea {
     border: 2px solid black;
     margin-top: 16px;
     height: 200px;
-}
-
-/* Singular Role Form */
-#singular-role {
-    display: table;
 }
 .form-cmpt {
     display: table-row;

@@ -9,8 +9,8 @@
 </head>
 <body>
     <main>
-        <div>          
-            <form class="block" id="singular-role" autocomplete="off">
+        <div class="block">          
+            <form id="singular-role" autocomplete="off">
                 
                 <label for="rname">Role Name:</label><br>
                 <input type="text" id="rname" name="rname" value="Cop" placeholder="Cop"><br>
@@ -28,11 +28,13 @@
                 <input type="text" id="wincon" name="wincon" value="You win when all threats to the Town are eliminated." placeholder="You win when all threats to the Town are eliminated."><br><br>
 
                 <label for="role_template" id="template-lbl">Role Template.</label>
-                <textarea id="role_template">[quote][b][size=200][color=#{{rcolour}}]{{align}} {{rname}}[/color][/size][/b]&#10;{{abilities}}&#10;{{wincon}}[/quote]</textarea><br>
+                <textarea id="role_template">[quote][b][size=200][color={{rcolour}}]{{align}} {{rname}}[/color][/size][/b]&#10;{{abilities}}&#10;{{wincon}}[/quote]</textarea><br>
+
+                <label for="csv-file">Upload a CSV formatted file (optional):</label>
+                <input type="file" id="csv-file" accept=".csv">
 
                 <input type="submit" value="Generate" id="generate-btn">
             </form>
-            <button id="add-field">Add Field</button>
         </div>
         <div class="block">
             <textarea id='singular-result'>Generated result will be shown here</textarea><br>
@@ -45,12 +47,21 @@
                     <option value="tos">Town of Salem</option>
                     <option value="ms">MafiaScum</option>
                 </select>
+                <br>
+
+                <label for="subj">Subject</label>
+                <input id="subj" name="subj" value="Role PM" placeholder="Role PM">
+
+                <br><br>
+                <label for="username">Users To Send To (seperate with a new line): </label>
+                <textarea id="username" name="username"></textarea>
                 <input type='submit' value="Send PM">
             </form>
         </div>
     </main>
 
     <script src="/res/jquery-3.5.1.min.js"></script>
+    <script src="/res/papaparse.min.js"></script>
     <script src="/role_card_generator/role_card.js"></script>
 </body>
 </html>

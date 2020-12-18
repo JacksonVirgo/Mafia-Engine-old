@@ -11,7 +11,29 @@ SEND_AS_PM = "#send-as-pm";
 $(document).ready(() => {
     console.log("JQuery Initialized");
 
-    var currentCustoms = 0;
+    onSubmit_SingularRole();
+    onSubmit_AddField();
+    onSubmit_CopyResults();
+    onSubmit_SendPM();
+});
+
+function handleCSV(results) {
+    var headers = [];
+    var table = [];
+    var data = results.data;
+
+    for (var i = 0; i < data.length; i++) {
+        var row = data[i];
+        var cells = row.join(",").split(",");
+
+        for (var j = 0; j < cells.length; j++) {
+            table[j] = ["Test", cells[j]];
+        }
+    }
+    console.log(table);
+}
+
+function onSubmit_SingularRole() {
     $(SINGULAR_ROLE).on('submit', (e) => {
         e.preventDefault();
         console.log("Singular Role Submitted");
@@ -22,11 +44,47 @@ $(document).ready(() => {
             array[field.name] = field.value;
         });
 
-        console.log(array);
+        
+        var fileList = document.getElementById('csv-file').files[0];
+
+        var csvResults = [];
+        Papa.parse(fileList, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(res) {
+                var roleText = "";
+
+                for (var i = 0; i < res.data.length; i++) {
+                    var role = generateFormattedRole(res.data[i]);
+                    roleText += role;
+                }
+                console.log(roleText);
+
+                $(SINGULAR_RESULT).text(`${roleText}`);
+
+            }
+        })
+
+
+        console.log(csvResults.length);
+        var roleComplete = "";
+        for (var i = 0; i < csvResults.length; i++) {
+            var role = generateFormattedRole(csvResults[i]);
+            console.log(role);
+            roleComplete.concat(role);
+        }
 
         var role = generateFormattedRole(array);
-        $(SINGULAR_RESULT).text(`${role}`);
+        console.log(`-- ${roleComplete}`);
+        //$(SINGULAR_RESULT).text(`${roleComplete}`);
     });
+}
+function outputCSV(data) {
+    return data;
+}
+function onSubmit_AddField() {
+    var currentCustoms = 0;
     $(ADD_FIELD).click(() => {
         var label = $("<label/>")
         var component = $("<input/>");
@@ -42,15 +100,13 @@ $(document).ready(() => {
         // Move the role template down
         $(SINGULAR_ROLE).append(label).append(component).append($("#template-lbl")).append($("#role_template")).append($(GENERATE_BTN));
     });
-
+}
+function onSubmit_CopyResults() {
     $(SINGULAR_RESULT_COPY).click(() => {
         clipboardCopy($(SINGULAR_RESULT).text());
     });
-    // $(SINGULAR_RESULT_SEND).click(() => {
-    //     var link = generateForumPM("Town of Salem", "Role PM", $(SINGULAR_RESULT).text());
-    //     window.location.align = link;
-    // });
-
+}
+function onSubmit_SendPM() {
     $(SEND_AS_PM).on('submit', (e) => {
         e.preventDefault();
         var results = serialize(SEND_AS_PM);
@@ -59,12 +115,14 @@ $(document).ready(() => {
             array[field.name] = field.value;
         });
 
-        var link = generateForumPM(array.forum, "Role PM", $(SINGULAR_RESULT).val());
+        var usernames = array["username"];
+        var userArray = usernames.split("\n");
+
+        var link = generateForumPM(array.forum, userArray, array.subj, $(SINGULAR_RESULT).val());
         console.log(link);
         openInNewTab(link);
     });
-});
-
+}
 function openInNewTab(url) {
     var win = window.open(url, '_blank');
     win.focus();
@@ -82,7 +140,6 @@ function clipboardCopy(text) {
 function generateFormattedRole(roleArray) {
 
     var roleArrayTmp = roleArray;
-    console.log("Gen Format");
     var template = $("#role_template").val();
     var namesArray = [];
     for (var property in roleArrayTmp) {
@@ -94,14 +151,20 @@ function generateFormattedRole(roleArray) {
     }
 
     //var result = `[area=${roleArray.align} ${roleArray.rname}][b][color=${roleArray.rcolour}]${roleArray.align} ${roleArray.rname}[/color][/b]\n[/area]`;
-    console.log("Gen Format Finish");
-
     return template;
 }
 
-function generateForumPM(website, subject, message) {
+function generateForumPM(website, users, subject, message) {
     var link = "";
-    var cleanedRecipient = encodeURIComponent("JacksonVirgo");
+
+    var recipient = "";
+    for (var i = 0; i < users.length; i++) {
+        recipient += users[i];
+        if (!(i < users.length)) recipient += ",";
+    }
+    if (recipient === "") recipient = "Trash Can";
+
+    var cleanedRecipient = encodeURIComponent(recipient);
     var cleanedSubject = encodeURIComponent(subject);
     var cleanedMessage = encodeURIComponent(message);
     if (website === "tos") {
