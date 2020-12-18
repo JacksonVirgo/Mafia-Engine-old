@@ -4,18 +4,56 @@
 }
 main {
     padding: 16px;
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
 }
 .block {
     border: 2px solid black;
     padding: 10px;
     flex-grow: 1;
 }
-.block * {
+.export *  {
     width: 100%;
 }
 
+/* Modular Forms */
+.form-component {
+    border: none;
+    margin-bottom: 0.5em;
+}
+
+
+/* Tab System */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+}
+.tab button:hover {
+    background-color: #ddd;
+}
+.tab button.active {
+    background-color: #ccc;
+}
+.tabcontent {
+    display: none;
+}
+.tabcontent * {
+    width: 100%;
+}
+#singular {
+    display: block;
+}
 /* Singular Role Form */
 label {
     margin-top: 8px;

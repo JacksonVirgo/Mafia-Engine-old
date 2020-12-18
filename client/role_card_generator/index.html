@@ -9,54 +9,76 @@
 </head>
 <body>
     <main>
-        <div class="block">          
-            <form id="singular-role" autocomplete="off">
-                
-                <label for="rname">Role Name:</label><br>
-                <input type="text" id="rname" name="rname" value="Cop" placeholder="Cop"><br>
-                <label for="align">Alignment:</label><br>
-                <input type="text" id="align" name="align" value="Town" placeholder="Town"><br>
-                <label for="salign">Sub-Alignment (if applicable):</label><br>
-                <input type="text" id="salign" name="salign" value="Investigative" placeholder="Investigative"><br>
-                <label for="rcolour">Role Colour (in hex without #):</label><br>
-                <input type="text" id="rcolour" name="rcolour" value="00FF00" placeholder="00FF00"><br><br>
-
-                <label for="abilities">Abilities.</label><br>
-                <textarea name="abilities" id='abilities'>You can check a player each night to see if they're a member of the Mafia or not.</textarea><br><br>
-                
-                <label for="wincon">Win Condition</label><br>
-                <input type="text" id="wincon" name="wincon" value="You win when all threats to the Town are eliminated." placeholder="You win when all threats to the Town are eliminated."><br><br>
-
-                <label for="role_template" id="template-lbl">Role Template.</label>
-                <textarea id="role_template">[quote][b][size=200][color={{rcolour}}]{{align}} {{rname}}[/color][/size][/b]&#10;{{abilities}}&#10;{{wincon}}[/quote]</textarea><br>
-
-                <label for="csv-file">Upload a CSV formatted file (optional):</label>
-                <input type="file" id="csv-file" accept=".csv">
-
-                <input type="submit" value="Generate" id="generate-btn">
-            </form>
-        </div>
         <div class="block">
+            <div class="tab">
+                <button class="tablinks" onclick="openTab(event, 'singular')">Singular Role</button>
+                <button class="tablinks" onclick="openTab(event, 'csv')">CSV</button>
+                <button class="tablinks" onclick="openTab(event, 'forum')">Send To Forums</button>
+            </div>
+            <div id="singular" class="tabcontent">   
+                <form id="singular-role" autocomplete="off">
+                    <div class="form-component">
+                        <label for="rname">Role Name:</label>
+                        <input type="text" id="rname" name="rname" placeholder="Cop">    
+                    </div>
+                    <div class="form-component">
+                        <label for="align">Alignment:</label>
+                        <input type="text" id="align" name="align" placeholder="Town"> 
+                    </div>
+                    <div class="form-component">
+                        <label for="salign">Sub-Alignment:</label><br>
+                        <input type="text" id="salign" name="salign" placeholder="Investigative"><br>
+                    </div>
+                    <div class="form-component">
+                        <label for="rcolour">Role Colour:</label>
+                        <input type="text" id="rcolour" name="rcolour" placeholder="00FF00">
+                    </div>
+                    <div class="form-component">
+                        <label for="abilities">Abilities.</label>
+                        <textarea name="abilities" id='abilities' placeholder="You can check a player each night to see if they're a member of the Mafia or not."></textarea>
+                    </div>
+                    <div class="form-component">
+                        <label for="wincon">Win Condition</label><br>
+                        <input type="text" id="wincon" name="wincon" placeholder="You win when all threats to the Town are eliminated.">
+                    </div>
+                    <input type="submit" value="Generate" id="generate-btn-singular">
+                </form>
+            </div> 
+            <div id="csv" class="tabcontent">  
+                <form id="csv-role"  autocomplete="off">
+                    <div class="form-component">
+                        <label for="csv-file">Upload a CSV formatted file (optional):</label>
+                        <input type="file" id="csv-file" accept=".csv">
+                    </div>
+                    <input type="submit" value="Generate" id="generate-btn-csv">
+                </form>
+            </div>
+            <dv id="forum" class="tabcontent">
+                <form id="send-as-pm">
+                    <label for="forum">Choose a Forum:</label>
+                    <select name="forum" id="form">
+                        <option value="tos">Town of Salem</option>
+                        <option value="ms">MafiaScum</option>
+                    </select>
+                    <br>
+    
+                    <label for="subj">Subject</label>
+                    <input id="subj" name="subj" value="Role PM" placeholder="Role PM">
+    
+                    <br><br>
+                    <label for="username">Users To Send To (seperate with a new line): </label>
+                    <textarea id="username" name="username"></textarea>
+                    <input type='submit' value="Send PM">
+                </form>
+            </dv>
+        </div>
+        <div class="block export">
+            <label for="role_template" id="template-lbl">Role Template.</label>
+            <textarea id="role_template">[quote][b][size=200][color={{rcolour}}]{{align}} {{rname}}[/color][/size][/b]&#10;{{abilities}}&#10;{{wincon}}[/quote]</textarea><br>
+
             <textarea id='singular-result'>Generated result will be shown here</textarea><br>
             <button id='singular-result-copy'>Copy Result to Clipboard</button><br>
-
-            <br><br>
-            <form id="send-as-pm">
-                <label for="forum">Choose a Forum:</label>
-                <select name="forum" id="form">
-                    <option value="tos">Town of Salem</option>
-                    <option value="ms">MafiaScum</option>
-                </select>
-                <br>
-
-                <label for="subj">Subject</label>
-                <input id="subj" name="subj" value="Role PM" placeholder="Role PM">
-
-                <br><br>
-                <label for="username">Users To Send To (seperate with a new line): </label>
-                <textarea id="username" name="username"></textarea>
-                <input type='submit' value="Send PM">
-            </form>
+            
         </div>
     </main>
 

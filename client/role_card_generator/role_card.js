@@ -3,7 +3,9 @@ SINGULAR_RESULT = "#singular-result";
 SINGULAR_RESULT_COPY = "#singular-result-copy";
 ROLE_COLOUR = "#rcolour";
 ADD_FIELD = "#add-field";
-GENERATE_BTN = "#generate-btn";
+
+/* Singular Specific */
+GENERATE_BTN_SINGULAR = "#generate-btn-singular";
 
 // Send as PM Form
 SEND_AS_PM = "#send-as-pm";
@@ -43,41 +45,25 @@ function onSubmit_SingularRole() {
         $.each(results, (i, field) => {
             array[field.name] = field.value;
         });
-
-        
-        var fileList = document.getElementById('csv-file').files[0];
-
-        var csvResults = [];
-        Papa.parse(fileList, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(res) {
-                var roleText = "";
-
-                for (var i = 0; i < res.data.length; i++) {
-                    var role = generateFormattedRole(res.data[i]);
-                    roleText += role;
-                }
-                console.log(roleText);
-
-                $(SINGULAR_RESULT).text(`${roleText}`);
-
-            }
-        })
-
-
-        console.log(csvResults.length);
-        var roleComplete = "";
-        for (var i = 0; i < csvResults.length; i++) {
-            var role = generateFormattedRole(csvResults[i]);
-            console.log(role);
-            roleComplete.concat(role);
-        }
-
         var role = generateFormattedRole(array);
-        console.log(`-- ${roleComplete}`);
-        //$(SINGULAR_RESULT).text(`${roleComplete}`);
+        $(SINGULAR_RESULT).text(`${role}`);
+    });
+}
+function onSubmit_CSVRoles() {
+    var fileList = document.getElementById('csv-file').files[0];
+    Papa.parse(fileList, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+            var roleText = "";
+            for (var i = 0; i < res.data.length; i++) {
+                var role = generateFormattedRole(res.data[i]);
+                roleText += role;
+            }
+            console.log(roleText);
+            $(SINGULAR_RESULT).text(`${roleText}`);
+        }
     });
 }
 function outputCSV(data) {
@@ -98,7 +84,7 @@ function onSubmit_AddField() {
         currentCustoms += 1;
 
         // Move the role template down
-        $(SINGULAR_ROLE).append(label).append(component).append($("#template-lbl")).append($("#role_template")).append($(GENERATE_BTN));
+        $(SINGULAR_ROLE).append(label).append(component).append($("#template-lbl")).append($("#role_template")).append($(GENERATE_BTN_SINGULAR));
     });
 }
 function onSubmit_CopyResults() {
@@ -205,3 +191,17 @@ function serialize(sel) {
  
     return arr;
  }
+
+function openTab(evt, page) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(page).style.display = "block";
+    evt.currentTarget.className += " active";
+}
