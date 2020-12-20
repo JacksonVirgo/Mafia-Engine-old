@@ -108,7 +108,7 @@ label {
 }
 textarea {
     border: 2px solid black;
-    height: 200px;
+    height: 100px;
 }
 .form-cmpt {
     display: table-row;

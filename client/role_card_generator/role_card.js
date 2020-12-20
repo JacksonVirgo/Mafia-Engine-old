@@ -15,6 +15,9 @@ var currentModalFocus = undefined;
 var modalFocusList = [];
 var modal = $("#fieldModal");
 
+// Individual Exports
+var currentExports = [];
+
 $(document).ready(() => {
     console.log("JQuery Initialized");
 
@@ -160,26 +163,12 @@ function createSingularField(name, id) {
 }
 
 
-function handleCSV(results) {
-    var headers = [];
-    var table = [];
-    var data = results.data;
-
-    for (var i = 0; i < data.length; i++) {
-        var row = data[i];
-        var cells = row.join(",").split(",");
-
-        for (var j = 0; j < cells.length; j++) {
-            table[j] = ["Test", cells[j]];
-        }
-    }
-    console.log(table);
-}
-
 function onSubmit_SingularRole() {
     $(SINGULAR_ROLE).on('submit', (e) => {
         e.preventDefault();
         console.log("Singular Role Submitted");
+
+        let finalArray = [];
 
         var results = serialize(SINGULAR_ROLE); //$(SINGULAR_ROLE).serializeArray();
         var array = {};
@@ -187,8 +176,76 @@ function onSubmit_SingularRole() {
             array[field.name] = field.value;
         });
         var role = lexer(array, $("#role_template").val());//;generateFormattedRole(array);
-        $(SINGULAR_RESULT).text(`${role}`);
+
+
+        finalArray.push(role);
+        setFinalArray(finalArray);
+        //$(SINGULAR_RESULT).text(`${role}`);
     });
+}
+
+function createExportSection(title, id, content) {
+    var result = $("<div />");
+    var header = $("<span />");
+    var textarea = $("<textarea />");
+    var revealBtn = $("<button />");
+    var sendBtn = $("<button />");
+
+    header.text(`${title}`);
+
+    revealBtn.attr("id", `btnReveal_${id}`);
+    revealBtn.text("Reveal/Hide");
+    revealBtn.bind("click", (e) => {
+        var ltextarea = $(`#${e.target.id}`).parent().parent().children(".resultArea");
+        ltextarea.css("display", ((ltextarea.css("display") === "block") ? "none" : "block"));
+    });
+    
+    sendBtn.text("Send as PM");
+    sendBtn.attr("id", `btnSend_${id}`);
+    sendBtn.bind("click", (e) => {
+        var ltextarea = $(`#${e.target.id}`).parent().parent().children(".resultArea");
+
+        var subj = $("#subj").val();
+        var play = $("#username").text();
+
+        $("#send-as-pm").trigger("reset");
+        $("#subj").val(subj);
+        $("#username").text(play);
+        $("#content").text(ltextarea.text());
+        openTab(e, "forum");
+    });
+
+    textarea.text(content);
+    textarea.addClass("resultArea");
+
+    // CSS Formatting to be done in CSS files
+    result.css("margin-bottom", "5px");
+    header.css("width", "auto");
+    revealBtn.css("margin-left", "5px");
+    textarea.css("display", "none");
+    revealBtn.css("width", "auto");
+    sendBtn.css("width", "auto");
+
+    result.append(header);
+    header.append(revealBtn);
+    header.append(sendBtn);
+    result.append(textarea);
+    return result;
+}
+function setFinalArray(array) {
+    $("#result-container").empty();
+    var combined = "";
+    var indiv = [];
+    for (var i = 0; i < array.length; i++) {
+        var result = createExportSection(`Role #${i+1}`, i+1, array[i]);    
+        indiv.push(result);
+        combined += array[i];   
+    }
+    var combinedObj = createExportSection("All Roles", "all_roles", combined);
+    $("#result-container").append(combinedObj);
+    for (var i = 0; i < indiv.length; i++) {
+        $("#result-container").append(indiv[i]);
+    }
 }
 function onSubmit_CSVRoles() {
     $("#csv-role").on('submit', (e) => {
@@ -200,16 +257,20 @@ function onSubmit_CSVRoles() {
             skipEmptyLines: true,
             complete: function(res) {
                 var roleText = "";
+                var roles = [];
                 for (var i = 0; i < res.data.length; i++) {
                     var role = generateFormattedRole(res.data[i]);
+                    roles.push(role);
                     roleText += role;
                 }
-                console.log(roleText);
-                $(SINGULAR_RESULT).text(`${roleText}`);
+                setFinalArray(roles);
+
+               // $(SINGULAR_RESULT).text(`${roleText}`);
             }
         });
     });
 }
+
 function onSubmit_AddField() {
     var currentCustoms = 0;
     $(ADD_FIELD).click(() => {
@@ -245,7 +306,7 @@ function onSubmit_SendPM() {
         var usernames = array["username"];
         var userArray = usernames.split("\n");
 
-        var link = generateForumPM(array.forum, userArray, array.subj, $(SINGULAR_RESULT).val());
+        var link = generateForumPM(array.forum, userArray, array.subj, array.content);
         console.log(link);
         openInNewTab(link);
     });

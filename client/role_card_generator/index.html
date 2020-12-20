@@ -44,7 +44,11 @@
     
                     <br><br>
                     <label for="username">Users To Send To (seperate with a new line): </label>
-                    <textarea id="username" name="username"></textarea>
+                    <textarea id="username" name="username"></textarea><br><br>
+
+                    <label for="content">Content to Send: </label>
+                    <textarea id="content" name="content"></textarea>
+                    <br><br>
                     <input type='submit' value="Send PM">
                 </form>
             </dv>
@@ -53,8 +57,11 @@
             <label for="role_template" id="template-lbl">Role Template.</label>
             <textarea id="role_template">[quote][b][size=200][color={{rcolour}}]{{align}} {{rname}}[/color][/size][/b]&#10;{{abilities}}&#10;{{wincon}}[/quote]</textarea><br>
 
-            <textarea id='singular-result'>Generated result will be shown here</textarea><br>
-            <button id='singular-result-copy'>Copy Result to Clipboard</button><br>
+            <div id="result-container">
+                
+            </div>
+            <!-- <textarea id='singular-result'>Generated result will be shown here</textarea><br>
+            <button id='singular-result-copy'>Copy Result to Clipboard</button><br> -->
             
         </div>
     </main>
