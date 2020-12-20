@@ -192,7 +192,7 @@ function createExportSection(title, id, content) {
     var sendBtn = $("<button />");
 
     header.text(`${title}`);
-
+    result.addClass("exportSectionDiv");
     revealBtn.attr("id", `btnReveal_${id}`);
     revealBtn.text("Reveal/Hide");
     revealBtn.bind("click", (e) => {
@@ -217,14 +217,6 @@ function createExportSection(title, id, content) {
 
     textarea.text(content);
     textarea.addClass("resultArea");
-
-    // CSS Formatting to be done in CSS files
-    result.css("margin-bottom", "5px");
-    header.css("width", "auto");
-    revealBtn.css("margin-left", "5px");
-    textarea.css("display", "none");
-    revealBtn.css("width", "auto");
-    sendBtn.css("width", "auto");
 
     result.append(header);
     header.append(revealBtn);

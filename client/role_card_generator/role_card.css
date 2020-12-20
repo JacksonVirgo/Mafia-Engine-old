@@ -19,6 +19,22 @@ main {
 .invisible {
     display: none!important;
 }
+
+/* Role Card Output */
+.exportSectionDiv {
+    margin-bottom: 5px;
+}
+.exportSectionDiv span {
+    width: auto;
+}
+.exportSectionDiv button {
+    margin-left: 5px;
+    width: auto;
+}
+.exportSectionDiv textarea {
+    display: none;
+}
+
 /* Modular Forms */
 .form-component {
     border: none;
@@ -31,6 +47,7 @@ main {
 #generate-btn-singular {
     margin-top: 10px;
 }
+
 /* Modals */
 .modal {
     display: none;
@@ -98,6 +115,7 @@ main {
 #singular {
     display: block;
 }
+
 /* Singular Role Form */
 label {
     margin-top: 8px;
