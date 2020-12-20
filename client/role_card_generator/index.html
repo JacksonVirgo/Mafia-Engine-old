@@ -17,37 +17,14 @@
             </div>
             <div id="singular" class="tabcontent">   
                 <form id="singular-role" autocomplete="off">
-                    <div class="form-component">
-                        <label for="rname">Role Name:</label>
-                        <input type="text" id="rname" name="rname" placeholder="Cop">    
-                    </div>
-                    <div class="form-component">
-                        <label for="align">Alignment:</label>
-                        <input type="text" id="align" name="align" placeholder="Town"> 
-                    </div>
-                    <div class="form-component">
-                        <label for="salign">Sub-Alignment:</label><br>
-                        <input type="text" id="salign" name="salign" placeholder="Investigative"><br>
-                    </div>
-                    <div class="form-component">
-                        <label for="rcolour">Role Colour:</label>
-                        <input type="text" id="rcolour" name="rcolour" placeholder="00FF00">
-                    </div>
-                    <div class="form-component">
-                        <label for="abilities">Abilities.</label>
-                        <textarea name="abilities" id='abilities' placeholder="You can check a player each night to see if they're a member of the Mafia or not."></textarea>
-                    </div>
-                    <div class="form-component">
-                        <label for="wincon">Win Condition</label><br>
-                        <input type="text" id="wincon" name="wincon" placeholder="You win when all threats to the Town are eliminated.">
-                    </div>
                     <input type="submit" value="Generate" id="generate-btn-singular">
                 </form>
+                <button id="singular-create-field">Create New Field</button>
             </div> 
             <div id="csv" class="tabcontent">  
                 <form id="csv-role"  autocomplete="off">
                     <div class="form-component">
-                        <label for="csv-file">Upload a CSV formatted file (optional):</label>
+                        <label for="csv-file">Upload a CSV formatted file:</label>
                         <input type="file" id="csv-file" accept=".csv">
                     </div>
                     <input type="submit" value="Generate" id="generate-btn-csv">
@@ -56,7 +33,7 @@
             <dv id="forum" class="tabcontent">
                 <form id="send-as-pm">
                     <label for="forum">Choose a Forum:</label>
-                    <select name="forum" id="form">
+                    <select name="forum" id="forum">
                         <option value="tos">Town of Salem</option>
                         <option value="ms">MafiaScum</option>
                     </select>
@@ -82,8 +59,33 @@
         </div>
     </main>
 
+    <div id="fieldModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <form id="fieldForm" autocomplete="off">
+                <label for="field_name">Field Name</label><br>
+                <input type="text" name="field_name" id="field_name" placeholder="New Field"><br><br>
+
+                <label for="field_handle">Handle (for use in the parser)</label><br>
+                <input type="text" name="field_handle" id="field_handle" placeholder="newfield"><br><br>
+
+                <label for="field_type">Type of Field (changing this will clear any content data)</label><br>
+                <select name="field_type" id="field_type">
+                    <option value="txtfield">TextField (single line)</option>
+                    <option value="txtarea">TextArea (multi-line)</option>
+                    <option value="colour">Colour</option>
+                </select><br><br>
+
+                <input type="submit" value="Save">
+            </form>
+        </div>
+    </div>
+
     <script src="/res/jquery-3.5.1.min.js"></script>
+    <script src="/res/jquery.changeelementtype.js"></script>
     <script src="/res/papaparse.min.js"></script>
+    <script src="/role_card_generator/util.js"></script>
+    <script src="/role_card_generator/lexer.js"></script>
     <script src="/role_card_generator/role_card.js"></script>
 </body>
 </html>

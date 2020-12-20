@@ -10,14 +10,155 @@ GENERATE_BTN_SINGULAR = "#generate-btn-singular";
 // Send as PM Form
 SEND_AS_PM = "#send-as-pm";
 
+// Singleton item for when Fields are being editied.
+var currentModalFocus = undefined;
+var modalFocusList = [];
+var modal = $("#fieldModal");
+
 $(document).ready(() => {
     console.log("JQuery Initialized");
 
+    initFieldModal();
+
     onSubmit_SingularRole();
+    onSubmit_CSVRoles();
     onSubmit_AddField();
     onSubmit_CopyResults();
     onSubmit_SendPM();
+
+
+    var rname = createSingularField("Role Name", "rname");
+    var align = createSingularField("Alignment", "align");
+    var salign = createSingularField("Sub-Alignment", "salign");
+    var rcolour = createSingularField("Role Colour", "rcolour");
+    var abilities = createSingularField("Abilities", "abilities");
+    var wincon = createSingularField("Win Condition", "wincon");
+    $(SINGULAR_ROLE).append(rname).append(align).append(salign).append(rcolour).append(abilities).append(wincon).append($(GENERATE_BTN_SINGULAR));
 });
+
+function initFieldModal() {
+    var close = $(".modal-close");
+    close.on("click", (e) => {
+        modal.css("display", "none");
+    });
+
+    $("#fieldForm").submit((e) => {
+        e.preventDefault();
+        var serial = serialize($("#fieldForm"));              
+        var array = serialToObject(serial);
+        
+        console.log(currentModalFocus);
+
+        
+        var label = currentModalFocus.children("label");
+        var input = currentModalFocus.children(".field-input");
+
+        currentModalFocus.children("label").text(array.field_name);
+        currentModalFocus.children("label").attr("for", array.field_handle);
+
+        currentModalFocus.children(".field-input").attr("id", array.field_handle);
+        currentModalFocus.children(".field-input").attr("name", array.field_handle);
+
+        // Check type has changed and if so, change it.
+        var nodeName = currentModalFocus.children(".field-input").prop('nodeName');
+        var nodeType = currentModalFocus.children(".field-input").attr("type");
+
+        console.log(nodeType);
+        if (array.field_type === "txtfield") {
+            switch (nodeName) {
+                case "INPUT":
+                    input.attr("type", "text");
+                    break;
+                case "TEXTAREA":
+                    input.changeElementType("input");
+                    input.attr("type", "text");
+                    break;
+            }
+        } else if (array.field_type === "txtarea") {
+            switch (nodeName) {
+                case "INPUT":
+                    input.changeElementType("textarea");
+                    break;            
+                }
+        }
+        console.log(nodeName);
+
+        $("#fieldForm").trigger("reset");
+        modal.css("display", "none");
+    });
+
+    $("#singular-create-field").click(() =>{
+        var field = createSingularField_Empty();
+        $(SINGULAR_ROLE).append(field).append($(GENERATE_BTN_SINGULAR));
+    });
+/*     var field = createSingularField();
+    $(SINGULAR_ROLE).append(field);*/
+}
+
+function editSingularField(focus) {
+    currentModalFocus = modalFocusList[focus];
+    modalForm = $("#fieldForm");
+
+    var label = currentModalFocus.children("label");
+    var input = currentModalFocus.children(".field-input");
+
+    var nodeName = input.prop("nodeName");
+    var nodeType = input.attr("type");
+
+    var type = "";
+    switch (nodeName) {
+        case "INPUT":
+            if (nodeType === "text") type="txtfield";
+            if (nodeType === "colour") type="colour";
+            break;
+        case "textarea":
+            text="txtarea";
+            break;
+    }
+
+    var handle = label.attr("for");
+    var name = label.text();
+    $("#field_name").attr("value", name);
+    $("#field_handle").attr("value", handle);
+    $("#field_type").val(type).attr("selected", "selected");
+    modal.css("display", "block");
+}
+/* Singular Role Functions */
+function createSingularField_Empty() {
+    const DEFAULT_NAME = "New Field";
+    const DEFAULT_ID = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+
+    return createSingularField(DEFAULT_NAME, DEFAULT_ID);
+}
+function createSingularField(name, id) {
+    var field = $("<div />");
+    field.addClass("form-component");
+    var label = $("<label />");
+    label.addClass("field-label");
+    label.attr("for", id);
+    label.text(name);
+
+    var input = $("<input />");
+    input.addClass("field-input");
+    input.attr("type", "text");
+    input.attr("id", id);
+    input.attr("name", id);
+
+    var button = $("<input />");
+    button.addClass("field-button");
+    button.attr("type", "button");
+    button.attr("value", "Edit");
+
+    modalFocusList[id] = field;
+    
+    button.click((e) => {
+        editSingularField(id);
+    });
+
+    field.append(label).append(button).append(input);   
+    return field;
+}
+
 
 function handleCSV(results) {
     var headers = [];
@@ -45,29 +186,29 @@ function onSubmit_SingularRole() {
         $.each(results, (i, field) => {
             array[field.name] = field.value;
         });
-        var role = generateFormattedRole(array);
+        var role = lexer(array, $("#role_template").val());//;generateFormattedRole(array);
         $(SINGULAR_RESULT).text(`${role}`);
     });
 }
 function onSubmit_CSVRoles() {
-    var fileList = document.getElementById('csv-file').files[0];
-    Papa.parse(fileList, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(res) {
-            var roleText = "";
-            for (var i = 0; i < res.data.length; i++) {
-                var role = generateFormattedRole(res.data[i]);
-                roleText += role;
+    $("#csv-role").on('submit', (e) => {
+        e.preventDefault();
+        var fileList = document.getElementById('csv-file').files[0];
+        Papa.parse(fileList, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(res) {
+                var roleText = "";
+                for (var i = 0; i < res.data.length; i++) {
+                    var role = generateFormattedRole(res.data[i]);
+                    roleText += role;
+                }
+                console.log(roleText);
+                $(SINGULAR_RESULT).text(`${roleText}`);
             }
-            console.log(roleText);
-            $(SINGULAR_RESULT).text(`${roleText}`);
-        }
+        });
     });
-}
-function outputCSV(data) {
-    return data;
 }
 function onSubmit_AddField() {
     var currentCustoms = 0;
@@ -109,19 +250,6 @@ function onSubmit_SendPM() {
         openInNewTab(link);
     });
 }
-function openInNewTab(url) {
-    var win = window.open(url, '_blank');
-    win.focus();
-}
-
-function clipboardCopy(text) {
-    var tmp = document.createElement("textarea");
-    document.body.appendChild(tmp);
-    tmp.value = text;
-    tmp.select();
-    document.execCommand("copy");
-    document.body.removeChild(tmp);
-}
 
 function generateFormattedRole(roleArray) {
 
@@ -159,49 +287,4 @@ function generateForumPM(website, users, subject, message) {
         link = `https://forum.mafiascum.net/ucp.php?i=pm&mode=compose&username_list=${cleanedRecipient}&subject=${cleanedSubject}&message=${cleanedMessage}`;
     }
     return link;
-}
-
-function serialize(sel) {
-    var arr,
-        tmp,
-        i,
-        $nodes = $(sel);
-     $nodes = $nodes.map(function(ndx){
-       var $n = $(this);
- 
-       if($n.is('form'))
-          return $n.find('input, select, textarea').get();
-       return this;
-     });
-    $nodes.each(function(ndx, el){
-       if ((el.nodeName.toUpperCase() == 'INPUT') && ((el.type.toUpperCase() == 'CHECKBOX') || (el.type.toUpperCase() == 'RADIO'))){
-          if((el.value === undefined) || (el.value == ''))
-             el.value = 1;
-       }
-    });
-     arr = $nodes.serializeArray();
-    tmp = [];
-    for(i = 0; i < arr.length; i++)
-       tmp.push(arr[i].name);
-      $nodes.filter('input[type="checkbox"]:not(:checked)').each(function(){
-       if(tmp.indexOf(this.name) < 0){
-          arr.push({name: this.name, value: ''});
-       }
-     });
- 
-    return arr;
- }
-
-function openTab(evt, page) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-      tabcontent[i].style.display = "none";
-    }
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-    document.getElementById(page).style.display = "block";
-    evt.currentTarget.className += " active";
 }
