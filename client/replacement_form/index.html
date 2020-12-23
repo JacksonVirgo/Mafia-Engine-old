@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Replacement Form | FMHelp</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <form>
+        <div>
+            <label name="game_thread">Link to Game Thread</label>
+            <input type='text' id='game_thread' name='game_thread'>
+        </div>
+        <div>
+            <label name="departing_player">Departing Player</label>
+            <input type='text' id='departing_player' name='departing_player'>
+        </div>
+        <input type='submit' value='Generate'>
+    </form>
+    
+    <script src="/res/socket.io.min.js"></script>
+    <script src="/res/jquery-3.5.1.min.js"></script>
+    <script src="/res/util.js"></script>
+    <script src="./replacement.js"></script>
+</body>
+</html>

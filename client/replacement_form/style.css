@@ -1,0 +1,11 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+form {
+    margin: 5px;
+    padding: 5px;
+}
+form div * {
+    display: block;
+}

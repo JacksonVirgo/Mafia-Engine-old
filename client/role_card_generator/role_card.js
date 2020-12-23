@@ -1,3 +1,10 @@
+var io = io();
+io.emit('mafiascum-page', "https://forum.mafiascum.net/viewtopic.php?f=50&t=84085");
+io.on('mafiascum-page', (data) => {
+    console.log(data);
+    $("#test-data").text(`Thread Title: ${data.header}\nCurrent Page: ${data.currentPage}\nTotal Pages: ${data.pageCount}`);
+});
+
 SINGULAR_ROLE = "#singular-role";
 SINGULAR_RESULT = "#singular-result";
 SINGULAR_RESULT_COPY = "#singular-result-copy";
@@ -49,10 +56,7 @@ function initFieldModal() {
         e.preventDefault();
         var serial = serialize($("#fieldForm"));              
         var array = serialToObject(serial);
-        
-        console.log(currentModalFocus);
-
-        
+                
         var label = currentModalFocus.children("label");
         var input = currentModalFocus.children(".field-input");
 

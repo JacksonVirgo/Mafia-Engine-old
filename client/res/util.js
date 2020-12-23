@@ -14,7 +14,6 @@ function getIndicesOf(searchStr, str, caseSensitive) {
     return indices;
 }
 
-
 /* Serialize a HTML Form Completely */
 function serialize(sel) {
     var arr,

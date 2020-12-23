@@ -9,7 +9,13 @@
   "author": "Jack Nash",
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.5",
+    "cors": "^2.8.5",
     "express.js": "^1.0.0",
+    "get-urls": "^10.0.0",
+    "node-fetch": "^2.6.1",
+    "puppeteer": "^5.5.0",
+    "request": "^2.88.2",
     "socket.io": "^3.0.4"
   }
 }
