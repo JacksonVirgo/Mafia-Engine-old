@@ -6,19 +6,23 @@ const request = require("request");
 const cheerio = require("cheerio");
 
 const screenScrape = require('./server/screenScraper');
-
-app.get('/', function(req, res) {
-    res.sendFile(__dirname + `/client/index.html`);
-});
+ app.get('/', function(req, res) {
+     res.sendFile(__dirname + `/client/index.html`);
+ });
 app.use('/', express.static(__dirname + `/client`));
 
 const PORT = process.env.PORT || 2000;
 server.listen(PORT);
 console.log(`Server Initialized. Port ${PORT}`);``
 
-const io = require(`socket.io`)(server, {});
+const io = require(`socket.io`)(server, {
+    cors: {
+        origin: '*'
+    }
+});
 io.sockets.on('connection', (socket) => {
     console.log(socket.id);
+    socket.emit('connected', false);
 
     socket.on('mafiascum-page', (data) => {
         console.log("potato");
