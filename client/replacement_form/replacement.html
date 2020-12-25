@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Replacement Form | FMHelp</title>
 
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <form id="replacement">
@@ -19,13 +18,13 @@
         </div>
         <input type='submit' value='Generate'>
     </form>
+    <textarea id="result" readonly>
 
-    <div id="result">
-
-    </div>
+    </textarea>
     
     <script src="../res/socket.io.min.js"></script>
-    <script src="/res/jquery-3.5.1.min.js"></script>
-    <script src="/replacement/replacement.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/res/util.js"></script>
+    <script src="/replacement_form/replacement.js"></script>
 </body>
 </html>

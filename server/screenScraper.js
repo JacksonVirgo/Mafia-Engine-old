@@ -1,26 +1,13 @@
-const request = require("request");
-const cheerio = require("cheerio");
-
-const testURL = "https://forum.mafiascum.net/viewtopic.php?f=50&t=84085";
+// const request = require("request");
+// const cheerio = require("cheerio");
 
 class PageInfo {
-    constructor(num, header, linkToNext) {
-        this.num = num;
-        this.header = header;
-        this.linkToNext = linkToNext;
+    constructor(site, link) {
+        this.site = site;
+        this.link = link;
+
+        this.siteInformation = {};
     }
 }
 
-
-
-function maxPages(site) {
-    allPages = [];
-}
-
-// var finalPage = false;
-
-// var array = [];
-// while (!finalPage) {
-//     var i = scrapeLink(testURL);
-//     array[i.pageNum] = i;
-// }
+module.exports = PageInfo;

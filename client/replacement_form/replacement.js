@@ -6,18 +6,27 @@ function requestPageScrape(link) {
 }
 io.on('scrape-send', (data) => {
     var data = data;
-    $("#result").text(`Thread Title: ${data.header}\nGame Moderator: ${data.author}\nPage Length: ${data.pageCount}`);
+    var result = "";
+
+    // Get current date.
+    var today = new Date();
+    result += `${String(today.getDate()).padStart(2, '0')} ${String(today.getMonth() + 1).padStart(2, '0')} ${data.header}\n[b]Moderator:[/b] ${data.author}[tab]3[/tab][b]Replacing:[/b] ${departingPlayer}`;
+
+    console.log(result);
+    $("#result").text(result);
 });    
 $(document).ready(() => {
+    console.log("JQuery Init");
     $("#replacement").submit((e) => {
         e.preventDefault();
         var serial = serialize($("#fieldForm"));              
         var array = serialToObject(serial);
-
+    
         var link = array.game_thread;
         var play = array.departing_player;
-
+    
         departingPlayer = play;
         requestPageScrape(link);
     });
 });
+
