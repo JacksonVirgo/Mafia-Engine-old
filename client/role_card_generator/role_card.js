@@ -1,9 +1,9 @@
-var io = io();
-io.emit('mafiascum-page', "https://forum.mafiascum.net/viewtopic.php?f=50&t=84085");
-io.on('mafiascum-page', (data) => {
-    console.log(data);
-    $("#test-data").text(`Thread Title: ${data.header}\nCurrent Page: ${data.currentPage}\nTotal Pages: ${data.pageCount}`);
-});
+// var io = io();
+// io.emit('mafiascum-page', "https://forum.mafiascum.net/viewtopic.php?f=50&t=84085");
+// io.on('mafiascum-page', (data) => {
+//     console.log(data);
+//     $("#test-data").text(`Thread Title: ${data.header}\nCurrent Page: ${data.currentPage}\nTotal Pages: ${data.pageCount}`);
+// });
 
 SINGULAR_ROLE = "#singular-role";
 SINGULAR_RESULT = "#singular-result";
@@ -29,9 +29,8 @@ $(document).ready(() => {
     console.log("JQuery Initialized");
 
     initFieldModal();
-
-    onSubmit_SingularRole();
-    onSubmit_CSVRoles();
+    $("#csv-role").on('submit', (e) => onSubmit_CSVRoles(e));
+    $(SINGULAR_ROLE).on('submit', (e) => onSubmit_SingularRole(e));
     onSubmit_AddField();
     onSubmit_CopyResults();
     onSubmit_SendPM();
@@ -46,6 +45,7 @@ $(document).ready(() => {
     $(SINGULAR_ROLE).append(rname).append(align).append(salign).append(rcolour).append(abilities).append(wincon).append($(GENERATE_BTN_SINGULAR));
 });
 
+/* Custom Singular Fields*/
 function initFieldModal() {
     var close = $(".modal-close");
     close.on("click", (e) => {
@@ -101,7 +101,6 @@ function initFieldModal() {
 /*     var field = createSingularField();
     $(SINGULAR_ROLE).append(field);*/
 }
-
 function editSingularField(focus) {
     currentModalFocus = modalFocusList[focus];
     modalForm = $("#fieldForm");
@@ -130,6 +129,7 @@ function editSingularField(focus) {
     $("#field_type").val(type).attr("selected", "selected");
     modal.css("display", "block");
 }
+
 /* Singular Role Functions */
 function createSingularField_Empty() {
     const DEFAULT_NAME = "New Field";
@@ -166,28 +166,7 @@ function createSingularField(name, id) {
     return field;
 }
 
-
-function onSubmit_SingularRole() {
-    $(SINGULAR_ROLE).on('submit', (e) => {
-        e.preventDefault();
-        console.log("Singular Role Submitted");
-
-        let finalArray = [];
-
-        var results = serialize(SINGULAR_ROLE); //$(SINGULAR_ROLE).serializeArray();
-        var array = {};
-        $.each(results, (i, field) => {
-            array[field.name] = field.value;
-        });
-        var role = lexer(array, $("#role_template").val());//;generateFormattedRole(array);
-
-
-        finalArray.push(role);
-        setFinalArray(finalArray);
-        //$(SINGULAR_RESULT).text(`${role}`);
-    });
-}
-
+/* Export Section Functions*/
 function createExportSection(title, id, content) {
     var result = $("<div />");
     var header = $("<span />");
@@ -228,6 +207,8 @@ function createExportSection(title, id, content) {
     result.append(textarea);
     return result;
 }
+
+// Function to process the role information and display them on screen.
 function setFinalArray(array) {
     $("#result-container").empty();
     var combined = "";
@@ -243,30 +224,37 @@ function setFinalArray(array) {
         $("#result-container").append(indiv[i]);
     }
 }
-function onSubmit_CSVRoles() {
-    $("#csv-role").on('submit', (e) => {
-        e.preventDefault();
-        var fileList = document.getElementById('csv-file').files[0];
-        Papa.parse(fileList, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(res) {
-                var roleText = "";
-                var roles = [];
-                for (var i = 0; i < res.data.length; i++) {
-                    var role = generateFormattedRole(res.data[i]);
-                    roles.push(role);
-                    roleText += role;
-                }
-                setFinalArray(roles);
 
-               // $(SINGULAR_RESULT).text(`${roleText}`);
+/* Submission Functions */
+function onSubmit_SingularRole(e) {
+    e.preventDefault();
+    var array = {};
+    $.each(serialize(SINGULAR_ROLE), (i, field) => {
+        array[field.name] = field.value;
+    });
+    processCSV([ generateFormattedRole(array) ]);
+}
+function onSubmit_CSVRoles(e) {
+    // Collect the CSV file and convert it to an array of Objects.
+    e.preventDefault();
+    var fileList = document.getElementById('csv-file').files[0];
+    Papa.parse(fileList, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+            var roleText = "";
+            var roles = [];
+            for (var i = 0; i < res.data.length; i++) {
+                var role = generateFormattedRole(res.data[i]);
+                roles.push(role);
+                roleText += role;
             }
-        });
+
+            processCSV(roles);
+        }
     });
 }
-
 function onSubmit_AddField() {
     var currentCustoms = 0;
     $(ADD_FIELD).click(() => {
@@ -308,6 +296,23 @@ function onSubmit_SendPM() {
     });
 }
 
+function processCSV(csv) {
+    var container = $("#result-container");
+    container.empty();
+    var comb = "";
+    var list = [];
+    for (var i = 0; i < csv.length; i++) {
+        var result = createExportSection(`Role #${i+1}`, i+1, csv[i]);
+        comb += csv[i];
+        list.push(result);
+    }
+    container.append(createExportSection("All Roles", "all_roles", comb));
+    for (var i = 0; i < list.length; i++) {
+        container.append(list[i]);
+    }
+}
+
+/* Lexer / Parser */
 function generateFormattedRole(roleArray) {
 
     var roleArrayTmp = roleArray;
@@ -324,7 +329,6 @@ function generateFormattedRole(roleArray) {
     //var result = `[area=${roleArray.align} ${roleArray.rname}][b][color=${roleArray.rcolour}]${roleArray.align} ${roleArray.rname}[/color][/b]\n[/area]`;
     return template;
 }
-
 function generateForumPM(website, users, subject, message) {
     var link = "";
 

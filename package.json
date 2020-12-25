@@ -4,8 +4,7 @@
   "description": "A collection of tools to help with Forum Mafia games.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "author": "Jack Nash",
   "license": "MIT",

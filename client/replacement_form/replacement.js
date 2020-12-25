@@ -1,19 +1,15 @@
-const request = require("request");
-
-var io = io();
-
+var io = io("http://localhost:2000");//io("https://fmhelp.herokuapp.com/");
 var departingPlayer;
 
 function requestPageScrape(link) {
-    io.emit('mafiacsum-page', link);
+    io.emit('scrape-send', {type: "mafiascum", link: link});
 }
-io.on('mafiascum-page', (data) => {
+io.on('scrape-send', (data) => {
     var data = data;
-});
-
-
+    $("#result").text(`Thread Title: ${data.header}\nGame Moderator: ${data.author}\nPage Length: ${data.pageCount}`);
+});    
 $(document).ready(() => {
-    $(form).submit((e) => {
+    $("#replacement").submit((e) => {
         e.preventDefault();
         var serial = serialize($("#fieldForm"));              
         var array = serialToObject(serial);
