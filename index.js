@@ -10,8 +10,8 @@ const screenScrape = require('./server/screenScraper');
 
 // Setting Routes
 app.get("/", (req, res) => { res.sendFile(`${__dirname}/client/index.html`); });
-app.get("/rolecards", (req, res) => { res.sendFile(`${__dirname}/client/role_card_generator/rolecards.html`) });
-app.get("/replacements", (req, res) => { res.sendFile(`${__dirname}/client/replacement_form/replacement.html`) });
+app.get("/rolecard", (req, res) => { res.sendFile(`${__dirname}/client/role_card_generator/rolecards.html`) });
+app.get("/replacement", (req, res) => { res.sendFile(`${__dirname}/client/replacement_form/replacement.html`) });
 app.use('/', express.static(__dirname + `/client`));
 
 // Setting port and running server.
@@ -30,7 +30,6 @@ io.sockets.on('connection', (socket) => {
     socket.emit('connected', false);
 
     socket.on('scrape-send', (data) => {
-
         var type = data.type;
         var link = data.link
         request(link, (error, response, html) => {
@@ -38,9 +37,7 @@ io.sockets.on('connection', (socket) => {
                 console.log("Entry");
 
                 var results = {};
-
                 const $ = cheerio.load(html);
-        
                 var header = $("h2").text();
                 var pageNum = parseInt($("#jumpto1").val());
                 var nextLink = $(".right-box.right").attr("href");

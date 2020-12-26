@@ -4,6 +4,7 @@ var departingPlayer;
 function requestPageScrape(link) {
     io.emit('scrape-send', {type: "mafiascum", link: link});
 }
+io.on("connect", (data) => console.log("Connected"));
 io.on('scrape-send', (data) => {
     var data = data;
     var result = "";
