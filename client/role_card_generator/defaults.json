@@ -1,0 +1,16 @@
+{
+    "fields": [
+        { "name": "Role Name", "handle": "rname" },
+        { "name": "Alignment", "handle": "align" },
+        { "name": "Sub-Alignment", "handle": "salign" },
+        { "name": "Role Colour", "handle": "rcolour" },
+        { "name": "Abilities", "handle": "abilities" },
+        { "name": "Win Condition", "handle": "wincon" }
+    ],
+    "template": "[quote][b][size=200][color={{rcolour}}]{{align}} {{rname}}[/color][/size][/b]\n\n{{abilities}}\n\n{{wincon}}[/quote]",
+    "global": {
+        "wincon_mafia": "You win when at least one Mafia is alive and all threats to the Mafia are eliminated or when nothing can stop that from happening",
+        "wincon_town": "You win when all threats to the Town are eliminated and at least one member of the Town is alive.",
+        "confirm": "Confirm your role via replying with your role name, alignment and any abilities you have."
+    }
+}

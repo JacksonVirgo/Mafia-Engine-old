@@ -1,74 +1,80 @@
-// var io = io();
-// io.emit('mafiascum-page', "https://forum.mafiascum.net/viewtopic.php?f=50&t=84085");
-// io.on('mafiascum-page', (data) => {
-//     console.log(data);
-//     $("#test-data").text(`Thread Title: ${data.header}\nCurrent Page: ${data.currentPage}\nTotal Pages: ${data.pageCount}`);
-// });
+var io = io("http://localhost:2000");//io("https://fmhelp.herokuapp.com/");
 
-SINGULAR_ROLE = "#singular-role";
-SINGULAR_RESULT = "#singular-result";
-SINGULAR_RESULT_COPY = "#singular-result-copy";
-ROLE_COLOUR = "#rcolour";
-ADD_FIELD = "#add-field";
-
-/* Singular Specific */
-GENERATE_BTN_SINGULAR = "#generate-btn-singular";
-
-// Send as PM Form
-SEND_AS_PM = "#send-as-pm";
+// JQuery Handles
+const JQUERY_FIELDS = {
+    FORM: {
+        SINGULAR: "#singular-role",
+        CSV: "#csv-role",
+        RAND: "#randingForm"
+    },
+    SUBMIT: {
+        SINGULAR: "#generate-btn-singular",
+        SEND_PM: "#send-as-pm",
+        ADD_FIELD: "#add-field"
+    },
+    TEMPLATE: "#role_template"
+}
 
 // Singleton item for when Fields are being editied.
-var currentModalFocus = undefined;
-var modalFocusList = [];
-var modal = $("#fieldModal");
+const FIELD_SINGLETON = { focus: undefined, list: [], modal: $("#fieldModal") };
+const FIELD_TEMPLATES = { list: [] };
+const DEFAULTS = { template: "" };
+var ROLE_LIST = null;
 
-// Individual Exports
-var currentExports = [];
-
+// #region JQuery Initialization
 $(document).ready(() => {
-    console.log("JQuery Initialized");
-
+    let { FORM, SUBMIT, TEMPLATE } = JQUERY_FIELDS;
     initFieldModal();
-    $("#csv-role").on('submit', (e) => onSubmit_CSVRoles(e));
-    $(SINGULAR_ROLE).on('submit', (e) => onSubmit_SingularRole(e));
-    onSubmit_AddField();
-    onSubmit_CopyResults();
-    onSubmit_SendPM();
+    $(FORM.CSV).on('submit', (e) => onSubmit_CSVRoles(e));
+    $(FORM.SINGULAR).on('submit', (e) => onSubmit_SingularRole(e));
+    $(FORM.RAND).on('submit', (e) => onSubmit_Rand(e));
+    $(SUBMIT.ADD_FIELD).click((e) => onSubmit_AddField(e));
+    $(SUBMIT.SEND_PM).on('submit', (e) => onSubmit_SendPM(e));
 
+    $.getJSON("./role_card_generator/defaults.json", (json) => {
+        var fields = json.fields;
+        var global = json.global;
+        for (var i = 0; i < fields.length; i++) {
+            $(FORM.SINGULAR).append(createSingularField(fields[i].name, fields[i].handle)).append($(SUBMIT.SINGULAR));
+        }
+        DEFAULTS.template = json.template;
+        $(JQUERY_FIELDS.TEMPLATE).text(DEFAULTS.template);
 
-    var rname = createSingularField("Role Name", "rname");
-    var align = createSingularField("Alignment", "align");
-    var salign = createSingularField("Sub-Alignment", "salign");
-    var rcolour = createSingularField("Role Colour", "rcolour");
-    var abilities = createSingularField("Abilities", "abilities");
-    var wincon = createSingularField("Win Condition", "wincon");
-    $(SINGULAR_ROLE).append(rname).append(align).append(salign).append(rcolour).append(abilities).append(wincon).append($(GENERATE_BTN_SINGULAR));
+        for (const property in global) {
+            newDefaultRow(property, global[property]);
+        }
+    });
 });
 
-/* Custom Singular Fields*/
+// #endregion
+
+/**
+ * Initialises the popup Modal for editing Custom Fields 
+ * within the Singular Role formatter.
+ */
 function initFieldModal() {
+    let { modal, focus } = FIELD_SINGLETON;
+    FIELD_TEMPLATES.textarea = $("#template_field_textarea");
+
     var close = $(".modal-close");
     close.on("click", (e) => {
         modal.css("display", "none");
     });
-
     $("#fieldForm").submit((e) => {
         e.preventDefault();
         var serial = serialize($("#fieldForm"));              
         var array = serialToObject(serial);
-                
-        var label = currentModalFocus.children("label");
-        var input = currentModalFocus.children(".field-input");
+        var input = focus.children(".field-input");
 
-        currentModalFocus.children("label").text(array.field_name);
-        currentModalFocus.children("label").attr("for", array.field_handle);
+        focus.children("label").text(array.field_name);
+        focus.children("label").attr("for", array.field_handle);
 
-        currentModalFocus.children(".field-input").attr("id", array.field_handle);
-        currentModalFocus.children(".field-input").attr("name", array.field_handle);
+        focus.children(".field-input").attr("id", array.field_handle);
+        focus.children(".field-input").attr("name", array.field_handle);
 
         // Check type has changed and if so, change it.
-        var nodeName = currentModalFocus.children(".field-input").prop('nodeName');
-        var nodeType = currentModalFocus.children(".field-input").attr("type");
+        var nodeName = focus.children(".field-input").prop('nodeName');
+        var nodeType = focus.children(".field-input").attr("type");
 
         console.log(nodeType);
         if (array.field_type === "txtfield") {
@@ -96,17 +102,15 @@ function initFieldModal() {
 
     $("#singular-create-field").click(() =>{
         var field = createSingularField_Empty();
-        $(SINGULAR_ROLE).append(field).append($(GENERATE_BTN_SINGULAR));
+        $(JQUERY_FIELDS.FORM.SINGULAR).append(field).append($(JQUERY_FIELDS.SUBMIT.SINGULAR));
     });
-/*     var field = createSingularField();
-    $(SINGULAR_ROLE).append(field);*/
 }
-function editSingularField(focus) {
-    currentModalFocus = modalFocusList[focus];
-    modalForm = $("#fieldForm");
+function editSingularField(newFocus) {
+    var { focus, list, modal } = FIELD_SINGLETON;
+    focus = list[newFocus];
 
-    var label = currentModalFocus.children("label");
-    var input = currentModalFocus.children(".field-input");
+    var label = focus.children("label");
+    var input = focus.children(".field-input");
 
     var nodeName = input.prop("nodeName");
     var nodeType = input.attr("type");
@@ -127,10 +131,15 @@ function editSingularField(focus) {
     $("#field_name").attr("value", name);
     $("#field_handle").attr("value", handle);
     $("#field_type").val(type).attr("selected", "selected");
+
+    $("#field_type").change(() => {
+        console.log($(this).val());
+    })
+
     modal.css("display", "block");
 }
 
-/* Singular Role Functions */
+//#region Singular Role
 function createSingularField_Empty() {
     const DEFAULT_NAME = "New Field";
     const DEFAULT_ID = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
@@ -156,7 +165,7 @@ function createSingularField(name, id) {
     button.attr("type", "button");
     button.attr("value", "Edit");
 
-    modalFocusList[id] = field;
+    FIELD_SINGLETON.list[id] = field;
     
     button.click((e) => {
         editSingularField(id);
@@ -166,6 +175,10 @@ function createSingularField(name, id) {
     return field;
 }
 
+//#endregion
+
+//#region Export Functions
+
 /* Export Section Functions*/
 function createExportSection(title, id, content) {
     var result = $("<div />");
@@ -173,20 +186,25 @@ function createExportSection(title, id, content) {
     var textarea = $("<textarea />");
     var revealBtn = $("<button />");
     var sendBtn = $("<button />");
+    var copyBtn = $("<button />");
+
+    function getResult(target) {
+        return $(`#${target.target.id}`).parent().parent().children(".resultArea");
+    }
 
     header.text(`${title}`);
     result.addClass("exportSectionDiv");
     revealBtn.attr("id", `btnReveal_${id}`);
     revealBtn.text("Reveal/Hide");
     revealBtn.bind("click", (e) => {
-        var ltextarea = $(`#${e.target.id}`).parent().parent().children(".resultArea");
+        var ltextarea = getResult(e);
         ltextarea.css("display", ((ltextarea.css("display") === "block") ? "none" : "block"));
     });
     
     sendBtn.text("Send as PM");
     sendBtn.attr("id", `btnSend_${id}`);
     sendBtn.bind("click", (e) => {
-        var ltextarea = $(`#${e.target.id}`).parent().parent().children(".resultArea");
+        var ltextarea = getResult(e);
 
         var subj = $("#subj").val();
         var play = $("#username").text();
@@ -198,44 +216,112 @@ function createExportSection(title, id, content) {
         openTab(e, "forum");
     });
 
+    copyBtn.text("Copy");
+    copyBtn.attr("id", `btnCopy_${id}`);
+    copyBtn.bind("click", (e) => {
+        var ltextarea = getResult(e);
+        clipboardCopy(ltextarea.text());
+    });
     textarea.text(content);
     textarea.addClass("resultArea");
 
     result.append(header);
     header.append(revealBtn);
     header.append(sendBtn);
+    header.append(copyBtn);
     result.append(textarea);
     return result;
 }
 
-// Function to process the role information and display them on screen.
-function setFinalArray(array) {
-    $("#result-container").empty();
-    var combined = "";
-    var indiv = [];
-    for (var i = 0; i < array.length; i++) {
-        var result = createExportSection(`Role #${i+1}`, i+1, array[i]);    
-        indiv.push(result);
-        combined += array[i];   
+function createRandExport(title, id, content) {
+    var result = $("<div />"); 
+    var header = $("<span />");
+    var textarea = $("<textarea />");
+    var revealBtn = $("<button />");
+    var sendBtn = $("<button />");
+    var copyBtn = $("<button />");
+
+    function getResult(target) {
+        return $(`#${target.target.id}`).parent().parent().children(".resultArea");
     }
-    var combinedObj = createExportSection("All Roles", "all_roles", combined);
-    $("#result-container").append(combinedObj);
-    for (var i = 0; i < indiv.length; i++) {
-        $("#result-container").append(indiv[i]);
-    }
+
+    header.text(`${title}`);
+    result.addClass("exportSectionDiv");
+    revealBtn.attr("id", `btnReveal_${id}`);
+    revealBtn.text("Reveal/Hide");
+    revealBtn.bind("click", (e) => {
+        var ltextarea = getResult(e);
+        ltextarea.css("display", ((ltextarea.css("display") === "block") ? "none" : "block"));
+    });
+    
+    sendBtn.text("Send as PM");
+    sendBtn.attr("id", `btnSend_${id}`);
+    sendBtn.bind("click", (e) => {
+        var ltextarea = getResult(e);
+
+        var subj = $("#subj").val();
+        var play = $("#username").text();
+
+        $("#send-as-pm").trigger("reset");
+        $("#subj").val(subj);
+        $("#username").text(title);
+        $("#content").text(ltextarea.text());
+        openTab(e, "forum");
+    });
+
+    copyBtn.text("Copy");
+    copyBtn.attr("id", `btnCopy_${id}`);
+    copyBtn.bind("click", (e) => {
+        var ltextarea = getResult(e);
+        clipboardCopy(ltextarea.text());
+    });
+    textarea.text(content);
+    textarea.addClass("resultArea");
+
+    result.append(header);
+    header.append(revealBtn);
+    header.append(sendBtn);
+    header.append(copyBtn);
+    result.append(textarea);
+    return result;
 }
 
+//#endregion
+
+//#region Defaults Functions
+function newDefaultRow(handle, content) {
+    let row = $("<tr />");
+    let handCell = $("<td />");
+    let contCell = $("<td />");
+
+    handCell.attr("contentEditable","true");
+    contCell.attr("contentEditable","true");
+    handCell.text(handle);
+    contCell.text(content);
+    row.append(handCell).append(contCell);
+    $("#default-table > tbody").append(row);
+}
+function newDefaultRowBlank() {
+    newDefaultRow("New Handle", "New Content");
+}
+//#endregion
+
+//#region Submission Functions
 /* Submission Functions */
 function onSubmit_SingularRole(e) {
     e.preventDefault();
     var array = {};
-    $.each(serialize(SINGULAR_ROLE), (i, field) => {
+    $.each(serialize($(JQUERY_FIELDS.FORM.SINGULAR)), (i, field) => {
         array[field.name] = field.value;
     });
-    processCSV([ generateFormattedRole(array) ]);
+    parseRoles([array]);
 }
+
+/**
+ * 
+ * @param {*} e Event Value
+ */
 function onSubmit_CSVRoles(e) {
-    // Collect the CSV file and convert it to an array of Objects.
     e.preventDefault();
     var fileList = document.getElementById('csv-file').files[0];
     Papa.parse(fileList, {
@@ -243,60 +329,82 @@ function onSubmit_CSVRoles(e) {
         header: true,
         skipEmptyLines: true,
         complete: function(res) {
-            var roleText = "";
             var roles = [];
-            for (var i = 0; i < res.data.length; i++) {
-                var role = generateFormattedRole(res.data[i]);
-                roles.push(role);
-                roleText += role;
+            for (const data of res.data) {
+                roles.push(data);
             }
-
-            processCSV(roles);
+            parseRoles(roles);
         }
     });
 }
-function onSubmit_AddField() {
+
+function onSubmit_Rand(e) {
+    e.preventDefault();
+    let array = serialToObject(JQUERY_FIELDS.FORM.RAND);
+    io.emit("rand", {
+        players: array["playerList"],
+        list: ROLE_LIST
+    });
+}
+
+
+/**
+ * Request the server to format roles, sanitises information to be sent
+ * efficiently in one package.
+ * @param {*} roles Object of values for the roles.
+ */
+function parseRoles(roleList) {
+    io.emit("parse-card", {chunk: $("#role_template").val(), globals: getObjectFromGlobals(), list: roleList});
+}
+
+function getObjectFromGlobals() {
+    let table = $("#default-table > tbody tr:has(td)").map(function(i, v) {
+        var $td = $('td', this);
+        return {
+            id: ++i,
+            handle: $td.eq(0).text(),
+            content: $td.eq(1).text()
+        }
+    }).get();
+    console.log(table);
+    return table;
+}
+
+function onSubmit_AddField(e) {
     var currentCustoms = 0;
-    $(ADD_FIELD).click(() => {
-        var label = $("<label/>")
-        var component = $("<input/>");
+    var label = $("<label/>")
+    var component = $("<input/>");
+    var id = `custom${currentCustoms}`;
+    component.attr("id", id);
+    component.attr("name", id);
+    label.attr("for", id);
+    label.text(id);
 
-        var id = `custom${currentCustoms}`;
-        component.attr("id", id);
-        component.attr("name", id);
-        label.attr("for", id);
-        label.text(id);
-
-        currentCustoms += 1;
-
-        // Move the role template down
-        $(SINGULAR_ROLE).append(label).append(component).append($("#template-lbl")).append($("#role_template")).append($(GENERATE_BTN_SINGULAR));
-    });
+    currentCustoms += 1;
+    // Move the role template down
+    $(JQUERY_FIELDS.FORM.SINGULAR).append(label).append(component).append($("#template-lbl")).append($("#role_template")).append($(JQUERY_FIELDS.FORM.SINGULAR));
 }
-function onSubmit_CopyResults() {
-    $(SINGULAR_RESULT_COPY).click(() => {
-        clipboardCopy($(SINGULAR_RESULT).text());
+function onSubmit_SendPM(e) {
+    e.preventDefault();
+    var results = serialize($(JQUERY_FIELDS.SUBMIT.SEND_PM));
+    var array = {};
+    $.each(results, (i, field) => {
+        array[field.name] = field.value;
     });
-}
-function onSubmit_SendPM() {
-    $(SEND_AS_PM).on('submit', (e) => {
-        e.preventDefault();
-        var results = serialize(SEND_AS_PM);
-        var array = {};
-        $.each(results, (i, field) => {
-            array[field.name] = field.value;
-        });
 
-        var usernames = array["username"];
-        var userArray = usernames.split("\n");
+    var usernames = array["username"];
+    var users = usernames.split("\n");
 
-        var link = generateForumPM(array.forum, userArray, array.subj, array.content);
-        console.log(link);
-        openInNewTab(link);
-    });
+    var link = generateForumPM(array.forum, users, array.subj, array.content);
+    openInNewTab(link);
 }
 
-function processCSV(csv) {
+/**
+ * 
+ * @param {*} csv Object containing a list of finalized role-cards.
+ */
+function processFinalizedRoleCards(csv, isRand = false) {
+    ROLE_LIST = csv;
     var container = $("#result-container");
     container.empty();
     var comb = "";
@@ -306,29 +414,34 @@ function processCSV(csv) {
         comb += csv[i];
         list.push(result);
     }
-    container.append(createExportSection("All Roles", "all_roles", comb));
+    if (csv.length > 1) container.append(createExportSection("All Roles", "all_roles", comb));
     for (var i = 0; i < list.length; i++) {
         container.append(list[i]);
     }
 }
-
-/* Lexer / Parser */
-function generateFormattedRole(roleArray) {
-
-    var roleArrayTmp = roleArray;
-    var template = $("#role_template").val();
-    var namesArray = [];
-    for (var property in roleArrayTmp) {
-        namesArray.push(property);
+function processRandedRoleCards(list) {
+    var container = $("#result-container");
+    container.empty();
+    var flist = [];
+    for (var i = 0; i < list.length; i++) {
+        var result = createRandExport(list[i].player, i+1, list[i].role);
+        console.log("F");
+        flist.push(result);
     }
-
-    for (var i = 0; i < namesArray.length; i++) {
-        template = template.replaceAll(`{{${namesArray[i]}}}`, roleArray[namesArray[i]]);
+    for (var i = 0; i < flist.length; i++) {
+        container.append(flist[i]);
     }
-
-    //var result = `[area=${roleArray.align} ${roleArray.rname}][b][color=${roleArray.rcolour}]${roleArray.align} ${roleArray.rname}[/color][/b]\n[/area]`;
-    return template;
 }
+//#endregion
+
+/**
+ * Creates a link directly to send a private message to users, only works on already
+ * accepted websites. Currently Town of Salem and Mafia Scum
+ * @param {string} website Website type, interpreted as null if unknown or blank. 
+ * @param {*} users Array of usernames to send to.
+ * @param {*} subject Subject of private message.
+ * @param {*} message Content of private message.
+ */
 function generateForumPM(website, users, subject, message) {
     var link = "";
 
@@ -337,15 +450,109 @@ function generateForumPM(website, users, subject, message) {
         recipient += users[i];
         if (!(i < users.length)) recipient += ",";
     }
-    if (recipient === "") recipient = "Trash Can";
 
+    recipient = (recipient === "") ? "Trash Can" : recipient;
     var cleanedRecipient = encodeURIComponent(recipient);
     var cleanedSubject = encodeURIComponent(subject);
     var cleanedMessage = encodeURIComponent(message);
-    if (website === "tos") {
-        link = `https://www.blankmediagames.com/phpbb/ucp.php?i=pm&mode=compose&username_list=${cleanedRecipient}&subject=${cleanedSubject}&message=${cleanedMessage}`;
-    } else if (website === "ms") {
-        link = `https://forum.mafiascum.net/ucp.php?i=pm&mode=compose&username_list=${cleanedRecipient}&subject=${cleanedSubject}&message=${cleanedMessage}`;
+    
+    switch (website) {
+        case "tos":
+            link = `https://www.blankmediagames.com/phpbb/ucp.php?i=pm&mode=compose&username_list=${cleanedRecipient}&subject=${cleanedSubject}&message=${cleanedMessage}`;
+            break;
+        case "ms":
+            link = `https://forum.mafiascum.net/ucp.php?i=pm&mode=compose&username_list=${cleanedRecipient}&subject=${cleanedSubject}&message=${cleanedMessage}`;
+            break;
     }
     return link;
+}
+
+
+io.on('parse-card', (data) => {
+    processFinalizedRoleCards(data.list);
+});
+io.on('rand', ({ rand }) => {
+    processRandedRoleCards(rand);
+})
+
+function openTab(evt, page) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(page).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+function serialToObject(sel) {
+    let result = serialize(sel);
+    let array = {};
+    $.each(result, (i, field) => {
+        array[field.name] = field.value;
+    });
+    return array;   
+}
+
+/* Serialize a HTML Form Completely */
+function serialize(sel) {
+    var arr, tmp, i, $nodes = $(sel);
+     $nodes = $nodes.map(function(ndx){
+       var $n = $(this);
+ 
+       if($n.is('form'))
+          return $n.find('input, select, textarea').get(); 
+       return this;
+     });
+    $nodes.each(function(ndx, el){
+       if ((el.nodeName.toUpperCase() == 'INPUT') && ((el.type.toUpperCase() == 'CHECKBOX') || (el.type.toUpperCase() == 'RADIO'))){
+          if((el.value === undefined) || (el.value == ''))
+             el.value = 1;
+       }
+    });
+     arr = $nodes.serializeArray();
+    tmp = [];
+    for(i = 0; i < arr.length; i++)
+       tmp.push(arr[i].name);
+      $nodes.filter('input[type="checkbox"]:not(:checked)').each(function(){
+       if(tmp.indexOf(this.name) < 0){
+          arr.push({name: this.name, value: ''});
+       }
+     });
+ 
+    return arr;
+ }
+
+function setCookie(cname, cvalue, exdays) {
+    var expires = "";
+    if (exdays !== undefined && exdays !== null) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        expires = "expires=" + d.toUTCString();
+    }
+    var cookie = `${cname}=${cvalue};`;
+    if (expires !== "") {
+        cookie += `${expires};`
+    }
+    cookie += `path=/`;
+    document.cookie = cookie;
+}
+
+function getCookie(cname) {
+    var name = `${cname}=`;
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 }

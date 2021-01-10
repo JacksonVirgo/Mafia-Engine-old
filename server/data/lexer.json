@@ -1,0 +1,10 @@
+{
+    "bracket": "```",
+    "splitter": ":",
+    "operators": {
+        "equals": "=",
+        "not": "!=",
+        "and": "&&",
+        "or": "||"
+    }
+}

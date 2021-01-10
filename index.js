@@ -7,6 +7,8 @@ const cheerio = require("cheerio");
 // Custom Dependencies
 const CONFIG = require('./config.json');
 const screenScrape = require('./server/screenScraper');
+const roleCards = require('./server/role_cards/role_cards_core');
+const Rand = require('./server/randing/randing_core');
 
 // Setting Routes
 app.get("/", (req, res) => { res.sendFile(`${__dirname}/client/index.html`); });
@@ -26,16 +28,31 @@ const io = require(`socket.io`)(server, {
     }
 });
 io.sockets.on('connection', (socket) => {
-    console.log("Connection Occurred");
     socket.emit('connected', false);
+    
+    // Role Cards
+    socket.on('parse-card', (data) => {
+        let { chunk, globals, list } = data;
+        let processed = [];
+        for (const value of list) {
+            processed.push(roleCards.lexer.parse({chunk, globals, value}));
+        }
+        socket.emit('parse-card', {list: processed});
+    });
 
+    // Randing
+    socket.on('rand', (data) => {
+        let { list, players } = data;
+        let randedArray = Rand.rand(players, list);
+        socket.emit('rand', { rand: randedArray });
+    });
+
+    // Replacement Form
     socket.on('scrape-send', (data) => {
         var type = data.type;
         var link = data.link
         request(link, (error, response, html) => {
             if (!error && response.statusCode == 200) {
-                console.log("Entry");
-
                 var results = {};
                 const $ = cheerio.load(html);
                 var header = $("h2").text();
@@ -48,14 +65,9 @@ io.sockets.on('connection', (socket) => {
                 results.author = firstPosterList;
                 results.currentPage = pageNum;
                 results.pageCount = lastPage;
-
-                console.log(results);
-
                 socket.emit("scrape-send", results);
-                console.log("Exit");
             }
             else {
-                console.log("Failed");
             }
         });
     })

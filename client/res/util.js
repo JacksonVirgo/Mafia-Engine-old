@@ -55,13 +55,19 @@ function serialToObject(serial) {
     return array;
 }
 
-/* Open URL in a New Tab */
+/**
+ * Opens link in a seperate tab.
+ * @param {*} url URL to open
+ */
 function openInNewTab(url) {
     var win = window.open(url, '_blank');
     win.focus();
 }
 
-/* Copy a value to the Clipboard */
+/**
+ * Copy text to the clipboard.
+ * @param {*} text Text to copy
+ */
 function clipboardCopy(text) {
     var tmp = document.createElement("textarea");
     document.body.appendChild(tmp);
