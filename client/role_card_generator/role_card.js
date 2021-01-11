@@ -466,13 +466,16 @@ function processFinalizedRoleCards(csv, isRand = false) {
     }
 }
 function processRandedRoleCards(list) {
-    var container = $("#result-container");
+    let container = $("#result-container");
     container.empty();
-    var flist = [];
+    let flist = [];
+    let combined = "";
     for (var i = 0; i < list.length; i++) {
         var result = createRandExport(list[i].player, i+1, list[i].role);
+        combined += list[i].role;
         flist.push(result);
     }
+    if (list.length > 1) container.append(createExportSection("All Roles", "all_roles", combined));
     for (var i = 0; i < flist.length; i++) {
         container.append(flist[i]);
     }
