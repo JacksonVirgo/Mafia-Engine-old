@@ -15,6 +15,7 @@
                 <button class="tablinks" onclick="openTab(event, 'forum')">Send To Forums</button>
                 <button class="tablinks" onclick="openTab(event, 'defaults')">Defaults</button>
                 <button class="tablinks" onclick="openTab(event, 'randing')">Randing</button>
+                <button class="tablinks" onclick="openTab(event, 'saveload')">Save/Load</button>
             </div>
             <div id="singular" class="tabcontent">   
                 <form id="singular-role" autocomplete="off">
@@ -82,6 +83,20 @@
                     <input type='submit' value="Send PM">
                 </form>
             </dv>
+            <div id="saveload" class="tabcontent">
+                <form id="saveForm">
+                    <div class="form-component">
+                        <input type="submit" value="Save To File">
+                    </div>
+                </form>
+                <form id="loadForm">
+                    <div class="form-component">
+                        <label for="loadFile">Upload a CSV formatted file:</label>
+                        <input type="file" id="loadFile" accept=".json">
+                        <input type="submit" value="Load From File">
+                    </div>
+                </form>
+            </div>   
         </div>
         <div class="block export">
             <label for="role_template" id="template-lbl">Role Template.</label>

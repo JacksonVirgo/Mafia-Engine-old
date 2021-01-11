@@ -1,3 +1,4 @@
+
 var io = io("http://localhost:2000");//io("https://fmhelp.herokuapp.com/");
 
 // JQuery Handles
@@ -5,13 +6,18 @@ const JQUERY_FIELDS = {
     FORM: {
         SINGULAR: "#singular-role",
         CSV: "#csv-role",
-        RAND: "#randingForm"
+        RAND: "#randingForm",
+        SAVE: "#saveForm",
+        LOAD: "#loadForm"
     },
     SUBMIT: {
         SINGULAR: "#generate-btn-singular",
         SEND_PM: "#send-as-pm",
         ADD_FIELD: "#add-field"
     },
+    MISC: {
+        GLOBALS: "#default-table"
+    },  
     TEMPLATE: "#role_template"
 }
 
@@ -30,7 +36,9 @@ $(document).ready(() => {
     $(FORM.RAND).on('submit', (e) => onSubmit_Rand(e));
     $(SUBMIT.ADD_FIELD).click((e) => onSubmit_AddField(e));
     $(SUBMIT.SEND_PM).on('submit', (e) => onSubmit_SendPM(e));
-
+    $(FORM.SAVE).on('submit', (e) => onSubmit_Save(e));
+    $(FORM.LOAD).on('submit', (e) => onSubmit_Load(e));
+    
     $.getJSON("./role_card_generator/defaults.json", (json) => {
         var fields = json.fields;
         var global = json.global;
@@ -293,16 +301,23 @@ function newDefaultRow(handle, content) {
     let row = $("<tr />");
     let handCell = $("<td />");
     let contCell = $("<td />");
+    // let delCell = $("<td />");
 
     handCell.attr("contentEditable","true");
     contCell.attr("contentEditable","true");
     handCell.text(handle);
     contCell.text(content);
-    row.append(handCell).append(contCell);
+    // delCell.text("X");
+    // delCell.addClass("deleteTD");
+    // delCell.click(() => {
+    //     row.empty();
+    //     row.remove();
+    // })
+    row.append(handCell).append(contCell);//.append(delCell);
     $("#default-table > tbody").append(row);
 }
 function newDefaultRowBlank() {
-    newDefaultRow("New Handle", "New Content");
+    newDefaultRow("handle", "New Content");
 }
 //#endregion
 
@@ -366,7 +381,6 @@ function getObjectFromGlobals() {
             content: $td.eq(1).text()
         }
     }).get();
-    console.log(table);
     return table;
 }
 
@@ -398,6 +412,38 @@ function onSubmit_SendPM(e) {
     var link = generateForumPM(array.forum, users, array.subj, array.content);
     openInNewTab(link);
 }
+function onSubmit_Save(e) {
+    e.preventDefault();
+    let template = $(JQUERY_FIELDS.TEMPLATE).val();
+    let globals = getObjectFromGlobals();
+
+    download({template: template, globals: globals}, "save.json", "text/plain");
+}
+function onSubmit_Load(e) {
+    e.preventDefault();
+    let result = null;
+    let file = document.getElementById('loadFile').files[0];
+    let reader = new FileReader();
+    reader.readAsText(file, 'UTF-8');
+    reader.onload = (evt) => {
+        result = JSON.parse(evt.target.result);
+        $(JQUERY_FIELDS.TEMPLATE).val(result.template);
+
+        let tbody = $(`${JQUERY_FIELDS.MISC.GLOBALS} > tbody`);
+        tbody.empty();
+        for (let i = 0; i < result.globals.length; i++) {
+            newDefaultRow(result.globals[i].handle, result.globals[i].content);
+        }
+    }
+}
+
+function download(content, fileName, contentType) {
+    let a = document.createElement("a");
+    let file = new Blob([JSON.stringify(content)], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+}
 
 /**
  * 
@@ -425,7 +471,6 @@ function processRandedRoleCards(list) {
     var flist = [];
     for (var i = 0; i < list.length; i++) {
         var result = createRandExport(list[i].player, i+1, list[i].role);
-        console.log("F");
         flist.push(result);
     }
     for (var i = 0; i < flist.length; i++) {

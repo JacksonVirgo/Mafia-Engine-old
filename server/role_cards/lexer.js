@@ -7,7 +7,7 @@ class Lexer {
         result = this.parseBoolean(result, value)
         for (const handle in value) {
             for (const global of globals) {
-                result = result.split(`{{${global}}}`).join(globals[global]);
+                result = result.split(`{{${global.handle}}}`).join(global.content);
                 value[handle] = value[handle].split(`{{${global.handle}}}`).join(global.content);
             }
             result = result.split(`{{${handle}}}`).join(value[handle]);

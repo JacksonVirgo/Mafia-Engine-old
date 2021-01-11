@@ -3,7 +3,7 @@ const app = express();
 const server = require('http').Server(app);
 const request = require("request");
 const cheerio = require("cheerio");
-
+const fs = require('fs');
 // Custom Dependencies
 const CONFIG = require('./config.json');
 const screenScrape = require('./server/screenScraper');

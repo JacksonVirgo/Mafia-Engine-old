@@ -13,8 +13,11 @@ function findIndexesInString(source, target) {
     }
     return result;
 }
-
+function splitAt(value, index) {
+    return [value.slice(0, index), value.slice(index)];
+}
 
 module.exports = {
-    findIndexesInString: findIndexesInString
+    findIndexesInString: findIndexesInString,
+    splitAt: splitAt
 }
