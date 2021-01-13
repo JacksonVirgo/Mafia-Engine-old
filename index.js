@@ -29,6 +29,9 @@ const io = require(`socket.io`)(server, {
 });
 io.sockets.on('connection', (socket) => {
     socket.emit('connected', false);
+
+    let string = "{{potato{{tomato}}potato}}";
+    roleCards.lexer.parse({chunk: string, globals: null, value: null})
     
     // Role Cards
     socket.on('parse-card', (data) => {

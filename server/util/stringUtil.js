@@ -1,23 +1,39 @@
 function findIndexesInString(source, target) {
+    scanStringForTokens(source, [target]);
+    return result;
+}
+function scanStringForTokens(source, tokenArray) {
     if (!source) return [];
-    if (!target) return source.split('').mao(function(_, i) { return i; });
+    if (!tokenArray) return source.split('').map((_, i) => { return i; });
     const result = [];
-    let i = 0;
-    while (i < source.length) {
-        if (source.substring(i, i+target.length) == target) {
-            result.push(i);
-            i+=target.length;
-        } else {
-            i += 1;
+    let index = 0;
+    while (index < source.length) {
+        let checked;
+        for (const token of tokenArray) {
+            if (source.substring(index, index + token.length) == token) {
+                result.push({index: index, token: token});
+                index += token.length;
+                checked = true;
+            } else {
+                checked = false;
+            }
         }
+        index += (!checked ? 1 : 0);
     }
     return result;
 }
+
+
 function splitAt(value, index) {
     return [value.slice(0, index), value.slice(index)];
+}
+function findReplace(source, target, value) {
+    return source.split(target).join(value);
 }
 
 module.exports = {
     findIndexesInString: findIndexesInString,
-    splitAt: splitAt
+    scanStringForTokens: scanStringForTokens,
+    splitAt: splitAt,
+    findReplace: findReplace
 }

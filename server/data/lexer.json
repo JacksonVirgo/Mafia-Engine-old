@@ -1,4 +1,8 @@
 {
+    "handle": {
+        "open": "{{",
+        "close": "}}"
+    },
     "bracket": "```",
     "splitter": ":",
     "operators": {
