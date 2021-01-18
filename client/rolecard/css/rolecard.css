@@ -13,13 +13,14 @@ main {
     padding: 10px;
     flex-grow: 1;
 }
-.export *  {
-    width: 100%;
-}
 .invisible {
     display: none!important;
 }
 
+
+#stencil * {
+    width: 100%;
+}
 /* Role Card Output */
 .exportSectionDiv {
     margin-bottom: 5px;

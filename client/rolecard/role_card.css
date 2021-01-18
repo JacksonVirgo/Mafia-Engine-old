@@ -13,9 +13,6 @@ main {
     padding: 10px;
     flex-grow: 1;
 }
-.export *  {
-    width: 100%;
-}
 .invisible {
     display: none!important;
 }

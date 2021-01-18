@@ -9,7 +9,7 @@
 </head>
 <body>
     <main>
-        <div class="block">
+        <div id='sectionContent' class="block">
             <div class="tab">
                 <button class="tablinks" onclick="openTab(event, 'singular')">Singular Role</button>
                 <button class="tablinks" onclick="openTab(event, 'csv')">CSV</button>
@@ -99,11 +99,29 @@
                 </form>
             </div>   
         </div>
-        <div class="block export">
-
-            <label for="roleTemplate" id="template-lbl">Role Template.</label>
-            <textarea id="roleTemplate"></textarea><br>
-            <div id="result-container"></div>
+        <div id="sectionExport" class="block export">
+            <div class="tab">
+                <button class="tablinks" onclick="openTab(event, 'stencil')">Role Stencil</button>
+                <button class="tablinks" onclick="openTab(event, 'export')">Export</button>
+                <button class="tablinks" onclick="openTab(event, 'rand')">Rand</button>
+            </div>
+            
+            <div id="stencil" class="tabcontent">  
+                <label for="roleTemplate" id="template-lbl">Role Stencil.</label>
+                <textarea id="roleTemplate"></textarea><br>
+            </div>
+            <div id="export" class="tabcontent">
+                <p>When you generate a role card (not rand), the results can be found here.
+                    It will automatically redirect to this page when you do so.
+                </p>
+                <div id="result-container"></div>
+            </div>
+            <div id="rand" class="tabcontent">
+                <p>When you rand a game, the results can be found here. It will automatically
+                    redirect you to this page when you do so.
+                </p>
+                <div id="result-container"></div>
+            </div>
         </div>
     </main>
 
@@ -127,19 +145,6 @@
             </form>
         </div>
     </div>
-
-    <!-- Template Objects -->
-    <div style="display: none;">
-        <div id="template_field_textarea">
-            <label>Text Area</label>
-            <input type='text'>
-        </div>
-        <div id="template_field_colour">
-            <label>Colour</label>
-            <input type='color' value="#ff0000">
-        </div>
-    </div>
-
     <script src="/res/socket.io.min.js"></script>
     <script src="/res/jquery-3.5.1.min.js"></script>
     <script src="/res/jquery.changeelementtype.js"></script>

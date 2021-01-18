@@ -543,18 +543,23 @@ function generateForumPM(website, users, subject, message) {
 
 /**
  * Sets focus on a specific tabbed content.
- * @param {*} evt 
- * @param {*} page 
+ * @param {*} evt JQuery Event
+ * @param {*} page ID of the page to focus
  */
 function openTab(evt, page) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
-      tabcontent[i].style.display = "none";
+        console.log(`${tabcontent[i].parentElement.id} - ${evt.currentTarget.parentElement.parentElement.id}`);
+        if (tabcontent[i].parentElement.id === evt.currentTarget.parentElement.parentElement.id) {
+            tabcontent[i].style.display = "none";
+        }
     }
     tablinks = document.getElementsByClassName("tablinks");
     for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
+        if (tablinks[i].parentElement.parentElement.id === evt.currentTarget.parentElement.parentElement.id) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
     }
     document.getElementById(page).style.display = "block";
     evt.currentTarget.className += " active";
