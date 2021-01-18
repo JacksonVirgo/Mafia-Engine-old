@@ -3,12 +3,19 @@
         "open": "{{",
         "close": "}}"
     },
-    "bracket": "```",
+    "bracket": {
+        "open": "[[",
+        "close": "]]"
+    },
     "splitter": ":",
     "operators": {
         "equals": "=",
         "not": "!=",
         "and": "&&",
         "or": "||"
+    },
+    "commands": {
+        "conditional": "CON",
+        "player": "PL"
     }
 }

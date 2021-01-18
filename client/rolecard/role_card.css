@@ -44,7 +44,7 @@ main {
     width: auto;
     margin-right: 5px;
 }
-#generate-btn-singular {
+#generateBtnSingular {
     margin-top: 10px;
 }
 
@@ -118,7 +118,7 @@ main {
 label {
     margin-top: 8px;
 }
-#singular-role {
+#singularRole {
     display: table;
     margin-bottom: 10px;
 }

@@ -12,5 +12,24 @@
         "wincon_mafia": "You win when at least one Mafia is alive and all threats to the Mafia are eliminated or when nothing can stop that from happening",
         "wincon_town": "You win when all threats to the Town are eliminated and at least one member of the Town is alive.",
         "confirm": "Confirm your role via replying with your role name, alignment and any abilities you have."
+    },
+    "jquery": {
+        "form": {
+            "singular": "#singularRole",
+            "csv": "#csvRole",
+            "rand": "#randingForm",
+            "save": "#saveForm",
+            "load": "#loadForm"
+        },
+        "submit": {
+            "singular": "#generateBtnSingular",
+            "sendPM": "#sendPm",
+            "addField": "#addField",
+            "newGlobalBtn": "#newGlobalBtn"
+        },
+        "misc": {
+            "globals": "#defaultTable"
+        },
+        "template": "#roleTemplate"
     }
 }

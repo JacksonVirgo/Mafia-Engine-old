@@ -10,7 +10,7 @@ io.on('scrape-send', (data) => {
     var result = "";
 
     // Get current date.
-    var today = new Date();
+    let day = new Date();
     result += `${String(today.getDate()).padStart(2, '0')} ${String(today.getMonth() + 1).padStart(2, '0')} ${data.header}\n[b]Moderator:[/b] ${data.author}[tab]3[/tab][b]Replacing:[/b] ${departingPlayer}`;
 
     console.log(result);

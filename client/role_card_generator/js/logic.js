@@ -1,55 +1,64 @@
+/* SocketIO */
+//#region 
+const serverLink = true ? "http://localhost:2000" : "https://fmhelp.herokuapp.com/";
+var io = io(serverLink);
+io.on('parse-card', (data) => {
+    processFinalizedRoleCards(data.list);
+});
+io.on('rand', (data) => {
+    processRandedRoleCards(data.rand);
+});
+//#endregion
 
-var io = io("http://localhost:2000");//io("https://fmhelp.herokuapp.com/");
 
-// JQuery Handles
-const JQUERY_FIELDS = {
-    FORM: {
-        SINGULAR: "#singular-role",
-        CSV: "#csv-role",
-        RAND: "#randingForm",
-        SAVE: "#saveForm",
-        LOAD: "#loadForm"
-    },
-    SUBMIT: {
-        SINGULAR: "#generate-btn-singular",
-        SEND_PM: "#send-as-pm",
-        ADD_FIELD: "#add-field"
-    },
-    MISC: {
-        GLOBALS: "#default-table"
-    },  
-    TEMPLATE: "#role_template"
-}
-
+/* JQuery*/
 // Singleton item for when Fields are being editied.
 const FIELD_SINGLETON = { focus: undefined, list: [], modal: $("#fieldModal") };
 const FIELD_TEMPLATES = { list: [] };
-const DEFAULTS = { template: "" };
+const DEFAULTS = {};
 var ROLE_LIST = null;
+
+$.getJSON("./role_card_generator/defaults.json", (jsonObject) => {
+    for (const property in jsonObject) {
+        DEFAULTS[property] = jsonObject[property];
+    }
+});
+
+$.getJSON("./role_card_generator/defaults.json", (json) => {
+    for (const property in json) {
+        DEFAULTS[property] = json[property];
+    }
+}).then(() => {
+    $(form.csv).on("submit", csvRoles);
+});
+
+function csvRoles(e) {
+
+}
 
 // #region JQuery Initialization
 $(document).ready(() => {
-    let { FORM, SUBMIT, TEMPLATE } = JQUERY_FIELDS;
-    initFieldModal();
-    $(FORM.CSV).on('submit', (e) => onSubmit_CSVRoles(e));
-    $(FORM.SINGULAR).on('submit', (e) => onSubmit_SingularRole(e));
-    $(FORM.RAND).on('submit', (e) => onSubmit_Rand(e));
-    $(SUBMIT.ADD_FIELD).click((e) => onSubmit_AddField(e));
-    $(SUBMIT.SEND_PM).on('submit', (e) => onSubmit_SendPM(e));
-    $(FORM.SAVE).on('submit', (e) => onSubmit_Save(e));
-    $(FORM.LOAD).on('submit', (e) => onSubmit_Load(e));
-    
     $.getJSON("./role_card_generator/defaults.json", (json) => {
-        var fields = json.fields;
-        var global = json.global;
-        for (var i = 0; i < fields.length; i++) {
-            $(FORM.SINGULAR).append(createSingularField(fields[i].name, fields[i].handle)).append($(SUBMIT.SINGULAR));
+        for (const property in json) {
+            DEFAULTS[property] = json[property];
         }
-        DEFAULTS.template = json.template;
-        $(JQUERY_FIELDS.TEMPLATE).text(DEFAULTS.template);
+    }).then(() => {
+        let { form, submit, template } = DEFAULTS.jquery;
+        initFieldModal();
+        $(form.csv).on('submit', (e) => onSubmit_CSVRoles(e));
+        $(form.submit).on('submit', (e) => onSubmit_SingularRole(e));
+        $(form.rand).on('submit', (e) => onSubmit_Rand(e));
+        $(submit.add_field).click((e) => onSubmit_AddField(e));
+        $(submit.send_pm).on('submit', (e) => onSubmit_SendPM(e));
+        $(form.save).on('submit', (e) => onSubmit_Save(e));
+        $(form.load).on('submit', (e) => onSubmit_Load(e));
 
-        for (const property in global) {
-            newDefaultRow(property, global[property]);
+        for (let field of DEFAULTS.fields) {
+            $(form.singular).append(createSingularField(field.name, field.handle)).append($(submit.singular));
+        }
+        $(template).text(DEFAULTS.template);
+        for (const property in DEFAULTS.global) {
+            newDefaultRow(property, DEFAULTS.global[property]);
         }
     });
 });
@@ -369,7 +378,7 @@ function onSubmit_Rand(e) {
  * @param {*} roles Object of values for the roles.
  */
 function parseRoles(roleList) {
-    io.emit("parse-card", {chunk: $("#role_template").val(), globals: getObjectFromGlobals(), list: roleList});
+    io.emit("parse-card", {block: $("#role_template").val(), globals: getObjectFromGlobals(), list: roleList});
 }
 
 function getObjectFromGlobals() {
@@ -514,15 +523,11 @@ function generateForumPM(website, users, subject, message) {
     }
     return link;
 }
-
-
-io.on('parse-card', (data) => {
-    processFinalizedRoleCards(data.list);
-});
-io.on('rand', ({ rand }) => {
-    processRandedRoleCards(rand);
-})
-
+/**
+ * Opens a tabbed content.
+ * @param {*} evt 
+ * @param {*} page 
+ */
 function openTab(evt, page) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -536,6 +541,11 @@ function openTab(evt, page) {
     document.getElementById(page).style.display = "block";
     evt.currentTarget.className += " active";
 }
+
+/**
+ * Serializes a form and returns output as an Object.
+ * @param {*} sel JQuery ID for an HTML Form to convert.
+ */
 function serialToObject(sel) {
     let result = serialize(sel);
     let array = {};
@@ -547,60 +557,27 @@ function serialToObject(sel) {
 
 /* Serialize a HTML Form Completely */
 function serialize(sel) {
-    var arr, tmp, i, $nodes = $(sel);
-     $nodes = $nodes.map(function(ndx){
-       var $n = $(this);
- 
-       if($n.is('form'))
-          return $n.find('input, select, textarea').get(); 
-       return this;
-     });
-    $nodes.each(function(ndx, el){
-       if ((el.nodeName.toUpperCase() == 'INPUT') && ((el.type.toUpperCase() == 'CHECKBOX') || (el.type.toUpperCase() == 'RADIO'))){
-          if((el.value === undefined) || (el.value == ''))
-             el.value = 1;
-       }
+    let arr, tmp, i, $nodes = $(sel);
+    $nodes = $nodes.map(function(ndx){
+        let $n = $(this);
+        if($n.is('form'))
+            return $n.find('input, select, textarea').get(); 
+        return this;
     });
-     arr = $nodes.serializeArray();
+    $nodes.each(function(ndx, el){
+        if ((el.nodeName.toUpperCase() == 'INPUT') && ((el.type.toUpperCase() == 'CHECKBOX') || (el.type.toUpperCase() == 'RADIO'))){
+            if((el.value === undefined) || (el.value == ''))
+            el.value = 1;
+        }
+    });
+    arr = $nodes.serializeArray();
     tmp = [];
     for(i = 0; i < arr.length; i++)
-       tmp.push(arr[i].name);
-      $nodes.filter('input[type="checkbox"]:not(:checked)').each(function(){
-       if(tmp.indexOf(this.name) < 0){
-          arr.push({name: this.name, value: ''});
-       }
-     });
- 
+        tmp.push(arr[i].name);
+        $nodes.filter('input[type="checkbox"]:not(:checked)').each(function(){
+        if(tmp.indexOf(this.name) < 0){
+            arr.push({name: this.name, value: ''});
+        }
+    }); 
     return arr;
- }
-
-function setCookie(cname, cvalue, exdays) {
-    var expires = "";
-    if (exdays !== undefined && exdays !== null) {
-        var d = new Date();
-        d.setTime(d.getTime() + (exdays*24*60*60*1000));
-        expires = "expires=" + d.toUTCString();
-    }
-    var cookie = `${cname}=${cvalue};`;
-    if (expires !== "") {
-        cookie += `${expires};`
-    }
-    cookie += `path=/`;
-    document.cookie = cookie;
-}
-
-function getCookie(cname) {
-    var name = `${cname}=`;
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
 }

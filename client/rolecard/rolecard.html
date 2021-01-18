@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Role Card Formatter | FMHelp</title>
-    <link rel="stylesheet" href="/role_card_generator/role_card.css">
+    <meta name="description" content="Role Card Formatter. Format a spreadsheet of data into a list of customized role cards for use in Forum Mafia games."/>
+    <title>Role Card Formatter | Mafia Engine</title>
+    <link rel="stylesheet" href="./rolecard/css/rolecard.css" type="text/css">
 </head>
 <body>
     <main>
@@ -13,21 +14,21 @@
                 <button class="tablinks" onclick="openTab(event, 'singular')">Singular Role</button>
                 <button class="tablinks" onclick="openTab(event, 'csv')">CSV</button>
                 <button class="tablinks" onclick="openTab(event, 'forum')">Send To Forums</button>
-                <button class="tablinks" onclick="openTab(event, 'defaults')">Defaults</button>
+                <button class="tablinks" onclick="openTab(event, 'defaults')">Globals</button>
                 <button class="tablinks" onclick="openTab(event, 'randing')">Randing</button>
                 <button class="tablinks" onclick="openTab(event, 'saveload')">Save/Load</button>
             </div>
             <div id="singular" class="tabcontent">   
-                <form id="singular-role" autocomplete="off">
-                    <input type="submit" value="Generate" id="generate-btn-singular">
+                <form id="singularRole" autocomplete="off">
+                    <input type="submit" value="Generate" id="generateBtnSingular">
                 </form>
-                <button id="singular-create-field">Create New Field</button>
+                <button id="singularCreateField">Create New Field</button>
             </div> 
             <div id="csv" class="tabcontent">  
-                <form id="csv-role"  autocomplete="off">
+                <form id="csvRole"  autocomplete="off">
                     <div class="form-component">
-                        <label for="csv-file">Upload a CSV formatted file:</label>
-                        <input type="file" id="csv-file" accept=".csv">
+                        <label for="csvFile">Upload a CSV formatted file:</label>
+                        <input type="file" id="csvFile" accept=".csv">
                     </div>
                     <input type="submit" value="Generate" id="generate-btn-csv">
                 </form>
@@ -47,7 +48,7 @@
                 </form>
             </div>
             <div id="defaults" class="tabcontent">  
-                <table id="default-table">
+                <table id="defaultTable">
                     <thead>                    
                         <tr id='defaults-header'>
                             <th>Handle</th>
@@ -59,10 +60,10 @@
                     </tbody>
                     
                 </table>
-                <button onclick="newDefaultRowBlank()">New Row</button>
+                <button id="newGlobalBtn">New Row</button>
             </div>
             <dv id="forum" class="tabcontent">
-                <form id="send-as-pm">
+                <form id="sendPm">
                     <label for="forum">Choose a Forum:</label>
                     <select name="forum" id="forum">                        <option value="ms">MafiaScum</option>
                         <option value="ms">MafiaScum</option>
@@ -91,7 +92,7 @@
                 </form>
                 <form id="loadForm">
                     <div class="form-component">
-                        <label for="loadFile">Upload a CSV formatted file:</label>
+                        <label for="loadFile">Upload a JSON formatted file:</label>
                         <input type="file" id="loadFile" accept=".json">
                         <input type="submit" value="Load From File">
                     </div>
@@ -99,8 +100,9 @@
             </div>   
         </div>
         <div class="block export">
-            <label for="role_template" id="template-lbl">Role Template.</label>
-            <textarea id="role_template"></textarea><br>
+
+            <label for="roleTemplate" id="template-lbl">Role Template.</label>
+            <textarea id="roleTemplate"></textarea><br>
             <div id="result-container"></div>
         </div>
     </main>
@@ -143,7 +145,6 @@
     <script src="/res/jquery.changeelementtype.js"></script>
     <script src="/res/papaparse.min.js"></script>
     <script src="/res/util.js"></script>
-    <script src="/role_card_generator/lexer.js"></script>
-    <script src="/role_card_generator/role_card.js"></script>
+    <script src="./rolecard/js/logic.js"></script>
 </body>
 </html>
