@@ -102,6 +102,7 @@
         <div id="sectionExport" class="block export">
             <div class="tab">
                 <button class="tablinks" onclick="openTab(event, 'stencil')">Role Stencil</button>
+                <button class="tablinks" onclick="openTab(event, 'data')">Data</button>
                 <button class="tablinks" onclick="openTab(event, 'export')">Export</button>
                 <button class="tablinks" onclick="openTab(event, 'rand')">Rand</button>
             </div>
@@ -110,17 +111,24 @@
                 <label for="roleTemplate" id="template-lbl">Role Stencil.</label>
                 <textarea id="roleTemplate"></textarea><br>
             </div>
+            <div id="data" class="tabcontent">  
+                <p>After processing data such as via CSV, the data of each role will appear here. It will automatically redirect to this page when you do so.               </p>
+                <input type="number" value="0" min="0" max="0">
+                <div id="dataContainer">
+                    <div class="template"></div>
+                </div>
+            </div>
             <div id="export" class="tabcontent">
                 <p>When you generate a role card (not rand), the results can be found here.
                     It will automatically redirect to this page when you do so.
                 </p>
-                <div id="result-container"></div>
+                <div id="exportedResultContainer"></div>
             </div>
             <div id="rand" class="tabcontent">
                 <p>When you rand a game, the results can be found here. It will automatically
                     redirect you to this page when you do so.
                 </p>
-                <div id="result-container"></div>
+                <div id="randedResultContainer"></div>
             </div>
         </div>
     </main>

@@ -7,6 +7,7 @@ const fs = require('fs');
 
 // Custom Dependencies
 const CONFIG = require('./config.json');
+const Tools = require('./server/tools');
 const screenScrape = require('./server/screenScraper');
 const roleCards = require('./server/role_cards/role_cards_core');
 const Rand = require('./server/randing/randing_core');
@@ -73,24 +74,27 @@ io.sockets.on('connection', (socket) => {
     socket.on('scrape-send', (data) => {
         var type = data.type;
         var link = data.link
-        request(link, (error, response, html) => {
-            if (!error && response.statusCode == 200) {
-                var results = {};
-                const $ = cheerio.load(html);
-                var header = $("h2").text();
-                var pageNum = parseInt($("#jumpto1").val());
-                var nextLink = $(".right-box.right").attr("href");
-                var lastPage = $(".pagination").children("span").children("a:last-child").html();
-                var firstPosterList = $(".postprofile dt a:first").text();
+
+        console.log(Tools.ScreenScraper.retrievePage(link));
+
+        // request(link, (error, response, html) => {
+        //     if (!error && response.statusCode == 200) {
+        //         var results = {};
+        //         const $ = cheerio.load(html);
+        //         var header = $("h2").text();
+        //         var pageNum = parseInt($("#jumpto1").val());
+        //         var nextLink = $(".right-box.right").attr("href");
+        //         var lastPage = $(".pagination").children("span").children("a:last-child").html();
+        //         var firstPosterList = $(".postprofile dt a:first").text();
                 
-                results.header = header;
-                results.author = firstPosterList;
-                results.currentPage = pageNum;
-                results.pageCount = lastPage;
-                socket.emit("scrape-send", results);
-            }
-            else {
-            }
-        });
+        //         results.header = header;
+        //         results.author = firstPosterList;
+        //         results.currentPage = pageNum;
+        //         results.pageCount = lastPage;
+        //         socket.emit("scrape-send", results);
+        //     }
+        //     else {
+        //     }
+        // });
     })
 });

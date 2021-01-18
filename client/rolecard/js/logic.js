@@ -473,7 +473,7 @@ function download(content, fileName, contentType) {
  */
 function processFinalizedRoleCards(csv, isRand = false) {
     ROLE_LIST = csv;
-    var container = $("#result-container");
+    var container = $("#exportedResultContainer");
     container.empty();
     var comb = "";
     var list = [];
@@ -493,7 +493,7 @@ function processFinalizedRoleCards(csv, isRand = false) {
  * @param {*} list List containing all of the role-cards and players associated with them.
  */
 function processRandedRoleCards(list) {
-    let container = $("#result-container");
+    let container = $("#randedResultContainer");
     container.empty();
     let flist = [];
     let combined = "";
