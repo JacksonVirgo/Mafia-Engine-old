@@ -8,11 +8,16 @@ io.on('parse-card', (data) => {
 io.on('rand', (data) => {
     processRandedRoleCards(data.rand);
 });
+io.on("replace", (data) => {
+    console.log(data);
+});
 //#endregion
 
 
 /* JQuery*/
 // Singleton item for when Fields are being editied.
+const roleListTable = [];
+
 const FIELD_SINGLETON = { focus: undefined, list: [], modal: $("#fieldModal") };
 const FIELD_TEMPLATES = { list: [] };
 const DEFAULTS = {};
@@ -130,6 +135,17 @@ function addField(e) {
     label.attr("for", id);
     label.text(id);
     $(DEFAULTS.jquery.form.singular).append(label).append(component).append($("#template-lbl")).append($(DEFAULTS.jquery.template)).append($(DEFAULTS.jquery.form.singular));
+}
+
+/**
+ * Creates a role-table for storing data of a single role.
+ * @returns JQuery Element
+ */
+function createSingleRoleTable() {
+    let tableContainer = "#roleDataTableContainer";
+    let table = $(`${tableContainer} > .template`).clone().removeClass("template");
+    roleListTable.push(table);
+    $("#roleDataTableContainer").append(table);
 }
 
 /**

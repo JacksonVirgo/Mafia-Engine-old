@@ -11,6 +11,7 @@ const Tools = require('./server/tools');
 const screenScrape = require('./server/screenScraper');
 const roleCards = require('./server/role_cards/role_cards_core');
 const Rand = require('./server/randing/randing_core');
+const tools = require('./server/tools');
 
 const apiKeys = ["foo","bar","baz"];
 const repos = [{name: "John"}];
@@ -45,7 +46,9 @@ const io = require(`socket.io`)(server, {
         origin: '*'
     }
 });
+
 io.sockets.on('connection', (socket) => {
+    console.log(socket.id);
     socket.emit('connected', false);
     // Role Cards
     socket.on('parse-card', (data) => {
@@ -71,30 +74,7 @@ io.sockets.on('connection', (socket) => {
     });
 
     // Replacement Form
-    socket.on('scrape-send', (data) => {
-        var type = data.type;
-        var link = data.link
-
-        console.log(Tools.ScreenScraper.retrievePage(link));
-
-        // request(link, (error, response, html) => {
-        //     if (!error && response.statusCode == 200) {
-        //         var results = {};
-        //         const $ = cheerio.load(html);
-        //         var header = $("h2").text();
-        //         var pageNum = parseInt($("#jumpto1").val());
-        //         var nextLink = $(".right-box.right").attr("href");
-        //         var lastPage = $(".pagination").children("span").children("a:last-child").html();
-        //         var firstPosterList = $(".postprofile dt a:first").text();
-                
-        //         results.header = header;
-        //         results.author = firstPosterList;
-        //         results.currentPage = pageNum;
-        //         results.pageCount = lastPage;
-        //         socket.emit("scrape-send", results);
-        //     }
-        //     else {
-        //     }
-        // });
+    socket.on('scrapeReplacement', (data) => {
+        tools.ScreenScraper.scrapeReplacement(JSON.stringify(data.url), socket);
     })
 });

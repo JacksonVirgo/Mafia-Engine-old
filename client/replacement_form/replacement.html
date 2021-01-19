@@ -7,14 +7,14 @@
 
 </head>
 <body>
-    <form id="replacement">
+    <form id="replacementForm">
         <div>
-            <label name="game_thread">Link to Game Thread</label>
-            <input type='text' id='game_thread' name='game_thread'>
+            <label for="gameThread">Link to Game Thread</label>
+            <input type='text' id='gameThread' name='gameThread'>
         </div>
         <div>
-            <label name="departing_player">Departing Player</label>
-            <input type='text' id='departing_player' name='departing_player'>
+            <label for="departingPlayer">Departing Player</label>
+            <input type='text' id='departingPlayer' name='departingPlayer'>
         </div>
         <input type='submit' value='Generate'>
     </form>
@@ -24,7 +24,6 @@
     
     <script src="../res/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/res/util.js"></script>
     <script src="/replacement_form/replacement.js"></script>
 </body>
 </html>

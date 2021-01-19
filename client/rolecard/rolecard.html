@@ -8,15 +8,37 @@
     <link rel="stylesheet" href="./rolecard/css/rolecard.css" type="text/css">
 </head>
 <body>
+    <header>
+
+    </header>
     <main>
         <div id='sectionContent' class="block">
             <div class="tab">
+                <button class="tablinks" onclick="openTab(event, 'roleData')">Role Data</button>
                 <button class="tablinks" onclick="openTab(event, 'singular')">Singular Role</button>
                 <button class="tablinks" onclick="openTab(event, 'csv')">CSV</button>
                 <button class="tablinks" onclick="openTab(event, 'forum')">Send To Forums</button>
                 <button class="tablinks" onclick="openTab(event, 'defaults')">Globals</button>
                 <button class="tablinks" onclick="openTab(event, 'randing')">Randing</button>
                 <button class="tablinks" onclick="openTab(event, 'saveload')">Save/Load</button>
+            </div>
+            <div id="roleData" class="tabcontent">
+                <div id="roleDataTableContainer">
+                    <table class="template">
+                        <thead>
+                            <tr>
+                                <th>Handle</th>
+                                <th>Content</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>testhandle</td>
+                                <td>testcontent</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div id="singular" class="tabcontent">   
                 <form id="singularRole" autocomplete="off">
