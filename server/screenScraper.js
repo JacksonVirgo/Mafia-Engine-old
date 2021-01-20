@@ -21,6 +21,7 @@ async function getReplacementCore(url) {
 }
 
 async function getReplacement(url, socket) {
+    socket.emit("scrapeReplacementPing", {});
     let replacement = await getReplacementCore(url, socket);
     socket.emit("scrapeReplacement", replacement);
 }

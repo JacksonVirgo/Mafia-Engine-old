@@ -4,9 +4,9 @@ var departingPlayer;
 let months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 
 $("#replacementForm").on("submit", (e) => {
-    e.preventDefault();
-    console.log("F");
+    e.preventDefault();    
     let array = serialToObject("#replacementForm");
+    $("#await").css("display", "inline-block");
     departingPlayer = array.departingPlayer;
     requestPageScrape(array.gameThread);
 });
@@ -19,6 +19,7 @@ io.on('scrapeReplacement', ({ title, author, currentPage, lastPage, url })  => {
     mm = (mm < 10) ? "0"+mm : mm;
     let today = `${dd} ${months[mm - 1]}`;
     let result = `${today}\n[i][url=${url}]${title}[/url][/i]\n[b]Moderator:[/b] [user]${author}[/user][tab]3[/tab][tab]3[/tab][b]Status:[/b] ${lastPage} pages [tab]3[/tab] [b]Replacing:[/b] [user]${departingPlayer}[/user]`;
+    $("#await").css("display", "none");
     $("#result").text(result);
 });
 
