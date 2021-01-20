@@ -13,7 +13,9 @@
     "cheerio": "^1.0.0-rc.5",
     "express.js": "^1.0.0",
     "fs": "0.0.1-security",
+    "isomorphic-fetch": "^3.0.0",
     "json2csv": "^5.0.5",
+    "node-fetch": "^2.6.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "socket.io": "^3.0.4"

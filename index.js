@@ -75,6 +75,6 @@ io.sockets.on('connection', (socket) => {
 
     // Replacement Form
     socket.on('scrapeReplacement', (data) => {
-        tools.ScreenScraper.scrapeReplacement(JSON.stringify(data.url), socket);
+        tools.ScreenScraper.getReplacement(data.url, socket);
     })
 });
