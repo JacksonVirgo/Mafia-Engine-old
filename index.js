@@ -9,6 +9,7 @@ const fs = require('fs');
 const CONFIG = require('./config.json');
 const Tools = require('./server/util/toolReference');
 const Rand = require('./server/randing/randing_core');
+const StringUtil = require('./server/util/stringUtil');
 
 const apiKeys = ["foo","bar","baz"];
 const repos = [{name: "John"}];
@@ -48,7 +49,9 @@ io.sockets.on('connection', (socket) => {
     // On Connect
     socket.emit('connected', false);
     console.log(`User connected with ID ${socket.id}`);
-    Tools.ScreenScraper.getVotes("https://forum.mafiascum.net/viewtopic.php?f=2&t=85556", socket);
+
+
+    Tools.ScreenScraper.getVotes("https://forum.mafiascum.net/viewtopic.php?f=2&t=85556");
     
     // Functions
     socket.on('parse-card', (data) => parseCard(data, socket));

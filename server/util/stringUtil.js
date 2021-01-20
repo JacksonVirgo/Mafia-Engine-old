@@ -1,3 +1,5 @@
+const stringSimilarity = require("string-similarity");
+
 function findIndexesInString(source, target) {
     scanStringForTokens(source, [target]);
     return result;
@@ -30,10 +32,22 @@ function splitAt(value, index) {
 function findReplace(source, target, value) {
     return source.split(target).join(value);
 }
+function compareString(strA, strB) {
+    let result = stringSimilarity.compareTwoStrings(strA, strB);
+    console.log(result);
+    return result;
+}
+
+function bestMatch(target, strings) {
+    let matches = stringSimilarity.findBestMatch(target, strings);
+    return matches.ratings[matches.bestMatchIndex].target;
+}
 
 module.exports = {
-    findIndexesInString: findIndexesInString,
-    scanStringForTokens: scanStringForTokens,
-    splitAt: splitAt,
-    findReplace: findReplace
+    findIndexesInString,
+    scanStringForTokens,
+    splitAt,
+    findReplace,
+    compareString,
+    bestMatch
 }

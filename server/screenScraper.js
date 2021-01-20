@@ -20,12 +20,6 @@ async function getReplacementCore(url) {
     return webData;
 }
 
-async function getReplacement(url, socket) {
-    socket.emit("scrapeReplacementPing", {});
-    let replacement = await getReplacementCore(url, socket);
-    socket.emit("scrapeReplacement", replacement);
-}
-
 async function getVotesForPage(url, socket) {
     console.log(url);
 
@@ -33,8 +27,9 @@ async function getVotesForPage(url, socket) {
     const content = await response.text();
     const $ = cheerio.load(content);
 
-    let array = await getAllPageLinks(url);
-    console.log(array);
+    let array = await getAllPageLinks(url).then(() => {
+        console.log(this);
+    });
 
     let voteCount = {};
     $(".post > .inner").each((i, el) => {
@@ -47,16 +42,25 @@ async function getVotesForPage(url, socket) {
     return voteCount;
 }
 
-async function getAllPageLinks(url) {
-    const response = await fetch(url);
-    const content = await response.text();
+async function getVotes(url) {
+    console.log(url);
+    const content = await fetch(url).text();
     const $ = cheerio.load(content);
 
-    let nextLink = "";//$(".pagination").first().find("span > strong").first().nextAll().find("a").first().attr("href");
-    return nextLink;
+    let nextLink = $(".pagination").first().find("span > strong").first().nextAll().find("a").first().text();
+    console.log(nextLink);
 }
 
-module.exports = {
-    getReplacement,
-    getVotes: getVotesForPage
-};
+class ScreenScraper {
+    constructor() {}
+    async getVotes(url) {
+        console.log(url);
+    }
+    async getReplacement(url, socket) {
+        let replacement = await getReplacementCore(url, socket);
+        socket.emit("scrapeReplacement", replacement);
+    }
+    
+}
+
+module.exports = new ScreenScraper();
