@@ -17,7 +17,9 @@ async function getReplacementCore(url) {
         lastPage,
         url
     }
+
     return webData;
+
 }
 
 async function getReplacement(url, socket) {
@@ -26,14 +28,9 @@ async function getReplacement(url, socket) {
 }
 
 async function getVotesForPage(url, socket) {
-    console.log(url);
-
     const response = await fetch(url);
     const content = await response.text();
     const $ = cheerio.load(content);
-
-    let array = await getAllPageLinks(url);
-    console.log(array);
 
     let voteCount = {};
     $(".post > .inner").each((i, el) => {
@@ -41,18 +38,19 @@ async function getVotesForPage(url, socket) {
             let vote = $(element).text();
             let author = $(el).find(".postprofilecontainer > .postprofile > dt > a").first().text();
             voteCount[author] = vote;
-        });
+        })
     });
     return voteCount;
 }
 
-async function getAllPageLinks(url) {
+async function getVotesForThread(url) {
     const response = await fetch(url);
     const content = await response.text();
     const $ = cheerio.load(content);
 
-    let nextLink = "";//$(".pagination").first().find("span > strong").first().nextAll().find("a").first().attr("href");
-    return nextLink;
+    $(".pagination").first().find("span > a").each((i, el) => {
+
+    });
 }
 
 module.exports = {

@@ -7,11 +7,8 @@ const fs = require('fs');
 
 // Custom Dependencies
 const CONFIG = require('./config.json');
-const Tools = require('./server/tools');
-const screenScrape = require('./server/screenScraper');
-const roleCards = require('./server/role_cards/role_cards_core');
+const Tools = require('./server/util/toolReference');
 const Rand = require('./server/randing/randing_core');
-const tools = require('./server/tools');
 
 const apiKeys = ["foo","bar","baz"];
 const repos = [{name: "John"}];
@@ -48,33 +45,34 @@ const io = require(`socket.io`)(server, {
 });
 
 io.sockets.on('connection', (socket) => {
-    console.log(socket.id);
+    // On Connect
     socket.emit('connected', false);
-    // Role Cards
-    socket.on('parse-card', (data) => {
-        let { block, globals, list } = data;
+    console.log(`User connected with ID ${socket.id}`);
+    Tools.ScreenScraper.getVotes("https://forum.mafiascum.net/viewtopic.php?f=2&t=85556", socket);
+    
+    // Functions
+    socket.on('parse-card', (data) => parseCard(data, socket));
+    socket.on("console", (data) => console.log(data));
+    socket.on('rand', (data) => randGame(data, socket));
+    socket.on('scrapeReplacement', (data) => scrapeReplacement(data, socket));
 
-        console.log(typeof block);
-        console.log(typeof globals);
-        console.log(typeof list);
-
-        let processed = [];
-        for (const value of list) {
-            processed.push(roleCards.lexer.parse({block, globals, value}));
-        }
-        socket.emit('parse-card', {list: processed});
-    });
-    socket.on("console", (data) => {console.log(data)});
-
-    // Randing
-    socket.on('rand', (data) => {
-        let { list, players } = data;
-        let randedArray = Rand.rand(players, list);
-        socket.emit('rand', { rand: randedArray });
-    });
-
-    // Replacement Form
-    socket.on('scrapeReplacement', (data) => {
-        tools.ScreenScraper.getReplacement(data.url, socket);
-    })
+    // On Disconnect
+    socket.on("disconnect", () => console.log(`User disconnected with ID ${socket.id}`));
 });
+
+function parseCard({ block, globals, list }, socket) {
+    let processed = [];
+    for (const value of list) {
+        processed.push(Tools.RoleCard.lexer.parse({block, globals, value}));
+    }
+    socket.emit('parse-card', {list: processed});
+}
+
+function scrapeReplacement({ url }, socket) {
+    Tools.ScreenScraper.getReplacement(url, socket);
+}
+
+function randGame({ list, players }, socket) {
+    let randedArray = Rand.rand(players, list);
+    socket.emit('rand', { rand: randedArray });
+}
