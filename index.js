@@ -19,14 +19,15 @@ io.sockets.on('connection', (socket) => {
     Stats.addUser();
     console.log(`User connected with ID ${socket.id}`);
 
-    Tools.VoteCount.getPageURLs("https://forum.mafiascum.net/viewtopic.php?f=2&t=85556");
-
+    Tools.VoteCount.getVotesFromThread("https://forum.mafiascum.net/viewtopic.php?f=2&t=85556&sid=9df5853d846c64b09f80d8651645ba68", socket);
+   
     // Functions
     socket.on('parse-card', (data) => parseCard(data, socket));
     socket.on("console", (data) => console.log(data));
     socket.on('rand', (data) => randGame(data, socket));
     socket.on('scrapeReplacement', (data) => scrapeReplacement(data, socket));
-
+    socket.on('scrapeVotecount', (data) => scrapeVotecount(data, socket));
+    
     // On Disconnect
     socket.on("disconnect", () => {
         Stats.removeUser();
@@ -44,6 +45,10 @@ function parseCard({ block, globals, list }, socket) {
 
 function scrapeReplacement({ url }, socket) {
     Tools.Replacement.getReplacement(url, socket);
+}
+
+function scrapeVotecount({ url }, socket) {
+    Tools.VoteCount.getVotesFromThread(url, socket);
 }
 
 function randGame({ list, players }, socket) {
