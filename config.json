@@ -1,7 +1,0 @@
-{
-    "routes": {
-        "/rolecards": "/client/role_card_generator/rolecards.html",
-        "/replacement": "/client/replacement_form/replacement.html",        "/": "/client/index.html"
-
-    }
-}
