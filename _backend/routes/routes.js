@@ -7,5 +7,5 @@ router.use(express.static("_frontend"));
 
 router.use('/tool', require('./endpoints/tools'));
 router.use('/api', require('./endpoints/api'));
-
+router.use('/download', require('./endpoints/download'));
 module.exports = router;

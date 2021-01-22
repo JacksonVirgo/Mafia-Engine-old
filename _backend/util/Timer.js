@@ -15,6 +15,7 @@ function timeEndSeconds(index) {
         let endTime = new Date();
         let seconds = secondsDifference(startTime, endTime);
         result = seconds;
+        console.log(`Timer ${index} ended with a time of ${seconds}`)
     } else {
         console.log(`Attempted to end a timer on ${index} that does not exist`);
     }

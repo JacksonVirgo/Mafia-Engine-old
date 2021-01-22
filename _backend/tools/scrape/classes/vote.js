@@ -1,8 +1,9 @@
 class Vote {
-    constructor(author, pronoun=null, vote=null) {
+    constructor(author, pronoun=null, vote=null, link=null) {
         this.author = author;
         this.pronoun = pronoun;
         this.vote = vote;
+        this.link = link;
     }
     setVote(vote) {
         this.vote = vote;
