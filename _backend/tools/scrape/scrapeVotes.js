@@ -1,52 +1,80 @@
 const { fetch, cheerio } = require('./scrapeCore');
+const Timer = require('../../util/Timer');
 
+let hrstart = process.hrtime();
 const localStorage = {}
 
-class VoteCount {
-    constructor(threadURL) {
-        this.threadURL = threadURL;
+class Vote {
+    constructor(author, pronoun=null, vote=null) {
+        this.author = author;
+        this.pronoun = pronoun;
+        this.vote = vote;
+        Vote.list.push(this);
+    }
+    setVote(vote) {
+        this.vote = vote;
+    }
+    asJSON() {
+        return {
+            author: this.author,
+            pronoun: this.pronoun,
+            vote: this.vote
+        }
+    }
+}
+Vote.list = [];
+Vote.getList = () => {
+    let result = [];
+    for (const val of Vote.list) {
+        result.push(val.asJSON());
+    }
+    return result;
+}
 
-    }
-    async parse() {
-        let pages = [];
-    }
+const time = {
+    pull: 0,
+    scrape: 0
 }
 
 async function getVotesForPage(url) {
+    Timer.timeStart("getVotes");
     const response = await fetch(url);
     const content = await response.text();
     const $ = cheerio.load(content);
+    time.pull += Timer.timeEndSeconds("getVotes");
+
+    Timer.timeStart("getParse");
     let voteCount = {};
     $("div.post > div.inner").each((i, el) => {
         let vote = $(el).find('div.postbody > div.content > span.bbvote').first().text();
         let author = $(el).find("div.postprofilecontainer > dl.postprofile > dt > a").first().text();    
+        let pronoun = "";
         if (vote && author) {
-            voteCount[author] = vote;
+            new Vote(author, pronoun, vote);
         }
     });
+    time.scrape += Timer.timeEndSeconds("getParse");
     return voteCount;
 }
 
 async function getPageURLs(url, socket) {
-    console.log("Start");
+    Timer.timeStart("getURLs");
     let completed = false;
-    let urls = [url];
-    let currentURL = url;
-
+    let urls = [parseURL(url)];
+    let currentURL = urls[0];
     let linkBase = "https://forum.mafiascum.net";
     const attachLink = (link) => {
         return linkBase + link.substring(1);
     }
-
     while (!completed) {
         const response = await fetch(currentURL);
         const content = await response.text();
         const $ = cheerio.load(content);
-
         $(".pagination > span > a").each((i, e) => {
             let aTag = $(e).text();
             if (urls.length + 1 == aTag) {
-                urls.push(attachLink($(e).attr("href")));
+                let url = parseURL(attachLink($(e).attr("href")));
+                urls.push(url);
                 console.log(aTag);
             }
         });
@@ -56,33 +84,30 @@ async function getPageURLs(url, socket) {
         if (!(isNaN(currentIndex) || isNaN(lastLink))) {
             completed = currentIndex > lastLink;
         }
-
-        // let link = $("#viewtopic > fieldset.display-options > a.right-box").attr('href');
-        // if (link === undefined) {
-        //     completed = true;
-        // } else {
-        //     let generatedLink = linkBase + link.substring(1);
-        //     currentURL = generatedLink;
-        //     urls.push(generatedLink);
-
-        // }
     }
-    console.log(urls);
+    time.grabURLS = Timer.timeEndSeconds('getURLs');
     return urls;
 }
 
 async function getVotesFromThread(urlList, socket) {
-    console.time("VoteCount");
+    Timer.timeStart("Votecount");
     let urls = await getPageURLs(urlList);
-    let voteCount = {};
+    //let voteCount = {};
     for (const currentURL of urls) {
         let votes = await getVotesForPage(currentURL)
         console.log(votes);
-        voteCount = Object.assign(voteCount, votes);
+        //voteCount = Object.assign(voteCount, votes);
     }
-    socket.emit('scrapeVotecount', {voteCount});
-    console.log(voteCount);
-    console.timeEnd("VoteCount");
+    socket.emit('scrapeVotecount', { voteCount: Vote.getList() });
+    time.total = Timer.timeEndSeconds("Votecount");
+//    console.log(voteCount);
+
+    console.log(Vote.getList());
+    console.log(time);
+}
+
+function parseURL(url) {
+    return url + "&ppp=200";
 }
 
 module.exports = {

@@ -19,7 +19,8 @@ io.sockets.on('connection', (socket) => {
     Stats.addUser();
     console.log(`User connected with ID ${socket.id}`);
 
-    Tools.VoteCount.getVotesFromThread("https://forum.mafiascum.net/viewtopic.php?f=2&t=85556&sid=9df5853d846c64b09f80d8651645ba68", socket);
+    let url = 'https://forum.mafiascum.net/viewtopic.php?f=83&t=85060';
+    Tools.VoteCount.getVotesFromThread(url, socket);
    
     // Functions
     socket.on('parse-card', (data) => parseCard(data, socket));
