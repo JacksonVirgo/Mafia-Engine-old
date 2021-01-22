@@ -1,9 +1,9 @@
-const { fetch, cheerio } = require('./scrapeCore');
+const scrapeCore = require('./scrapeCore');
+const cheerio = require('cheerio');
 
 async function getReplacementCore(url) {
-    const response = await fetch(url);
-    const content = await response.text();
-    const $ = cheerio.load(content);
+    const html = await scrapeCore.readHTML(url);
+    const $ = cheerio.load(html);
     
     let title = $("h2 > a").text();
     let author = $('.postprofilecontainer > dl > dt > a').eq(0).text(); 

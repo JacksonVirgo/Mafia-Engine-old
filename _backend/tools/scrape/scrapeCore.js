@@ -1,7 +1,6 @@
 const fetch = require('node-fetch');
-const cheerio = require("cheerio")
 
-async function getHTML(url) {
+async function readHTML(url) {
     const response = await fetch(url);
     const content = await response.text();
     return content;
@@ -15,4 +14,4 @@ async function getQueryFromURL(url) {
     return getQuery(getHTML(url));
 }
 
-module.exports = { getHTML, getQuery, getQueryFromURL, cheerio, fetch };
+module.exports = { readHTML };

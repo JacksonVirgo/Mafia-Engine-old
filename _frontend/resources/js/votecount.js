@@ -1,8 +1,6 @@
 var io = io("http://localhost:2000");//io("https://fmhelp.herokuapp.com/");
 var departingPlayer;
 
-let months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
-
 $("#replacementForm").on("submit", (e) => {
     e.preventDefault();    
     let array = serialToObject("#replacementForm");
@@ -11,15 +9,14 @@ $("#replacementForm").on("submit", (e) => {
     requestPageScrape(array.gameThread);
 });
 io.on("connect", (data) => console.log("Connected"));
-io.on('scrapeReplacement', ({ title, author, currentPage, lastPage, url })  => {
-    let date = new Date();
-    let dd = date.getDate();
-    let mm = date.getMonth() + 1;
-    dd = attachSuffixOf((dd < 10) ? "0"+dd : dd);
-    mm = (mm < 10) ? "0"+mm : mm;
-    let today = `${dd} ${months[mm - 1]}`;
-    let result = `${today}\n[i][url=${url}]${title}[/url][/i]\n[b]Moderator:[/b] [user]${author}[/user][tab]3[/tab][tab]3[/tab][b]Status:[/b] ${lastPage} pages [tab]3[/tab] [b]Replacing:[/b] [user]${departingPlayer}[/user]`;
+io.on('scrapeVotecount', ({ voteCount })  => {
     $("#await").css("display", "none");
+
+    let result = "";
+    for (const property in voteCount) {
+        result += `${property} - ${voteCount[property]}\n`;
+    }
+
     $("#result").text(result);
 });
 
@@ -28,7 +25,7 @@ io.on('scrapeReplacement', ({ title, author, currentPage, lastPage, url })  => {
  * @param {*} url URL to be processed.
  */
 function requestPageScrape(url) {
-    io.emit('scrapeReplacement', { url: url });
+    io.emit('scrapeVotecount', { url: url });
 }
 
 

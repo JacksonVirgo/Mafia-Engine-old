@@ -21,6 +21,14 @@ function timeEndSeconds(index) {
     return result;
 }
 
+function timeFunction(func) {
+    let start = new Date();
+
+    
+
+    let end = new Date();
+}
+
 function secondsDifference(before, after) {
     let difference= before.getTime() - after.getTime();
     let secondsDif = difference / 1000;

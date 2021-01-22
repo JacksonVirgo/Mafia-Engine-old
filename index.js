@@ -19,8 +19,8 @@ io.sockets.on('connection', (socket) => {
     Stats.addUser();
     console.log(`User connected with ID ${socket.id}`);
 
-    let url = 'https://forum.mafiascum.net/viewtopic.php?f=83&t=85060';
-    Tools.VoteCount.getVotesFromThread(url, socket);
+    // let url = 'https://forum.mafiascum.net/viewtopic.php?f=56&t=77970';
+    // Tools.VoteCount.getDataFromThread(url);
    
     // Functions
     socket.on('parse-card', (data) => parseCard(data, socket));
@@ -48,8 +48,9 @@ function scrapeReplacement({ url }, socket) {
     Tools.Replacement.getReplacement(url, socket);
 }
 
-function scrapeVotecount({ url }, socket) {
-    Tools.VoteCount.getVotesFromThread(url, socket);
+async function scrapeVotecount({ url }, socket) {
+    let voteCount = await Tools.VoteCount.getDataFromThread(url);
+    socket.emit("scrapeVotecount", { voteCount });
 }
 
 function randGame({ list, players }, socket) {

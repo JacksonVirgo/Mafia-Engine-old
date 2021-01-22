@@ -1,109 +1,87 @@
-const { fetch, cheerio } = require('./scrapeCore');
+const scrapeCore = require('./scrapeCore');
+const cheerio = require('cheerio');
 const Timer = require('../../util/Timer');
 
-let hrstart = process.hrtime();
-const localStorage = {}
-
-class Vote {
-    constructor(author, pronoun=null, vote=null) {
-        this.author = author;
-        this.pronoun = pronoun;
-        this.vote = vote;
-        Vote.list.push(this);
-    }
-    setVote(vote) {
-        this.vote = vote;
-    }
-    asJSON() {
-        return {
-            author: this.author,
-            pronoun: this.pronoun,
-            vote: this.vote
-        }
-    }
-}
-Vote.list = [];
-Vote.getList = () => {
-    let result = [];
-    for (const val of Vote.list) {
-        result.push(val.asJSON());
-    }
-    return result;
-}
+const Vote = require('./classes/vote');
+const URL = require('./classes/url');
 
 const time = {
-    pull: 0,
-    scrape: 0
+    fetch: 0,
+    scrape: 0,
+    thread: 0
 }
 
-async function getVotesForPage(url) {
-    Timer.timeStart("getVotes");
-    const response = await fetch(url);
-    const content = await response.text();
-    const $ = cheerio.load(content);
-    time.pull += Timer.timeEndSeconds("getVotes");
+/**
+ * 
+ * @param {*} url 
+ */
+async function getDataFromThread(urlLink) {
+    Timer.timeStart("dataThread");
+    let url = new URL(urlLink);
+    let indent = 0;
+    let completed = false;
 
-    Timer.timeStart("getParse");
-    let voteCount = {};
-    $("div.post > div.inner").each((i, el) => {
-        let vote = $(el).find('div.postbody > div.content > span.bbvote').first().text();
-        let author = $(el).find("div.postprofilecontainer > dl.postprofile > dt > a").first().text();    
-        let pronoun = "";
-        if (vote && author) {
-            new Vote(author, pronoun, vote);
+    let urlArray = [];
+
+    let voteArray = [];
+
+    while (!completed) {
+        let currentURL = url.urlFromPost(indent);
+        console.log(currentURL);
+        urlArray.push(currentURL);
+        Timer.timeStart("fetch");
+        let html = await scrapeCore.readHTML(currentURL);
+        time.fetch += Timer.timeEndSeconds("fetch");
+        let webData = getDataFromPage(html);
+        
+        voteArray.push(webData.data);
+
+        if (Math.floor(indent / url.ppp) + 1 === webData.last) {
+            completed = true;
+        } else {
+            indent += url.ppp;
         }
-    });
-    time.scrape += Timer.timeEndSeconds("getParse");
+    }
+
+    let voteCount = {};
+    for (let i = 0; i < voteArray.length; i++) {
+        for (let j = 0; j < voteArray[i].length; j++) {
+            let array = voteArray[i][j];
+            voteCount[array.author] = array.vote;
+        }
+    }
+    console.log(voteCount);
+    time.thread += Timer.timeEndSeconds("dataThread");
+    console.log(time);
+
     return voteCount;
 }
 
-async function getPageURLs(url, socket) {
-    Timer.timeStart("getURLs");
-    let completed = false;
-    let urls = [parseURL(url)];
-    let currentURL = urls[0];
-    let linkBase = "https://forum.mafiascum.net";
-    const attachLink = (link) => {
-        return linkBase + link.substring(1);
-    }
-    while (!completed) {
-        const response = await fetch(currentURL);
-        const content = await response.text();
-        const $ = cheerio.load(content);
-        $(".pagination > span > a").each((i, e) => {
-            let aTag = $(e).text();
-            if (urls.length + 1 == aTag) {
-                let url = parseURL(attachLink($(e).attr("href")));
-                urls.push(url);
-                console.log(aTag);
-            }
-        });
-        currentURL = urls[urls.length - 1];
-        let currentIndex = parseInt($(".pagination > span > strong").first().text());
-        let lastLink = parseInt($(".pagination > span > a").last().text());
-        if (!(isNaN(currentIndex) || isNaN(lastLink))) {
-            completed = currentIndex > lastLink;
+/**
+ * 
+ * @param {*} html 
+ */
+function getDataFromPage(html) {
+    Timer.timeStart("getData");
+    const $ = cheerio.load(html);
+    
+    let voteCount = [];
+
+    let current = parseInt($(".pagination > span > strong").first().text());
+    let lastA = parseInt($(".pagination > span > a").last().text());
+    let lastLink = (!isNaN(current) && !isNaN(lastA)) ? ((current > lastA) ? current : lastA) : null;
+
+    $("div.post > div.inner").each((i, el) => {
+        let vote = $(el).find('div.postbody > div.content > span.bbvote').first().text();
+        let author = $(el).find("div.postprofilecontainer > dl.postprofile > dt > a").first().text();    
+        let pronoun = null;
+        if (vote && author) {
+            voteCount.push(new Vote(author, pronoun, vote).asJSON());
         }
-    }
-    time.grabURLS = Timer.timeEndSeconds('getURLs');
-    return urls;
-}
+    });
 
-async function getVotesFromThread(urlList, socket) {
-    Timer.timeStart("Votecount");
-    let urls = await getPageURLs(urlList);
-    //let voteCount = {};
-    for (const currentURL of urls) {
-        let votes = await getVotesForPage(currentURL)
-        console.log(votes);
-        //voteCount = Object.assign(voteCount, votes);
-    }
-    socket.emit('scrapeVotecount', { voteCount: Vote.getList() });
-    time.total = Timer.timeEndSeconds("Votecount");
-//    console.log(voteCount);
-
-    console.log(Vote.getList());
-    console.log(time);
+    time.scrape += Timer.timeEndSeconds("getData");
+    return { data: voteCount, last: lastLink };
 }
 
 function parseURL(url) {
@@ -111,7 +89,6 @@ function parseURL(url) {
 }
 
 module.exports = {
-    getVotesForPage,
-    getPageURLs,
-    getVotesFromThread
+    getDataFromThread,
+    getDataFromPage
 }
