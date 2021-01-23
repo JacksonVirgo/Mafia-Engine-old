@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const cors = require('cors');
 
 //app.use(express.static("_frontend"));
 router.use(express.json());
+router.use(cors());
 
 router.use('/', express.static("_frontend"));
 router.use('/files', express.static("_backend/data/files"));
