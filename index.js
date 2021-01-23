@@ -9,7 +9,7 @@ const Stats = require('./_backend/statistics/userHandling');
 app.use(require('./_backend/routes/routes'));
 
 // Setting port and running server.
-const PORT = process.env.PORT || 2000;
+const PORT = process.env.PORT || 80;
 server.listen(PORT);
 console.log(`Server Initialized. Port ${PORT}`);``
 

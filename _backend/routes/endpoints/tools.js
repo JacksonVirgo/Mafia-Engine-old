@@ -7,7 +7,8 @@ const toolDirectory = path.join(__dirname, "../../../_frontend/tools");
 router.use((req, res, next) => next());
 router.route("/rolecard")
     .get((req, res) => res.sendFile(`${toolDirectory}/rolecard/rolecard.html`));
-router.route("/replacement")
+
+    router.route("/replacement")
     .get((req, res) => res.sendFile(`${toolDirectory}/replacement/replacement.html`));
 router.route("/votecount")
     .get((req, res) => res.sendFile(`${toolDirectory}/votecount/votecount.html`));

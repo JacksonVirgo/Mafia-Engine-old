@@ -20,10 +20,16 @@ async function getReplacementCore(url) {
 }
 
 async function getReplacement(url, socket) {
-    let replacement = await getReplacementCore(url, socket);
+    let replacement = await getReplacementCore(url);
     socket.emit("scrapeReplacement", replacement);
 }
 
+async function getReplacementTest(url) {
+    let replacement = await getReplacementCore(url);
+    return replacement;
+}
+
 module.exports = {
-    getReplacement
+    getReplacement,
+    getReplacementTest
 }
