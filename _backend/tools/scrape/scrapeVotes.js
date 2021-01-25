@@ -89,17 +89,12 @@ function parseFinalVoteCount(votes, settings, baseUrl) {
         votes[property] = { author, vote, post, url };
 
         if (diff >= 0.5) {
-            vote = newVote;
+            votes[property].vote = newVote;
         } else {
             unknownVotes.push(votes[property]);
             delete votes[property];
         }
     }
-
-    console.log(slots);
-    console.log(votes);
-    console.log(unknownVotes);
-
     const result = {
         voteCount: votes,
         unknownVotes: unknownVotes
