@@ -18,6 +18,12 @@ router.get('/replacement/:thread', async (req, res) => {
     let replacement = await Tools.Replacement.getReplacementTest(processedURL);
     res.send(replacement);
 });
+router.get('/votecount/:thread', async (req, res) => {
+    let rawURL = req.params.thread;
+    const processedURL = decodeURIComponent(rawURL);
+    let voteCountData = await Tools.VoteCount.getDataFromThread(processedURL);
+    res.send(voteCountData);
+})
 router.route('/rand')
     .post((req, res) => {
         let result = { status: 'ERR', data: 'POST did not contain a file.' };

@@ -33,8 +33,7 @@ function findReplace(source, target, value) {
     return source.split(target).join(value);
 }
 function compareString(strA, strB) {
-    let result = stringSimilarity.compareTwoStrings(strA, strB);
-    console.log(result);
+     let result = stringSimilarity.compareTwoStrings(strA, strB);
     return result;
 }
 

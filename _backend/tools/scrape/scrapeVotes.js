@@ -2,6 +2,7 @@ const scrapeCore = require('./scrapeCore');
 const cheerio = require('cheerio');
 const Timer = require('../../util/Timer');
 const StringUtil = require('../../util/stringUtil');
+const UrlUtil = require('../../util/url');
 
 const Vote = require('./classes/vote');
 const URL = require('./classes/url');
@@ -21,92 +22,138 @@ const time = {
 async function getDataFromThread(urlLink) {
     Timer.timeStart("dataThread");
     let url = new URL(urlLink);
-    let indent = 0;
     let completed = false;
-    let urlArray = [];
-    let voteArray = [];
-
-    let finalVoteCount = {};
-
+    let votesList = {};
     let voteCountSettings = null;
 
     while (!completed) {
-        let currentURL = url.urlFromPost(indent);
-        console.log(currentURL);
-        urlArray.push(currentURL);
-        Timer.timeStart("fetch");
-        let html = await scrapeCore.readHTML(currentURL);
-        time.fetch += Timer.timeEndSeconds("fetch");
+        // Get next URL
+        let currentURL = url.getNextUrlAndIndent();
 
-        if (indent === 0) {
+        // Fetch the page HTML
+        let html = await scrapeCore.readHTML(currentURL);
+
+        // Parse Data
+        let webData = getDataFromPage(html);
+        for (const handle in webData.voteCount) {
+            let formerArray = webData.voteCount[handle];
+            for (const vote of formerArray) {
+                if (!votesList[handle]) votesList[handle] = [];
+                votesList[handle].push(vote);
+            }
+        }
+        // Check if the last page has been parsed.
+        let lastPageData = await getLastPage(currentURL);
+        if (lastPageData.currentPageNum === 1) {
             voteCountSettings = getVoteSettings(html);
         }
-
-        let webData = getDataFromPage(html);
-        voteArray.push(webData.data);
-        finalVoteCount = Object.assign(finalVoteCount, webData.data);
-
-        let isCompleted = Math.floor(indent / url.ppp) + 1 === webData.last;
-        if (isCompleted) completed = true;
-        else indent += url.ppp;
-
-        if (Math.floor(indent / url.ppp) + 1 === webData.last) {
-            completed = true;
-        } else {
-            indent += url.ppp;
-        }
+        completed = lastPageData.isLastPage;
     }
 
     console.log("-- FINAL VOTE COUNT --");
+    let finalVoteCount = {};
+    for (let user in votesList) {
+        let array = votesList[user];
+        finalVoteCount[user] = array[array.length - 1];
+    }
     console.log(finalVoteCount);
+    const result = parseFinalVoteCount(finalVoteCount, voteCountSettings, url.baseURL);
+    return result;
+}
 
-    let voteCount = {};
-    for (let i = 0; i < voteArray.length; i++) {
-        for (let j = 0; j < voteArray[i].length; j++) {
-            let array = voteArray[i][j];
-            voteCount[array.author] = array.vote;
+function parseFinalVoteCount(votes, settings, baseUrl) {
+    const voteCount = {};
+    const slots = {};
+    let slotList = settings.playerList.split(',');
+    for (let i = 0; i < slotList.length; i++) {
+        let players = slotList[i].split(':');
+        for (const player of players) {
+            slots[player] = players[0];
         }
     }
-    console.log(voteCount);
-    time.thread += Timer.timeEndSeconds("dataThread");
-    console.log(time);
+    
+    let playerNames = Object.keys(slots);
+    let unknownVotes = [];
 
-    return voteCount;
+    for (const property in votes) {
+        let { author, vote, post, url } = votes[property];
+        url = UrlUtil.absolute(baseUrl, url);
+
+        vote = removeVoteTag(vote);
+        let newVote = StringUtil.bestMatch(vote, playerNames);
+        let diff = StringUtil.compareString(vote.toLowerCase(), newVote.toLowerCase());
+        console.log(`String [${vote}] - [${newVote}] with ${diff}`);
+        if (slots[vote]) {
+            vote = slots[vote];
+        }
+        votes[property] = { author, vote, post, url };
+
+        if (diff >= 0.5) {
+            vote = newVote;
+        } else {
+            unknownVotes.push(votes[property]);
+            delete votes[property];
+        }
+    }
+
+    console.log(slots);
+    console.log(votes);
+    console.log(unknownVotes);
+
+    const result = {
+        voteCount: votes,
+        unknownVotes: unknownVotes
+    }
+    return result;
 }
 
 /**
  * 
- * @param {*} html 
+ * @param {*} html HTML to scan
  */
 function getDataFromPage(html) {
-    Timer.timeStart("getData");
     const $ = cheerio.load(html);
-    
-    let current = parseInt($(".pagination > span > strong").first().text());
-    let lastA = parseInt($(".pagination > span > a").last().text());
-    let lastLink = (!isNaN(current) && !isNaN(lastA)) ? ((current > lastA) ? current : lastA) : null;
 
     let voteCount = {};
     $("div.post").each((i, el) => {
         let votes = getVotesFromPost($, $(el));
-        voteCount = Object.assign(voteCount, votes);
+        for (const handle in votes) {
+            for (const vote of votes[handle]) {
+                if (!voteCount[handle]) voteCount[handle] = [];
+                voteCount[handle].push(vote);
+            }
+        }
     });
-    time.scrape += Timer.timeEndSeconds("getData");
-    return { data: voteCount, last: lastLink };
+    
+    return { voteCount: voteCount };
 }
 
 function getVotesFromPost($, post) {
-    let voteList = {};
+    let votes = {};
     let author = post.find("div.inner > div.postprofilecontainer > dl.postprofile > dt > a").first().text();
+    let postNumber = post.find("div.inner > div.postbody > p.author > a > strong").first().parent();
+
+    let postURL = postNumber.attr('href');
+    let postNum = postNumber.find('strong').first().text();
+
     post.find("div.inner > div.postbody > div.content").first().each((index, element) => { 
+        $(element).find("blockquote").each((i, e) => {
+            $(e).remove();
+        });
         $(element).find("span.bbvote, span.noboldsig").each((i, el) => {
             let possibleVote = $(el).text();
             if (possibleVote != undefined && isVote(possibleVote)) {
-                voteList[author] = new Vote(author, null, removeVoteTag(possibleVote)).asJSON();
+                if (!votes[author]) votes[author] = [];
+                votes[author].push({
+                    author: author,
+                    vote: possibleVote,
+                    post: parseInt(postNum.replace(/\D/g,'')),
+                    url: postURL
+                });
             }
         }); 
     });
-    return voteList;
+    return votes;
 }
 
 function isVote(vote) {
@@ -132,14 +179,8 @@ function getVoteSettings(html) {
     Timer.timeStart("getSettings");
 
     const $ = cheerio.load(html);
-    let settingsGroup = null;
     let voteCountSelector = "Spoiler: VoteCount Settings";
-
-    let noSettings = true;
-
-    console.log("Potato");
-
-    let settings = new Settings();
+    const settings = {}
     $("div.post").first().find("div.inner > div.postbody > div.content > div").each((index, element) => {
         $(element).find("div.quotetitle").each((index, element) => {
             let parent = $(element).parent();
@@ -149,29 +190,49 @@ function getVoteSettings(html) {
                 content.find("span").each((index, element) => {
                     let totalString = $(element).text();
                     let command = totalString.split("=");
-                    settings.addSetting(command[0], command[1]);
+                    settings[command[0]] = command[1];
                 });              
             }
         });
-        // let parent = $(element).parent();
-        // let handle = $(element).find("b:first-child").text();
-        // let content = parent.find("div.quotecontent:first-child > div:first-child");
-        // content.each((index, element) => {
-        //     $(element).find("div > span").each((index, element) => {
-        //         let totalCommand = $(element).text();
-        //         console.log(totalCommand);
-        //     });
-        // });
     });
-
-    time.settings += Timer.timeEndSeconds("getSettings");
+    return settings;
 }
 
 function parseURL(url) {
     return url + "&ppp=200";
 }
 
+async function getLastPage(url) {
+    let html = await scrapeCore.readHTML(url);
+    let $ = cheerio.load(html);
+
+    let pagination = $(".pagination").first();
+    let currentPage = pagination.find("strong").first();
+
+    let currentPageNum = convertInt(currentPage.text());
+    let lastPage = currentPageNum;
+
+    if (pagination.find("span").length >= 1) {
+        let lastLink = pagination.find("span > a").last();
+        let lastLinkNumber = convertInt(lastLink.text());
+        lastPage = (lastPage > lastLinkNumber) ? lastPage : lastLinkNumber;
+    }
+
+    let isLastPage = lastPage === currentPageNum;
+
+    let result = { currentPageNum, lastPage, isLastPage };
+    console.log(result);
+    return result;
+}
+
+function convertInt(str) {
+    let result = parseInt(str);
+    result = isNaN(result) ? null : result;
+    return result;
+}
+
 module.exports = {
     getDataFromThread,
-    getDataFromPage
+    getDataFromPage,
+    getLastPage
 }

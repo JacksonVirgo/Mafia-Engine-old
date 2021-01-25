@@ -12,6 +12,11 @@ app.use(require('./_backend/routes/routes'));
 const PORT = process.env.PORT || 3000;
 server.listen(PORT);
 console.log(`Server Initialized. Port ${PORT}`);
+ 
+// let testURL_1 = "https://forum.mafiascum.net/viewtopic.php?f=83&t=85714"
+// let testURL_2 = "https://forum.mafiascum.net/viewtopic.php?f=2&t=85556"
+// let testURL_3 = "https://forum.mafiascum.net/viewtopic.php?f=83&t=85060"
+// Tools.VoteCount.getDataFromThread(testURL_2);
 
 // Start SOCKET.IO
 const io = require(`socket.io`)(server, {cors:{origin:'*'}});
