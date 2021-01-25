@@ -9,9 +9,9 @@ const Stats = require('./_backend/statistics/userHandling');
 app.use(require('./_backend/routes/routes'));
 
 // Setting port and running server.
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT);
-console.log(`Server Initialized. Port ${PORT}`);``
+console.log(`Server Initialized. Port ${PORT}`);
 
 // Start SOCKET.IO
 const io = require(`socket.io`)(server, {cors:{origin:'*'}});
@@ -19,9 +19,6 @@ io.sockets.on('connection', (socket) => {
     Stats.addUser();
     console.log(`User connected with ID ${socket.id}`);
 
-    // let url = 'https://forum.mafiascum.net/viewtopic.php?f=56&t=77970';
-    // Tools.VoteCount.getDataFromThread(url);
-   
     // Functions
     socket.on('parse-card', (data) => parseCard(data, socket));
     socket.on("console", (data) => console.log(data));

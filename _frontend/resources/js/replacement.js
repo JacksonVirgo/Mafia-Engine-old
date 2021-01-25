@@ -1,27 +1,64 @@
-var io = io("http://localhost:2000");//io("https://fmhelp.herokuapp.com/");
-var departingPlayer;
-
+//let departingPlayer;
 let months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+let replacementForm = $("#replacementForm");
+let awaitHandle = $("#await");
 
-$("#replacementForm").on("submit", (e) => {
-    e.preventDefault();    
-    let array = serialToObject("#replacementForm");
-    $("#await").css("display", "inline-block");
-    departingPlayer = array.departingPlayer;
-    requestPageScrape(array.gameThread);
+replacementForm.on('submit', async (e) => {
+    e.preventDefault();
+    let data = serialToObject(replacementForm);
+    let response = await fetchReplacement(data);
+
+    console.log(response);
+    $('#result').text(response.data);
 });
-io.on("connect", (data) => console.log("Connected"));
-io.on('scrapeReplacement', ({ title, author, currentPage, lastPage, url })  => {
-    let date = new Date();
-    let dd = date.getDate();
-    let mm = date.getMonth() + 1;
-    dd = attachSuffixOf((dd < 10) ? "0"+dd : dd);
-    mm = (mm < 10) ? "0"+mm : mm;
-    let today = `${dd} ${months[mm - 1]}`;
+
+async function fetchReplacement({ gameThread, departingPlayer }) {
+    let response = { status: 'ERR', data: 'An error has occurred' };
+    awaitHandle.css('display', 'inline-block');
+
+    let proccessedURL = gameThread;
+    if (gameThread.startsWith('http')) {
+        proccessedURL = encodeURIComponent(proccessedURL);
+    }
+    const res = await fetch("http://localhost:3000/api/replacement/" + proccessedURL);
+    const json = await res.json();
+    const { author, currentPage, lastPage, title, url } = json;
+
+    let today = getCurrentDate();
+
     let result = `${today}\n[i][url=${url}]${title}[/url][/i]\n[b]Moderator:[/b] [user]${author}[/user][tab]3[/tab][tab]3[/tab][b]Status:[/b] ${lastPage} pages [tab]3[/tab] [b]Replacing:[/b] [user]${departingPlayer}[/user]`;
-    $("#await").css("display", "none");
-    $("#result").text(result);
-});
+    response.data = result;
+    response.status = 'OK';
+    awaitHandle.css('display', 'none');
+    return response;
+}
+
+async function fetchReplacementRaw({ gameThread, departingPlayer }) {
+    let response = { status: 'ERR', data: 'An error has occurred' };
+    awaitHandle.css('display', 'inline-block');
+
+    let processedURL = encodeURIComponent(gameThread);
+    const res = await fetch("http://localhost:3000/api/replacement/" + processedURL);
+    const json = await res.json();
+    const { author, currentPage, lastPage, title, url } = json;
+
+    let today = getCurrentDate();
+
+    let result = `${today}\n[i][url=${url}]${title}[/url][/i]\n[b]Moderator:[/b] [user]${author}[/user][tab]3[/tab][tab]3[/tab][b]Status:[/b] ${lastPage} pages [tab]3[/tab] [b]Replacing:[/b] [user]${departingPlayer}[/user]`;
+    response.data = result;
+    response.status = 'OK';
+    awaitHandle.css('display', 'none');
+    return response;
+}
+
+function getCurrentDate() {
+    let date = new Date();
+    let currentDay = date.getDate();
+    currentDay = attachSuffixOf((currentDay < 10) ? `0${currentDay}` : currentDay);
+    let currentMonth = date.getMonth() + 1;
+    currentMonth = (currentMonth < 10) ? `0${currentMonth}` : currentMonth;
+    return `${currentDay} ${months[currentMonth - 1]}`;
+}
 
 /**
  * Sends the link to be scraped by the server.

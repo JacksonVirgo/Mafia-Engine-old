@@ -1,21 +1,30 @@
 const express = require('express');
-const path = require('path');
+const upload = require('express-fileupload');
+const { createReadStream } = require('fs');
+const router = express.Router();
+
 const Tools = require('../../util/toolReference');
 
-const { REPL_MODE_SLOPPY } = require('repl');
-const router = express.Router();
-const generateAvi = require('../../api/generateAvatar/generateAvatar');
+router.use(upload());
 
-router.use((req, res, next) => next());
-router.get('/defaults', (req, res) => {
-    res.status(200).send({filled: "false"})
-});
-
+router.route('/ping/:response')
+    .get((req, res) => {
+        res.send(req.params);
+    })
 router.get('/replacement/:thread', async (req, res) => {
+    console.log(req.params);
     let rawURL = req.params.thread;
     const processedURL = decodeURIComponent(rawURL);
     let replacement = await Tools.Replacement.getReplacementTest(processedURL);
     res.send(replacement);
 });
-
+router.route('/rand')
+    .post((req, res) => {
+        let result = { status: 'ERR', data: 'POST did not contain a file.' };
+        if (req.files) {
+            let data = JSON.parse(req.files.data.data.toString('ascii'));
+            result = { status: 'OK', data: data };
+        }
+        res.send(result);
+    });
 module.exports = router;
