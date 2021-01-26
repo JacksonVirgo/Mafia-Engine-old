@@ -63,43 +63,41 @@ async function getDataFromThread(urlLink) {
 
 function parseFinalVoteCount(votes, settings, baseUrl) {
     const voteCount = {};
-    const slots = {};
+    const unknownVotes = [];
+    const slotReference = {};
+    const playerNameList = [];
+    const deadPlayerList = {};
     let slotList = settings.playerList.split(',');
     for (let i = 0; i < slotList.length; i++) {
-        let players = slotList[i].split(':');
-        for (const player of players) {
-            slots[player] = players[0];
+        let playerList = slotList[i].split(':');
+        for (let f = 0; f < playerList.length; f++) {
+            playerNameList.push(playerList[f]);
+            slotReference[playerList[f]] = playerList[0];
+            deadPlayerList[playerList[f]] = false;
+            console.log(`${playerList[f]} refers to ${playerList[0]}`);
         }
     }
-    
-    let playerNames = Object.keys(slots);
-    let unknownVotes = [];
-
-    for (const property in votes) {
-        let { author, vote, post, url } = votes[property];
+    let deadList = settings.deadList.split(',');
+    for (let i = 0; i < deadList.length; i++) {
+        deadPlayerList[deadList[i]] = true;
+    }
+    for (const player in votes) {
+        let { author, vote, post, url } = votes[player];
         url = UrlUtil.absolute(baseUrl, url);
-
-        vote = removeVoteTag(vote);
-        let newVote = StringUtil.bestMatch(vote, playerNames);
-        let diff = StringUtil.compareString(vote.toLowerCase(), newVote.toLowerCase());
-        console.log(`String [${vote}] - [${newVote}] with ${diff}`);
-        if (slots[vote]) {
-            vote = slots[vote];
-        }
-        votes[property] = { author, vote, post, url };
-
-        if (diff >= 0.5) {
-            votes[property].vote = newVote;
+        let votedPlayer = removeVoteTag(vote);
+        let votedPlayerCorrected = StringUtil.bestMatch(votedPlayer, playerNameList);
+        let correctionVal = StringUtil.compareString(votedPlayer.toLowerCase(), votedPlayerCorrected.toLowerCase());
+        author = slotReference[author];
+        if (correctionVal > 0.5) {
+            vote = slotReference[votedPlayerCorrected];
+            if (!deadPlayerList[vote] && !deadPlayerList[author] && author != undefined && vote != undefined)
+                voteCount[author] = { author, vote, post, url };
         } else {
-            unknownVotes.push(votes[property]);
-            delete votes[property];
+            if (author != undefined && vote != undefined)
+                unknownVotes.push({ author, vote, post, url });
         }
     }
-    const result = {
-        voteCount: votes,
-        unknownVotes: unknownVotes
-    }
-    return result;
+    return { voteCount, unknownVotes };
 }
 
 /**
@@ -119,7 +117,7 @@ function getDataFromPage(html) {
             }
         }
     });
-    
+
     return { voteCount: voteCount };
 }
 
@@ -131,7 +129,7 @@ function getVotesFromPost($, post) {
     let postURL = postNumber.attr('href');
     let postNum = postNumber.find('strong').first().text();
 
-    post.find("div.inner > div.postbody > div.content").first().each((index, element) => { 
+    post.find("div.inner > div.postbody > div.content").first().each((index, element) => {
         $(element).find("blockquote").each((i, e) => {
             $(e).remove();
         });
@@ -142,27 +140,27 @@ function getVotesFromPost($, post) {
                 votes[author].push({
                     author: author,
                     vote: possibleVote,
-                    post: parseInt(postNum.replace(/\D/g,'')),
+                    post: parseInt(postNum.replace(/\D/g, '')),
                     url: postURL
                 });
             }
-        }); 
+        });
     });
     return votes;
 }
 
 function isVote(vote) {
     let isVote = false;
-    let voteHandles = [ "VOTE: ", "UNVOTE: ", "/vote ", "/unvote " ];
+    let voteHandles = ["VOTE: ", "UNVOTE: ", "/vote ", "/unvote "];
     for (const handle of voteHandles) {
-        if (vote.startsWith(handle)) 
+        if (vote.startsWith(handle))
             isVote = true;
     }
     return isVote;
 }
 
 function removeVoteTag(text) {
-    let voteHandles = [ "VOTE: ", "/vote " ];
+    let voteHandles = ["VOTE: ", "/vote "];
     for (const handle of voteHandles) {
         if (text.startsWith(handle))
             return text.substring(handle.length);
@@ -186,7 +184,7 @@ function getVoteSettings(html) {
                     let totalString = $(element).text();
                     let command = totalString.split("=");
                     settings[command[0]] = command[1];
-                });              
+                });
             }
         });
     });

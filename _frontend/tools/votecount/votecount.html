@@ -11,11 +11,16 @@
     <div id="centerModal">
         <h1>Vote Counter</h1>
         <br>
-        <form id="replacementForm">
+        <form id="voteForm">
             <div>
                 <label for="gameThread">Link to Thread</label>
                 <input type='text' id='gameThread' name='gameThread'>
             </div>
+            <div>
+                <label for="spellingCorrection">Spelling Correction</label>
+                <input type="range" min='0' max='100' value='50' class='slider' id='spellingCorrection' name='spellingCorrection'>
+            </div>
+
             <br>
             <input type='submit' value='Generate'>
         </form>

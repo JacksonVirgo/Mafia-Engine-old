@@ -1,5 +1,33 @@
-var io = io("http://localhost:2000");//io("https://fmhelp.herokuapp.com/");
-var departingPlayer;
+//var io = io("http://localhost:2000");//io("https://fmhelp.herokuapp.com/");
+const config = {};
+
+$('#voteForm').on('submit', async (e) => {
+    e.preventDefault();
+    let serial = serialToObject('#voteForm');
+    $('#await').css('display', 'inline-block');
+    let data = await requestVoteCount(serial.gameThread);
+});
+
+async function requestVoteCount(gameThread) {
+    let api = config.serverLink;
+    if (!api) { api = "http://localhost:3000" }
+    const response = await fetch(api+'/api/votecount/format/' + encodeURIComponent(gameThread));
+    const json = await response.json();
+    console.log(json);
+    generateVoteCount(json);
+}
+
+function generateVoteCount(votes) {
+    let voteList = votes.voteCount;
+    let unknownVotes = votes.unknownVotes;
+
+    let voteCount = {};
+
+    for (const author in voteList) {
+        console.log(author);
+    }
+    console.log(voteCount);
+}
 
 $("#replacementForm").on("submit", (e) => {
     e.preventDefault();    
@@ -8,24 +36,24 @@ $("#replacementForm").on("submit", (e) => {
     departingPlayer = array.departingPlayer;
     requestPageScrape(array.gameThread);
 });
-io.on("connect", (data) => console.log("Connected"));
-io.on('scrapeVotecount', ({ voteCount })  => {
-    $("#await").css("display", "none");
+// io.on("connect", (data) => console.log("Connected"));
+// io.on('scrapeVotecount', ({ voteCount })  => {
+//     $("#await").css("display", "none");
 
-    let result = "";
-    for (const property in voteCount) {
-        result += `${property} - ${voteCount[property]}\n`;
-    }
+//     let result = "";
+//     for (const property in voteCount) {
+//         result += `${property} - ${voteCount[property]}\n`;
+//     }
 
-    $("#result").text(result);
-});
+//     $("#result").text(result);
+// });
 
 /**
  * Sends the link to be scraped by the server.
  * @param {*} url URL to be processed.
  */
 function requestPageScrape(url) {
-    io.emit('scrapeVotecount', { url: url });
+    //io.emit('scrapeVotecount', { url: url });
 }
 
 
