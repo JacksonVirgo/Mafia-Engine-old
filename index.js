@@ -1,25 +1,31 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const path = require('path');
 const app = express();
-const server = require('http').Server(app);
-
+const PORT = process.env.PORT || 5000;
 const Tools = require('./_backend/util/toolReference');
 const Stats = require('./_backend/statistics/userHandling');
 
-// Routing
-app.use(require('./_backend/routes/routes'));
+mongoose.connect('mongodb://localhost:27017/mern', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}, () => console.log('Connected to MongoDB database'));
 
-// Setting port and running server.
-const PORT = process.env.PORT || 3000;
-server.listen(PORT);
-console.log(`Server Initialized. Port ${PORT}`);
- 
-// let testURL_1 = "https://forum.mafiascum.net/viewtopic.php?f=83&t=85714"
-// let testURL_2 = "https://forum.mafiascum.net/viewtopic.php?f=2&t=85556"
-// let testURL_3 = "https://forum.mafiascum.net/viewtopic.php?f=83&t=85060"
-// Tools.VoteCount.getDataFromThread(testURL_2);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(require('./backend/routes/routes'));
 
-// Start SOCKET.IO
-const io = require(`socket.io`)(server, {cors:{origin:'*'}});
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('frontend/build'));
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+    })
+}
+
+app.listen(port, () => console.log(`Server listening on port ${PORT}`));
+
+// TODO: Remove Socket.io entirely from the tool.
+const io = require(`socket.io`)(server, { cors: { origin: '*' } });
 io.sockets.on('connection', (socket) => {
     Stats.addUser();
     console.log(`User connected with ID ${socket.id}`);
@@ -30,7 +36,7 @@ io.sockets.on('connection', (socket) => {
     socket.on('rand', (data) => randGame(data, socket));
     socket.on('scrapeReplacement', (data) => scrapeReplacement(data, socket));
     socket.on('scrapeVotecount', (data) => scrapeVotecount(data, socket));
-    
+
     // On Disconnect
     socket.on("disconnect", () => {
         Stats.removeUser();
@@ -41,9 +47,9 @@ io.sockets.on('connection', (socket) => {
 function parseCard({ block, globals, list }, socket) {
     let processed = [];
     for (const value of list) {
-        processed.push(Tools.RoleCard.lexer.parse({block, globals, value}));
+        processed.push(Tools.RoleCard.lexer.parse({ block, globals, value }));
     }
-    socket.emit('parse-card', {list: processed});
+    socket.emit('parse-card', { list: processed });
 }
 
 function scrapeReplacement({ url }, socket) {

@@ -7,7 +7,7 @@ const cors = require('cors');
 router.use(express.json());
 router.use(cors());
 
-router.use('/', express.static("_frontend"));
+router.use('/', express.static("old_frontend"));
 router.use('/files', express.static("_backend/data/files"));
 
 router.use('/tool', require('./endpoints/tools'));

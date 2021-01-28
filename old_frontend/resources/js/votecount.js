@@ -6,15 +6,19 @@ $('#voteForm').on('submit', async (e) => {
     let serial = serialToObject('#voteForm');
     $('#await').css('display', 'inline-block');
     let data = await requestVoteCount(serial.gameThread);
+    $('#await').css('display', 'none');
+    $('#result').text(data.data);
+    console.log(data);
 });
 
 async function requestVoteCount(gameThread) {
     let api = config.serverLink;
     if (!api) { api = "http://localhost:3000" }
-    const response = await fetch(api+'/api/votecount/format/' + encodeURIComponent(gameThread));
+    const response = await fetch(api + '/api/votecount/format/' + encodeURIComponent(gameThread));
     const json = await response.json();
     console.log(json);
-    generateVoteCount(json);
+    return json;
+    //return generateVoteCount(json);
 }
 
 function generateVoteCount(votes) {
@@ -26,11 +30,11 @@ function generateVoteCount(votes) {
     for (const author in voteList) {
         console.log(author);
     }
-    console.log(voteCount);
+    return voteCount;
 }
 
 $("#replacementForm").on("submit", (e) => {
-    e.preventDefault();    
+    e.preventDefault();
     let array = serialToObject("#replacementForm");
     $("#await").css("display", "inline-block");
     departingPlayer = array.departingPlayer;
@@ -79,32 +83,32 @@ function serialToObject(sel) {
     $.each(result, (i, field) => {
         array[field.name] = field.value;
     });
-    return array;   
+    return array;
 }
 
 /* Serialize a HTML Form Completely */
 function serialize(sel) {
     let arr, tmp, i, $nodes = $(sel);
-    $nodes = $nodes.map(function(ndx){
+    $nodes = $nodes.map(function (ndx) {
         let $n = $(this);
-        if($n.is('form'))
-            return $n.find('input, select, textarea').get(); 
+        if ($n.is('form'))
+            return $n.find('input, select, textarea').get();
         return this;
     });
-    $nodes.each(function(ndx, el){
-        if ((el.nodeName.toUpperCase() == 'INPUT') && ((el.type.toUpperCase() == 'CHECKBOX') || (el.type.toUpperCase() == 'RADIO'))){
-            if((el.value === undefined) || (el.value == ''))
-            el.value = 1;
+    $nodes.each(function (ndx, el) {
+        if ((el.nodeName.toUpperCase() == 'INPUT') && ((el.type.toUpperCase() == 'CHECKBOX') || (el.type.toUpperCase() == 'RADIO'))) {
+            if ((el.value === undefined) || (el.value == ''))
+                el.value = 1;
         }
     });
     arr = $nodes.serializeArray();
     tmp = [];
-    for(i = 0; i < arr.length; i++)
+    for (i = 0; i < arr.length; i++)
         tmp.push(arr[i].name);
-        $nodes.filter('input[type="checkbox"]:not(:checked)').each(function(){
-        if(tmp.indexOf(this.name) < 0){
-            arr.push({name: this.name, value: ''});
+    $nodes.filter('input[type="checkbox"]:not(:checked)').each(function () {
+        if (tmp.indexOf(this.name) < 0) {
+            arr.push({ name: this.name, value: '' });
         }
-    }); 
+    });
     return arr;
 }
