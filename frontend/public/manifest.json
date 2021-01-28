@@ -2,10 +2,10 @@
   "short_name": "React App",
   "name": "Create React App Sample",
   "icons": [
-        {
+    {
       "src": "cog-128.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "128x128"
     },
     {
       "src": "cog-512.png",

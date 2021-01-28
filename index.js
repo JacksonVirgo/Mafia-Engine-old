@@ -1,10 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 5000;
-const Tools = require('./_backend/util/toolReference');
-const Stats = require('./_backend/statistics/userHandling');
+const port = process.env.PORT || 5000;
+//const Tools = require('./_backend/util/toolReference');
+//const Stats = require('./_backend/statistics/userHandling');
 
 mongoose.connect('mongodb://localhost:27017/mern', {
     useNewUrlParser: true,
@@ -13,7 +14,9 @@ mongoose.connect('mongodb://localhost:27017/mern', {
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(require('./backend/routes/routes'));
+app.use(cors());
+
+app.use('/api', require('./backend/api/router'));
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('frontend/build'));
@@ -22,8 +25,9 @@ if (process.env.NODE_ENV === 'production') {
     })
 }
 
-app.listen(port, () => console.log(`Server listening on port ${PORT}`));
+app.listen(port, () => console.log(`Server listening on port ${port}`));
 
+/*
 // TODO: Remove Socket.io entirely from the tool.
 const io = require(`socket.io`)(server, { cors: { origin: '*' } });
 io.sockets.on('connection', (socket) => {
@@ -65,3 +69,4 @@ function randGame({ list, players }, socket) {
     let randedArray = Tools.Rand.rand(players, list);
     socket.emit('rand', { rand: randedArray });
 }
+*/

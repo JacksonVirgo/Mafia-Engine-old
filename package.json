@@ -1,33 +1,35 @@
 {
-  "name": "forum-mafia-helper",
-  "version": "1.0.0",
-  "description": "A collection of tools to help with Forum Mafia games.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "author": "Jack Nash",
-  "license": "MIT",
-  "dependencies": {
-    "axios": "^0.21.1",
-    "cheerio": "^1.0.0-rc.5",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "express-fileupload": "^1.2.1",
-    "express.js": "^1.0.0",
-    "fetch": "^1.1.0",
-    "ffs": "^0.1.2",
-    "fs": "^0.0.1-security",
-    "isomorphic-fetch": "^3.0.0",
-    "json2csv": "^5.0.5",
-    "mongoose": "^5.11.13",
-    "multer": "^1.4.2",
-    "node-fetch": "^2.6.1",
-    "puppeteer": "^5.5.0",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6",
-    "socket.io": "^3.0.4",
-    "string-similarity": "^4.0.4",
-    "uuid": "^3.4.0"
-  }
+    "name": "forum-mafia-helper",
+    "version": "1.0.0",
+    "description": "A collection of tools to help with Forum Mafia games.",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "test": "nodemon index.js"
+    },
+    "author": "Jack Nash",
+    "license": "MIT",
+    "dependencies": {
+        "axios": "^0.21.1",
+        "cheerio": "^1.0.0-rc.5",
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "express-fileupload": "^1.2.1",
+        "express.js": "^1.0.0",
+        "fetch": "^1.1.0",
+        "ffs": "^0.1.2",
+        "fs": "^0.0.1-security",
+        "isomorphic-fetch": "^3.0.0",
+        "json2csv": "^5.0.5",
+        "mongoose": "^5.11.13",
+        "multer": "^1.4.2",
+        "node-fetch": "^2.6.1",
+        "puppeteer": "^5.5.0",
+        "react-router-dom": "^5.2.0",
+        "request": "^2.88.2",
+        "request-promise": "^4.2.6",
+        "socket.io": "^3.0.4",
+        "string-similarity": "^4.0.4",
+        "uuid": "^3.4.0"
+    }
 }

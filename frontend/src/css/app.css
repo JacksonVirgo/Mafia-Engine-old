@@ -40,3 +40,27 @@ h2 {
     position: static;
     width: 20%;
 }
+a {
+    color: black;
+}
+a:hover {
+    color: darkblue;
+}
+form {
+    box-sizing: border-box;
+    width: 100%;
+}
+label, input, textarea {
+    margin: 0px auto;
+    width: 80%;
+}
+input[type='submit'] {
+    margin: 16px auto;
+}
+textarea {
+    margin-top: 1em;
+    height: 150px;
+}
+.await {
+    display: none;
+}

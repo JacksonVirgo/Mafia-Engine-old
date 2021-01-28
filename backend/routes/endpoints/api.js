@@ -8,9 +8,9 @@ const Tools = require('../../util/toolReference');
 
 router.use(upload());
 
-router.route('/ping/:response')
+router.route('/ping')
     .get((req, res) => {
-        res.send(req.params);
+        res.send("Pong");
     });
 router.get('/replacement/:thread', async (req, res) => {
     console.log(req.params);
