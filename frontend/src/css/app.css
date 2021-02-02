@@ -28,19 +28,37 @@ h2 {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 50%;
-    height: auto;
+    width: 500px;
+    height: 500px;
     background-color: white;
     border: 3px solid black;
     border-radius: 16px;
     padding: 16px;
 }
 .centerModal > img {
-    margin: 0 auto;
+    margin: 8px auto;
     position: static;
-    width: 20%;
+    width: 30%;
+}
+.centerModal a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-decoration: none;
+    width: 80%;
+    height: 2em;
+    border: 1px solid black;
+    border-radius: 8px;
+    margin: 4px auto;
+}
+.centerModal a:hover {
+    background-color: black;
+    color: white;
+    border-color: white;
 }
 a {
+    display: block;
     color: black;
 }
 a:hover {

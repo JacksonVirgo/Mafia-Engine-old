@@ -1,3 +1,4 @@
+import { connection } from 'mongoose';
 import React, { Component } from 'react'
 
 let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -13,11 +14,14 @@ function getCurrentDate() {
 
 function attachSuffixOf(i) {
     let j = i % 10, k = i % 100;
-    if (j == 1 && j != 11) return i + "st";
-    else if (j == 2 && k != 12) return i + "nd";
-    else if (j == 3 && k != 13) return i + "rd";
+    if (j === 1 && j !== 11) return i + "st";
+    else if (j === 2 && k !== 12) return i + "nd";
+    else if (j === 3 && k !== 13) return i + "rd";
     else return i + "th";
 }
+
+const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://localhost:5000`
+const ws = new WebSocket(wsUrl);
 
 export class ReplacementForm extends Component {
     constructor(props) {
@@ -25,20 +29,50 @@ export class ReplacementForm extends Component {
         this.state = {
             username: ''
         }
+        ws.addEventListener('open', () => {
+            console.log("Connected to WebSocket");
+            ws.send(JSON.stringify({ cmd: "ping" }));
+        });
+        ws.addEventListener('message', e => {
+            try {
+                const json = JSON.parse(e);
+                switch (json.cmd) {
+                    case 'ping':
+
+                        break;
+                }
+                console.log(json);
+            } catch (err) {
+                console.log(err);
+            }
+        });
     }
     async submit(event) {
         event.preventDefault();
-        const threadUrl = event.target.gameThread.value;
+        const gameThread = event.target.gameThread.value;
         const departingPlayer = event.target.departingPlayer.value;
-        const resultContainer = event.target.result;
-        const cleanUrl = encodeURIComponent(threadUrl);
-        const res = await fetch('http://localhost:5000/api/replacement/' + cleanUrl);
-        const json = await res.json();
+        const request = {
+            cmd: 'replacement', data: {
+                gameThread: gameThread,
+                departingPlayer: departingPlayer
+            }
+        };
 
-        const { author, lastPage, title, url } = json;
-        let today = getCurrentDate();
-        let result = `${today}\n[i][url=${url}]${title}[/url][/i]\n[b]Moderator:[/b] [user]${author}[/user][tab]3[/tab][tab]3[/tab][b]Status:[/b] ${lastPage} pages [tab]3[/tab] [b]Replacing:[/b] [user]${departingPlayer}[/user]`;
-        resultContainer.value = result;
+        ws.send(JSON.stringify(request));
+
+        //        ws.send(JSON.stringify({ type: 'message', msg: 'potato' }));
+        // event.preventDefault();
+        // const threadUrl = event.target.gameThread.value;
+        // const departingPlayer = event.target.departingPlayer.value;
+        // const resultContainer = event.target.result;
+        // const cleanUrl = encodeURIComponent(threadUrl);
+        // const res = await fetch('http://localhost:5000/api/replacement/' + cleanUrl);
+        // const json = await res.json();
+
+        // const { author, lastPage, title, url } = json;
+        // let today = getCurrentDate();
+        // let result = `${today}\n[i][url=${url}]${title}[/url][/i]\n[b]Moderator:[/b] [user]${author}[/user][tab]3[/tab][tab]3[/tab][b]Status:[/b] ${lastPage} pages [tab]3[/tab] [b]Replacing:[/b] [user]${departingPlayer}[/user]`;
+        // resultContainer.value = result;
     }
     render() {
         return (

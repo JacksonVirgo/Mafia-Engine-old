@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
-        "test": "nodemon index.js"
+        "test": "nodemon index.js",
+        "exec": "./totalrun.sh"
     },
     "author": "Jack Nash",
     "license": "MIT",
@@ -15,6 +16,7 @@
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "express-fileupload": "^1.2.1",
+        "express-ws": "^4.0.0",
         "express.js": "^1.0.0",
         "fetch": "^1.1.0",
         "ffs": "^0.1.2",
@@ -30,6 +32,7 @@
         "request-promise": "^4.2.6",
         "socket.io": "^3.0.4",
         "string-similarity": "^4.0.4",
-        "uuid": "^3.4.0"
+        "uuid": "^3.4.0",
+        "ws": "^7.4.1"
     }
 }

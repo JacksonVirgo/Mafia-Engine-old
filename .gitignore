@@ -1,7 +1,8 @@
+# Custom
 confidential.json
-
 *.code-workspace
-run.bat
+_bash/
+totalrun.sh
 
 # Logs
 logs

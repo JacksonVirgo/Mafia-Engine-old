@@ -1,5 +1,6 @@
 import React from 'react';
 import logo from '../img/logo.png';
+import Cookies from 'universal-cookie';
 import '../css/reset.css';
 import '../css/app.css';
 
@@ -17,9 +18,9 @@ export default function Main() {
             <br />
             <div>
                 <a href='/rolecard'>Role Card</a>
-                <a>Replacement Form</a>
-                <a>Vote Counter</a>
-                <a>Information</a>
+                <a href='/replacement'>Replacement Form</a>
+                <a href='/votecount'>Vote Counter</a>
+                <a href='/info'>Information</a>
             </div>
         </div>)
 }

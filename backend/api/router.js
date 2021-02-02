@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const router = express.Router();
 const scrapeReplacement = require('../tools/scrape/scrapeReplacement');
-
 router.use(cors());
 router.get('ping', (req, res) => res.send("pong"));
 router.get('/replacement/:thread', async (req, res) => {
@@ -12,5 +11,7 @@ router.get('/replacement/:thread', async (req, res) => {
     let replacement = await scrapeReplacement.getReplacementTest(processedURL);
     res.send(replacement);
 });
+
+router.use('/ws', require('./websocket'));
 
 module.exports = router;

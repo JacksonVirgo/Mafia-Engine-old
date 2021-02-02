@@ -4,9 +4,9 @@ const cheerio = require('cheerio');
 async function getReplacementCore(url) {
     const html = await scrapeCore.readHTML(url);
     const $ = cheerio.load(html);
-    
+
     let title = $("h2 > a").text();
-    let author = $('.postprofilecontainer > dl > dt > a').eq(0).text(); 
+    let author = $('.postprofilecontainer > dl > dt > a').eq(0).text();
     let currentPage = $(".pagination > input").eq(0).val();
     let lastPage = $(".pagination > span > a").last().text();
     let webData = {
@@ -17,6 +17,11 @@ async function getReplacementCore(url) {
         url
     }
     return webData;
+}
+
+async function getReplacementFromUrl(url) {
+    let replacement = await getReplacementCore(url);
+    return replacement;
 }
 
 async function getReplacement(url, socket) {
@@ -31,5 +36,6 @@ async function getReplacementTest(url) {
 
 module.exports = {
     getReplacement,
+    getReplacementFromUrl,
     getReplacementTest
 }

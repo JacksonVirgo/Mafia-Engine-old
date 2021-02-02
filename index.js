@@ -1,31 +1,44 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
-const cors = require('cors');
-const app = express();
-const port = process.env.PORT || 5000;
-//const Tools = require('./_backend/util/toolReference');
-//const Stats = require('./_backend/statistics/userHandling');
+"use strict"
 
+// External Dependencies;
+const express = require('express');
+const WebSocket = require('ws');
+const http = require('https');
+const path = require('path');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+// Custom Dependencies
+const webSocketRoot = require('./backend/api/websocket/root');
+
+const port = process.env.PORT || 5000;
+const app = express();
+const server = http.createServer(app);
+const webSocketServer = new WebSocket.Server({ server });
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cors());
+8
+webSocketServer.on('connection', (webSocketClient) => webSocketRoot.init(webSocketClient));
 mongoose.connect('mongodb://localhost:27017/mern', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }, () => console.log('Connected to MongoDB database'));
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(cors());
+// const screen = require('./backend/tools/scrape/screenScraper');
+// let url = 'https://forum.mafiascum.net/viewtopic.php?f=2&t=85556';
+// screen.scrapeVotes.getDataFromThread(url);
 
 app.use('/api', require('./backend/api/router'));
-
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('frontend/build'));
     app.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
     })
 }
-
-app.listen(port, () => console.log(`Server listening on port ${port}`));
+server.listen(port, () => {
+    console.log(`Server listening on port ${port}`)
+});
 
 /*
 // TODO: Remove Socket.io entirely from the tool.

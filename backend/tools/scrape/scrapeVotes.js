@@ -4,9 +4,9 @@ const Timer = require('../../util/Timer');
 const StringUtil = require('../../util/stringUtil');
 const UrlUtil = require('../../util/url');
 
-const Vote = require('./classes/vote');
 const URL = require('./classes/url');
 const Settings = require('./classes/settings');
+const { Author } = require('./classes/voteAuthor');
 
 const time = {
     fetch: 0,
@@ -24,7 +24,10 @@ async function getDataFromThread(urlLink) {
     let url = new URL(urlLink);
     let completed = false;
     let votesList = {};
-    let voteCountSettings = null;
+
+
+    const response = await scrapeCore.readHTML(urlLink);
+    let voteCountSettings = getVoteSettings(response);
 
     while (!completed) {
         // Get next URL
@@ -34,19 +37,20 @@ async function getDataFromThread(urlLink) {
         let html = await scrapeCore.readHTML(currentURL);
 
         // Parse Data
-        let webData = getDataFromPage(html);
+        let webData = getDataFromPage(html, voteCountSettings);
+        for (const author in webData.voteCount) {
+
+        }
+
         for (const handle in webData.voteCount) {
             let formerArray = webData.voteCount[handle];
-            for (const vote of formerArray) {
+            for (const vote in formerArray) {
                 if (!votesList[handle]) votesList[handle] = [];
                 votesList[handle].push(vote);
             }
         }
         // Check if the last page has been parsed.
         let lastPageData = await getLastPage(currentURL);
-        if (lastPageData.currentPageNum === 1) {
-            voteCountSettings = getVoteSettings(html);
-        }
         completed = lastPageData.isLastPage;
     }
 
@@ -104,61 +108,125 @@ function parseFinalVoteCount(votes, settings, baseUrl) {
  * 
  * @param {*} html HTML to scan
  */
-function getDataFromPage(html) {
+function getDataFromPage(html, settings) {
     const $ = cheerio.load(html);
-
-    let voteCount = {};
+    let voteCount = {}; // Information for each USER
     $("div.post").each((i, el) => {
-        let votes = getVotesFromPost($, $(el));
-        for (const handle in votes) {
-            for (const vote of votes[handle]) {
-                if (!voteCount[handle]) voteCount[handle] = [];
-                voteCount[handle].push(vote);
+        let voteData = getVotesFromPost($, $(el), settings);
+        if (!voteCount[voteData.author])
+            voteCount[voteData.author] = {};
+
+        let authorRef = voteCount[voteData.author];
+        authorRef.pronoun = voteData.pronoun;
+        authorRef.author = voteData.author;
+
+
+        const voteProps = Object.keys(voteData.votes);
+        for (let i = 0; i < voteProps.length; i++) {
+            if (voteProps[i] === null) {
+                authorRef.votes[i] = { vote: null, post: voteData.post };
+            } else if (authorRef.votes === undefined) {
+                authorRef.votes = [];
+                authorRef.votes[i] = { vote: voteData.votes[voteProps[i]], post: voteData.post };
+            } else if (voteData.votes[voteProps[i]] !== authorRef.votes[i]) {
+                authorRef.votes[i] = { vote: voteData.votes[voteProps[i]], post: voteData.post };
             }
         }
+        console.log(authorRef);
+        voteCount[voteData.author] = authorRef;
     });
     return { voteCount: voteCount };
 }
 
-function getVotesFromPost($, post) {
-    let votes = {};
-    let author = post.find("div.inner > div.postprofilecontainer > dl.postprofile > dt > a").first().text();
-    let postNumber = post.find("div.inner > div.postbody > p.author > a > strong").first().parent();
+function getVotesFromPost($, post, settings) {
+    const authorName = post.find("div.inner > div.postprofilecontainer > dl.postprofile > dt > a").first().text();
+    const postNumberRef = post.find("div.inner > div.postbody > p.author > a > strong").first().parent();
+    const postUrl = postNumberRef.attr('href');
+    const postNumber = postNumberRef.find('strong').first().text().replace(/\D/g, '');
 
-    let postURL = postNumber.attr('href');
-    let postNum = postNumber.find('strong').first().text();
+    let talliedVotes = {};
+    let votePairs = settings.data.votes;
+    let totalVotes = [];
+    let votes = [];
+    let unvotes = [];
+    for (const property in votePairs) {
+        if (votePairs[property].vote) {
+            totalVotes.push(votePairs[property].vote);
+            votes.push({ id: votePairs[property].id, vote: votePairs[property].vote });
+        }
+        if (votePairs[property].unvote) {
+            totalVotes.push(votePairs[property].unvote);
+            unvotes.push({ id: votePairs[property].id, vote: votePairs[property].unvote });
+
+        }
+    }
 
     post.find("div.inner > div.postbody > div.content").first().each((index, element) => {
-        $(element).find("blockquote").each((i, e) => {
-            $(e).remove();
-        });
+        $(element).find("blockquote").each((i, e) => $(e).remove());
         $(element).find("span.bbvote, span.noboldsig").each((i, el) => {
-            let possibleVote = $(el).text();
-            if (possibleVote != undefined && isVote(possibleVote)) {
-                if (!votes[author]) votes[author] = [];
-                votes[author].push({
-                    author: author,
-                    vote: possibleVote,
-                    post: parseInt(postNum.replace(/\D/g, '')),
-                    url: postURL
-                });
+            let vote = $(el).text();
+            if (vote) {
+                let detachedVote = detachVoteTag(vote, totalVotes);
+                if (detachedVote) {
+                    let { tag, content } = detachedVote;
+                    for (let i = 0; i < votes.length; i++) {
+                        if (tag === votes[i].vote) {
+                            talliedVotes[votes[i].id] = content;
+                            break;
+                        }
+                    }
+                    for (let i = 0; i < unvotes.length; i++) {
+                        if (tag === unvotes[i].vote) {
+                            talliedVotes[unvotes[i].id] = null;
+                            break;
+                        }
+                    }
+                }
             }
         });
     });
-    return votes;
+
+    const resultObject = {
+        author: authorName ? authorName : null,
+        pronoun: 'N/A',
+        post: { num: postNumber ? postNumber : null, url: postUrl ? postUrl : null },
+        votes: talliedVotes ? talliedVotes : null
+    }
+    return resultObject;
 }
 
-function isVote(vote) {
+function detachVoteTag(vote, allVotes) {
+    for (const voteTag of allVotes) {
+        if (vote.startsWith(voteTag)) {
+            const result = { tag: voteTag, content: vote.substring(voteTag.length) };
+            //console.log(result);
+            return result;
+        }
+    }
+    return null;
+}
+
+function isVote(vote, settings) {
     let isVote = false;
-    let voteHandles = ["VOTE: ", "UNVOTE: ", "/vote ", "/unvote "];
+    let voteHandles = [];
+    let unvoteHandles = [];
+    for (const voteData of settings.data.voteTags) {
+        voteHandles.concat(voteData.vote);
+        unvoteHandles.concat(voteData.unvote);
+    }
     for (const handle of voteHandles) {
         if (vote.startsWith(handle))
             isVote = true;
     }
+    for (const handle of unvoteHandles) {
+        if (vote.startsWith(handle)) {
+            isVote = true;
+        }
+    }
     return isVote;
 }
 
-function removeVoteTag(text) {
+function removeVoteTag(text, settings) {
     let voteHandles = ["VOTE: ", "/vote "];
     for (const handle of voteHandles) {
         if (text.startsWith(handle))
@@ -167,9 +235,12 @@ function removeVoteTag(text) {
     return text;
 }
 
+async function getVoteSettingsFromUrl(url) {
+    const html = await scrapeCore.readHTML(url);
+    const settings = getVoteSettings(html);
+    return settings;
+}
 function getVoteSettings(html) {
-    Timer.timeStart("getSettings");
-
     const $ = cheerio.load(html);
     let voteCountSelector = "Spoiler: VoteCount Settings";
     const settings = {}
@@ -187,11 +258,8 @@ function getVoteSettings(html) {
             }
         });
     });
-    return settings;
-}
-
-function parseURL(url) {
-    return url + "&ppp=200";
+    const finalSettings = new Settings(settings);
+    return finalSettings;
 }
 
 async function getLastPage(url) {
@@ -226,5 +294,6 @@ function convertInt(str) {
 module.exports = {
     getDataFromThread,
     getDataFromPage,
-    getLastPage
+    getLastPage,
+    getVoteSettingsFromUrl
 }

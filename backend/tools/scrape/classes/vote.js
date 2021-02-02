@@ -1,9 +1,10 @@
+
 class Vote {
-    constructor(author, pronoun=null, vote=null, link=null) {
-        this.author = author;
-        this.pronoun = pronoun;
-        this.vote = vote;
-        this.link = link;
+    constructor() {
+        this.author = null;
+        this.pronoun = null;
+        this.votes = [];
+        this.links = [];
     }
     setVote(vote) {
         this.vote = vote;
