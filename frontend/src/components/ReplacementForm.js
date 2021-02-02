@@ -20,7 +20,7 @@ function attachSuffixOf(i) {
     else return i + "th";
 }
 
-const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://localhost:5000`
+const wsUrl = `wss://localhost:5000`
 const ws = new WebSocket(wsUrl);
 
 export class ReplacementForm extends Component {
