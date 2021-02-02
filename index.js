@@ -32,7 +32,7 @@ mongoose.connect('mongodb://localhost:27017/mern', {
 app.use('/api', require('./backend/api/router'));
 
 const isProduct = true;
-if (process.env.NODE_ENV === 'production') {
+if (isProduct) {
     app.use(express.static('frontend/build'));
     app.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
