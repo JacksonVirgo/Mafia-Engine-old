@@ -20,7 +20,7 @@ function attachSuffixOf(i) {
     else return i + "th";
 }
 
-const wsUrl = `wss://localhost:5000`
+const wsUrl = `wss://www.mafiaengine.com`;
 const ws = new WebSocket(wsUrl);
 
 export class ReplacementForm extends Component {

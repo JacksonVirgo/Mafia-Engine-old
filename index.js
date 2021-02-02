@@ -2,7 +2,7 @@
 
 // External Dependencies;
 const express = require('express');
-const WebSocket = require('ws');
+const WebSocket = require('wss');
 const http = require('https');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -20,10 +20,10 @@ app.use(express.json());
 app.use(cors());
 8
 webSocketServer.on('connection', (webSocketClient) => webSocketRoot.init(webSocketClient));
-mongoose.connect('mongodb://localhost:27017/mern', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, () => console.log('Connected to MongoDB database'));
+// mongoose.connect('mongodb://localhost:27017/mern', {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+// }, () => console.log('Connected to MongoDB database'));
 
 // const screen = require('./backend/tools/scrape/screenScraper');
 // let url = 'https://forum.mafiascum.net/viewtopic.php?f=2&t=85556';
