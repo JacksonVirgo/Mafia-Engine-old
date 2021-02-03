@@ -21,12 +21,9 @@ const time = {
  */
 async function getDataFromThread(urlLink) {
     console.log(urlLink);
-    Timer.timeStart("dataThread");
     let url = new URL(urlLink);
     let completed = false;
     let votesList = {};
-
-
     const response = await scrapeCore.readHTML(urlLink);
     let voteCountSettings = getVoteSettings(response);
 
@@ -70,13 +67,7 @@ async function getDataFromThread(urlLink) {
             finalVoteCount[type][author] = votesList[author].votes;
         }
     }
-    console.log("-- FINAL VOTE COUNT --");
     const result = parseFinalVoteCount(finalVoteCount, voteCountSettings, url.baseURL);
-
-
-    console.log(JSON.stringify(result));
-
-    //console.log(result);
     return result;
 }
 
@@ -101,7 +92,7 @@ function parseFinalVoteCount(votes, settings, baseUrl) {
             } else { }
         }
     }
-    return { voteCount, unknownVotes };
+    return { voteCount, unknownVotes, settings: settings.data };
 }
 
 /**
