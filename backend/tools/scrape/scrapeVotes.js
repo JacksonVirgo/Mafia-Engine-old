@@ -20,6 +20,7 @@ const time = {
  * @param {*} url 
  */
 async function getDataFromThread(urlLink) {
+    console.log(urlLink);
     Timer.timeStart("dataThread");
     let url = new URL(urlLink);
     let completed = false;
@@ -37,68 +38,67 @@ async function getDataFromThread(urlLink) {
         let html = await scrapeCore.readHTML(currentURL);
 
         // Parse Data
-        let webData = getDataFromPage(html, voteCountSettings);
+        let webData = getDataFromPage(html, voteCountSettings, urlLink);
         for (const author in webData.voteCount) {
-
-        }
-
-        for (const handle in webData.voteCount) {
-            let formerArray = webData.voteCount[handle];
-            for (const vote in formerArray) {
-                if (!votesList[handle]) votesList[handle] = [];
-                votesList[handle].push(vote);
+            let finalAuthor = votesList[author];
+            let tempAuthor = webData.voteCount[author];
+            if (!finalAuthor) {
+                finalAuthor = {
+                    author: tempAuthor.author,
+                    pronoun: tempAuthor.pronoun,
+                    votes: {}
+                };
             }
+            for (const vote in tempAuthor.votes) {
+                finalAuthor.votes[vote] = tempAuthor.votes[vote];
+            }
+
+            if (Object.keys(finalAuthor.votes).length >= 1)
+                votesList[author] = finalAuthor;
         }
+
         // Check if the last page has been parsed.
         let lastPageData = await getLastPage(currentURL);
         completed = lastPageData.isLastPage;
     }
 
-    console.log("-- FINAL VOTE COUNT --");
-    let finalVoteCount = {};
-    for (let user in votesList) {
-        let array = votesList[user];
-        finalVoteCount[user] = array[array.length - 1];
+    const finalVoteCount = {}; // Object containing child objects for each type of votes.
+    for (const author in votesList) {
+        let voteTypes = Object.keys(votesList[author].votes);
+        for (const type of voteTypes) {
+            if (!finalVoteCount[type]) finalVoteCount[type] = {};
+            finalVoteCount[type][author] = votesList[author].votes;
+        }
     }
-    console.log(finalVoteCount);
+    console.log("-- FINAL VOTE COUNT --");
     const result = parseFinalVoteCount(finalVoteCount, voteCountSettings, url.baseURL);
+
+
+    console.log(JSON.stringify(result));
+
+    //console.log(result);
     return result;
 }
 
 function parseFinalVoteCount(votes, settings, baseUrl) {
     const voteCount = {};
     const unknownVotes = [];
-    const slotReference = {};
-    const playerNameList = [];
-    const deadPlayerList = {};
-    let slotList = settings.playerList.split(',');
-    for (let i = 0; i < slotList.length; i++) {
-        let playerList = slotList[i].split(':');
-        for (let f = 0; f < playerList.length; f++) {
-            playerNameList.push(playerList[f]);
-            slotReference[playerList[f]] = playerList[0];
-            deadPlayerList[playerList[f]] = false;
-            console.log(`${playerList[f]} refers to ${playerList[0]}`);
-        }
-    }
-    let deadList = settings.deadList.split(',');
-    for (let i = 0; i < deadList.length; i++) {
-        deadPlayerList[deadList[i]] = true;
-    }
-    for (const player in votes) {
-        let { author, vote, post, url } = votes[player];
-        url = UrlUtil.absolute(baseUrl, url);
-        let votedPlayer = removeVoteTag(vote);
-        let votedPlayerCorrected = StringUtil.bestMatch(votedPlayer, playerNameList);
-        let correctionVal = StringUtil.compareString(votedPlayer.toLowerCase(), votedPlayerCorrected.toLowerCase());
-        author = slotReference[author];
-        if (correctionVal > 0.5) {
-            vote = slotReference[votedPlayerCorrected];
-            if (!deadPlayerList[vote] && !deadPlayerList[author] && author != undefined && vote != undefined)
-                voteCount[author] = { author, vote, post, url };
-        } else {
-            if (author != undefined && vote != undefined)
-                unknownVotes.push({ author, vote, post, url });
+    let slotList = settings.data.slots;
+    let playerList = settings.data.players;
+    let deadList = settings.data.dead;
+    let deadReference = {};
+
+    for (const voteType in votes) {
+        if (!voteCount[voteType])
+            voteCount[voteType] = {};
+
+        for (const author in votes[voteType]) {
+            const values = votes[voteType][author][voteType];
+            if (values !== null) {
+                let { vote, post, url } = values;
+                const result = { author, vote, post, url };
+                voteCount[voteType][author] = result;
+            } else { }
         }
     }
     return { voteCount, unknownVotes };
@@ -108,37 +108,29 @@ function parseFinalVoteCount(votes, settings, baseUrl) {
  * 
  * @param {*} html HTML to scan
  */
-function getDataFromPage(html, settings) {
+function getDataFromPage(html, settings, urlLink) {
     const $ = cheerio.load(html);
     let voteCount = {}; // Information for each USER
     $("div.post").each((i, el) => {
-        let voteData = getVotesFromPost($, $(el), settings);
-        if (!voteCount[voteData.author])
-            voteCount[voteData.author] = {};
-
-        let authorRef = voteCount[voteData.author];
-        authorRef.pronoun = voteData.pronoun;
-        authorRef.author = voteData.author;
-
+        let voteData = getVotesFromPost($, $(el), settings, urlLink);
+        let author = voteCount[voteData.author];
+        if (!author) author = {
+            author: voteData.author,
+            pronoun: voteData.pronoun,
+            votes: {}
+        };
 
         const voteProps = Object.keys(voteData.votes);
         for (let i = 0; i < voteProps.length; i++) {
-            if (voteProps[i] === null) {
-                authorRef.votes[i] = { vote: null, post: voteData.post };
-            } else if (authorRef.votes === undefined) {
-                authorRef.votes = [];
-                authorRef.votes[i] = { vote: voteData.votes[voteProps[i]], post: voteData.post };
-            } else if (voteData.votes[voteProps[i]] !== authorRef.votes[i]) {
-                authorRef.votes[i] = { vote: voteData.votes[voteProps[i]], post: voteData.post };
-            }
+            author.votes[voteProps[i]] = voteData.votes[voteProps[i]];
         }
-        console.log(authorRef);
-        voteCount[voteData.author] = authorRef;
+        console.log(author);
+        voteCount[voteData.author] = author;
     });
     return { voteCount: voteCount };
 }
 
-function getVotesFromPost($, post, settings) {
+function getVotesFromPost($, post, settings, urlLink) {
     const authorName = post.find("div.inner > div.postprofilecontainer > dl.postprofile > dt > a").first().text();
     const postNumberRef = post.find("div.inner > div.postbody > p.author > a > strong").first().parent();
     const postUrl = postNumberRef.attr('href');
@@ -171,7 +163,7 @@ function getVotesFromPost($, post, settings) {
                     let { tag, content } = detachedVote;
                     for (let i = 0; i < votes.length; i++) {
                         if (tag === votes[i].vote) {
-                            talliedVotes[votes[i].id] = content;
+                            talliedVotes[votes[i].id] = { vote: content, post: postNumber, url: postUrl };
                             break;
                         }
                     }
@@ -186,12 +178,14 @@ function getVotesFromPost($, post, settings) {
         });
     });
 
+    const absoluteUrl = UrlUtil.absolute(urlLink, postUrl);
     const resultObject = {
         author: authorName ? authorName : null,
         pronoun: 'N/A',
-        post: { num: postNumber ? postNumber : null, url: postUrl ? postUrl : null },
-        votes: talliedVotes ? talliedVotes : null
+        post: { num: postNumber ? postNumber : null, url: absoluteUrl },
+        votes: talliedVotes ? talliedVotes : null,
     }
+    console.log(resultObject);
     return resultObject;
 }
 
@@ -227,10 +221,14 @@ function isVote(vote, settings) {
 }
 
 function removeVoteTag(text, settings) {
-    let voteHandles = ["VOTE: ", "/vote "];
-    for (const handle of voteHandles) {
-        if (text.startsWith(handle))
-            return text.substring(handle.length);
+    try {
+        let voteHandles = ["VOTE: ", "/vote "];
+        for (const handle of voteHandles) {
+            if (text.startsWith(handle))
+                return text.substring(handle.length);
+        }
+    } catch (err) {
+        console.log(err);
     }
     return text;
 }
@@ -240,7 +238,7 @@ async function getVoteSettingsFromUrl(url) {
     const settings = getVoteSettings(html);
     return settings;
 }
-function getVoteSettings(html) {
+function getVoteSettings(html, url = null) {
     const $ = cheerio.load(html);
     let voteCountSelector = "Spoiler: VoteCount Settings";
     const settings = {}
@@ -258,6 +256,9 @@ function getVoteSettings(html) {
             }
         });
     });
+    if (url !== null) {
+        settings.baseUrl = url;
+    }
     const finalSettings = new Settings(settings);
     return finalSettings;
 }

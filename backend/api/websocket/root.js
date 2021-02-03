@@ -42,11 +42,12 @@ async function callCommand(ws, json) {
             sendData(ws, 'console', { ping: 'pong' });
             break;
         case 'replacement':
-            let result = await screenScraper.scrapeReplacement.getReplacementFromUrl(data.gameThread);
-            sendData(ws, 'replacement', { replacement: result, departingPlayer: data.departingPlayer });
+            let replacement = await screenScraper.scrapeReplacement.getReplacementFromUrl(data.gameThread);
+            sendData(ws, 'replacement', { replacement, departingPlayer: data.departingPlayer });
             break;
         case 'votecount':
-            //let result = screenScraper.scrapeVotes.
+            let voteCount = await screenScraper.scrapeVotes.getDataFromThread(data.gameThread);
+            sendData(ws, 'votecount', { voteCount });
             break;
         default:
             break;

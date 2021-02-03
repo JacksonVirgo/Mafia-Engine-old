@@ -12,14 +12,6 @@ const fs = require('fs');
 // Custom Dependencies
 const webSocketRoot = require('./backend/api/websocket/root');
 
-// options = {
-//     key: fs.readFileSync('./ssl/key.key'),
-//     cert: fs.readFileSync('./ssl/cert.crt'),
-//     ca: fs.readFileSync('./ssl/bundle.crt'),
-//     requestCert: true,
-//     rejectUnauthorized: false
-// }
-
 const port = process.env.PORT || 5000;
 const app = express();
 const server = http.createServer(app);

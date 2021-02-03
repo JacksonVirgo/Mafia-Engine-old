@@ -40,7 +40,7 @@ h2 {
     position: static;
     width: 30%;
 }
-.centerModal a {
+.menuoption {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -52,7 +52,7 @@ h2 {
     border-radius: 8px;
     margin: 4px auto;
 }
-.centerModal a:hover {
+.menuoption:hover {
     background-color: black;
     color: white;
     border-color: white;
@@ -81,4 +81,8 @@ textarea {
 }
 .await {
     display: none;
+}
+form button {
+    width: 80%;
+    margin-top: 8px;
 }

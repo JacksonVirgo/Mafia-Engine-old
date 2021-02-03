@@ -1,6 +1,5 @@
 import React from 'react';
 import logo from '../img/logo.png';
-import Cookies from 'universal-cookie';
 import '../css/reset.css';
 import '../css/app.css';
 
@@ -16,11 +15,11 @@ export default function Main() {
             <h1>Mafia Engine</h1>
             {renderSubtitle("Version Beta 1.1")}
             <br />
-            <div>
-                <a href='/rolecard'>Role Card</a>
-                <a href='/replacement'>Replacement Form</a>
-                <a href='/votecount'>Vote Counter</a>
-                <a href='/info'>Information</a>
+            <div className='mainmenu'>
+                <a className='menuoption' href='/rolecard'>Role Card</a>
+                <a className='menuoption' href='/replacement'>Replacement Form</a>
+                <a className='menuoption' href='/votecount'>Vote Counter</a>
+                <a className='menuoption' href='/info'>Information</a>
             </div>
         </div>)
 }

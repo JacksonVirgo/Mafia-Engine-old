@@ -2,7 +2,6 @@ import React from 'react';
 import logo from '../img/logo.png';
 import '../css/reset.css';
 import '../css/app.css';
-
 export default function RoleCard() {
     return (
         <div className='centerModal'>

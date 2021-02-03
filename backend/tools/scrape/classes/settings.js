@@ -5,23 +5,7 @@ const cheerio = require('cheerio');
 const seperator = ',';
 const block = ':';
 
-function parsePlayers(playerList) {
-    const totalPlayers = [];
-    const slotList = {};
-    let slots = playerList.split(seperator);
-    for (const slot of slots) {
-        let players = slot.split(block);
-        for (let i = 0; i < players.length; i++) {
-            totalPlayers.push(players[i]);
-            slotList[players[i]] = players[0];
-        }
-    }
-    return { totalPlayers, slotList };
-}
-function parseModerators(moderatorList) {
-    const totalModerators = moderatorList.split(seperator);
-    return totalModerators;
-}
+
 function parseVotes(voteTags, unvoteTags) {
     let finalVoteTags = [];
     let finalUnvoteTags = [];
@@ -45,6 +29,7 @@ module.exports = class {
         this.data = {
             players: [],
             moderators: [],
+            dead: [],
             slots: {},
             votes: {
                 reg: {
@@ -58,21 +43,32 @@ module.exports = class {
                     unvote: 'HEAL: '
                 }
             }
-        }
+        };
+        this.baseUrl;
         if (settings) this.parseSettings(settings);
     }
     parseSettings(settingsData) {
-        const { players, moderators, deadList, voteTags, unvoteTags } = settingsData;
-        //console.log(settingsData);
-        let playerResult = players ? parsePlayers(players) : null;
-        if (playerResult !== null) {
-            this.data.players = playerResult.totalPlayers;
-            this.data.slots = playerResult.slotList;
+        const { players, moderators, deadList, voteTags, unvoteTags, baseUrl } = settingsData;
+        this.baseUrl = baseUrl;
+        if (players) {
+            const playerList = [];
+            const slotReference = {};
+            let slots = playerList.split(seperator);
+            for (const slot of slots) {
+                let players = slot.split(block);
+                playerList.push(players[i]);
+                slotReference[players[i]] = players[0];
+            }
+            this.data.players = playerList;
+            this.data.slots = slotReference;
         }
-        this.data.moderators = moderators ? parseModerators(moderators) : null;
-        let votes = parseVotes(voteTags, unvoteTags);
-        // if (votes.voteTags) this.data.voteTags = votes.voteTags;
-        // if (votes.unvoteTags) this.data.unvoteTags = votes.unvoteTags;
+        if (moderators) {
+            this.data.moderators = moderators.split(seperator);
+        }
+        if (deadList) {
+            this.data.dead = deadList.split(seperator);
+        }
+        // TODO: Figure out how to create and parse multiple and singular voting tags.
     }
     addSetting(handle, setting) {
         switch (handle) {
