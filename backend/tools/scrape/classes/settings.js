@@ -48,22 +48,25 @@ module.exports = class {
         if (settings) this.parseSettings(settings);
     }
     parseSettings(settingsData) {
-        const { players, moderators, deadList, voteTags, unvoteTags, baseUrl } = settingsData;
+        const { playerList, moderatorList, deadList, voteTags, unvoteTags, baseUrl } = settingsData;
         this.baseUrl = baseUrl;
-        if (players) {
-            const playerList = [];
+        console.log(settingsData);
+        if (playerList) {
+            const playerArray = [];
             const slotReference = {};
             let slots = playerList.split(seperator);
-            for (const slot of slots) {
-                let players = slot.split(block);
-                playerList.push(players[i]);
-                slotReference[players[i]] = players[0];
+            for (let i = 0; i < slots.length; i++) {
+                let players = slots[i].split(block);
+                for (let f = 0; f < players.length; f++) {
+                    playerArray.push(players[f]);
+                    slotReference[players[f]] = players[0];
+                }
             }
-            this.data.players = playerList;
+            this.data.players = playerArray;
             this.data.slots = slotReference;
         }
-        if (moderators) {
-            this.data.moderators = moderators.split(seperator);
+        if (moderatorList) {
+            this.data.moderators = moderatorList.split(seperator);
         }
         if (deadList) {
             this.data.dead = deadList.split(seperator);

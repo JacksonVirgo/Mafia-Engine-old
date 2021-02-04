@@ -9,8 +9,6 @@ import NotFoundPage from './pages/404.js';
 import Replacement from './pages/replacement.js';
 import VoteCount from './pages/votecount.js';
 
-console.log(attachSuffixOf(5));
-
 class Doc extends React.Component {
     componentDidMount() {
         document.title = "Mafia Engine";

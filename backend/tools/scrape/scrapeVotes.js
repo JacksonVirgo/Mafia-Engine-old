@@ -6,14 +6,6 @@ const UrlUtil = require('../../util/url');
 
 const URL = require('./classes/url');
 const Settings = require('./classes/settings');
-const { Author } = require('./classes/voteAuthor');
-
-const time = {
-    fetch: 0,
-    scrape: 0,
-    settings: 0,
-    thread: 0
-}
 
 /**
  * 
@@ -28,13 +20,8 @@ async function getDataFromThread(urlLink) {
     let voteCountSettings = getVoteSettings(response);
 
     while (!completed) {
-        // Get next URL
         let currentURL = url.getNextUrlAndIndent();
-
-        // Fetch the page HTML
         let html = await scrapeCore.readHTML(currentURL);
-
-        // Parse Data
         let webData = getDataFromPage(html, voteCountSettings, urlLink);
         for (const author in webData.voteCount) {
             let finalAuthor = votesList[author];
@@ -115,7 +102,6 @@ function getDataFromPage(html, settings, urlLink) {
         for (let i = 0; i < voteProps.length; i++) {
             author.votes[voteProps[i]] = voteData.votes[voteProps[i]];
         }
-        console.log(author);
         voteCount[voteData.author] = author;
     });
     return { voteCount: voteCount };
@@ -176,7 +162,6 @@ function getVotesFromPost($, post, settings, urlLink) {
         post: { num: postNumber ? postNumber : null, url: absoluteUrl },
         votes: talliedVotes ? talliedVotes : null,
     }
-    console.log(resultObject);
     return resultObject;
 }
 
@@ -184,44 +169,10 @@ function detachVoteTag(vote, allVotes) {
     for (const voteTag of allVotes) {
         if (vote.startsWith(voteTag)) {
             const result = { tag: voteTag, content: vote.substring(voteTag.length) };
-            //console.log(result);
             return result;
         }
     }
     return null;
-}
-
-function isVote(vote, settings) {
-    let isVote = false;
-    let voteHandles = [];
-    let unvoteHandles = [];
-    for (const voteData of settings.data.voteTags) {
-        voteHandles.concat(voteData.vote);
-        unvoteHandles.concat(voteData.unvote);
-    }
-    for (const handle of voteHandles) {
-        if (vote.startsWith(handle))
-            isVote = true;
-    }
-    for (const handle of unvoteHandles) {
-        if (vote.startsWith(handle)) {
-            isVote = true;
-        }
-    }
-    return isVote;
-}
-
-function removeVoteTag(text, settings) {
-    try {
-        let voteHandles = ["VOTE: ", "/vote "];
-        for (const handle of voteHandles) {
-            if (text.startsWith(handle))
-                return text.substring(handle.length);
-        }
-    } catch (err) {
-        console.log(err);
-    }
-    return text;
 }
 
 async function getVoteSettingsFromUrl(url) {
