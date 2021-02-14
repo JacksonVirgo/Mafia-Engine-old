@@ -1,3 +1,11 @@
 {
-    "root": "http://localhost:3000"
+    "DEV_KEY": "local",
+    "htmlSelectors": {
+        "mafiascum": {
+            "author": "div.inner > div.postprofilecontainer > dl.postprofile > dt > a",
+            "postNumber": "div.inner > div.postbody > p.author > a > strong:parent",
+            "postUrl": "div.inner > div.postbody > p.author > a > strong:first",
+            "content": "div.inner > div.postbody > div.content:first"
+        }
+    }
 }

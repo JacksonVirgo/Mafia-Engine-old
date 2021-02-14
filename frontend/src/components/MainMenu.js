@@ -1,19 +1,18 @@
-import React from 'react';
+import React, { Component } from 'react';
 import logo from '../img/logo.png';
-import '../css/reset.css';
-import '../css/app.css';
 
-function renderSubtitle(subtitle) {
-    let subtitleCmpt = (<h2>{subtitle}</h2>);
-    return subtitle ? subtitleCmpt : null;
-}
-
-export default function Main(auth) {
-    return (
-        <div className='centerModal'>
-            <img src={logo} alt='Logo' />
+export class MainMenu extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            subtitle: 'Version Pre-Alpha 1.2'
+        };
+    }
+    render() {
+        return (<>
+            <img src={logo} alt='Logo for MafiaEngine' />
             <h1>Mafia Engine</h1>
-            {renderSubtitle("Version Beta 1.1")}
+            <h2>{this.state.subtitle}</h2>
             <br />
             <div className='mainmenu'>
                 <a className='menuoption' href='/rolecard'>Role Card</a>
@@ -21,5 +20,6 @@ export default function Main(auth) {
                 <a className='menuoption' href='/votecount'>Vote Counter</a>
                 <a className='menuoption' href='/info'>Information</a>
             </div>
-        </div>)
+        </>)
+    }
 }

@@ -9,9 +9,6 @@ const block = ':';
 function parseVotes(voteTags, unvoteTags) {
     let finalVoteTags = [];
     let finalUnvoteTags = [];
-
-    console.log(voteTags);
-
     let votes = voteTags.split(seperator);
     let unvotes = unvoteTags.split(seperator);
     let size = (votes.length > unvotes.length ? votes.length : unvotes.length);
@@ -42,15 +39,15 @@ module.exports = class {
                     vote: 'HURT: ',
                     unvote: 'HEAL: '
                 }
-            }
+            },
+            pageData: null
         };
         this.baseUrl;
         if (settings) this.parseSettings(settings);
     }
     parseSettings(settingsData) {
-        const { playerList, moderatorList, deadList, voteTags, unvoteTags, baseUrl } = settingsData;
+        const { playerList, moderatorList, deadList, voteTags, unvoteTags, baseUrl, pageData } = settingsData;
         this.baseUrl = baseUrl;
-        console.log(settingsData);
         if (playerList) {
             const playerArray = [];
             const slotReference = {};
@@ -71,6 +68,7 @@ module.exports = class {
         if (deadList) {
             this.data.dead = deadList.split(seperator);
         }
+        this.data.pageData = pageData;
         // TODO: Figure out how to create and parse multiple and singular voting tags.
     }
     addSetting(handle, setting) {

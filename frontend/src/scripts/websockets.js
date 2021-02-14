@@ -1,17 +1,8 @@
-const local = "ws://localhost:5000";
-const production = 'ws://www.mafiaengine.com'
-export const websocketUrl = local;
+import socketIOClient from 'socket.io-client';
+import { serverUrl } from "./reference";
 
-/**
- * 
- * @param {*} start 
- * @param {*} message 
- * @param {*} end 
- */
-export function createWebSocket(start, message, end) {
-    const ws = new WebSocket(websocketUrl);
-
-    ws.addEventListener('connect')
-    return ws;
+export function createSocket(commands = []) {
+    const socket = socketIOClient(serverUrl);
+    return socket;
 }
 // Create a managable abstraction over this.

@@ -1,19 +1,34 @@
+const socketio = require('socket.io');
 const WebSocket = require('ws');
 const scrapeReplacement = require('../../tools/scrape/scrapeReplacement');
-
 const screenScraper = require('../../tools/scrape/screenScraper');
 
-class Command {
-    constructor(on, fn) {
-        Command.list[on] = this;
-        this.fn = null;
-        this.setCommand(fn);
-    }
-    setCommand(fn) {
-        this.fn = fn;
-    }
+function initializeWebSocket(server) {
+    const io = socketio(server, {
+        cors: {
+            origin: 'http://localhost:5000',
+            methods: ['GET', 'POST'],
+            credentials: true
+        }
+    });
+    io.on('connection', (socket) => {
+        console.log(`Client Connected at ${socket.id}`);
+        socket.on('replacement', (data) => getReplacement(socket, data));
+        socket.on('votecount', (data) => getVoteCount(socket, data));
+    });
+
+    return io;
 }
-Command.list = {};
+
+async function getReplacement(socket, data) {
+    let replacement = await screenScraper.scrapeReplacement.getReplacementFromUrl(data.gameThread);
+    socket.emit('replacement', { replacement });
+}
+
+async function getVoteCount(socket, data) {
+    let voteCount = await screenScraper.scrapeVotes.getDataFromThread(data.gameThread, (e) => socket.emit('progress', e));
+    socket.emit('votecount', { voteCount });
+}
 
 function init(ws) {
     console.log("Client Connected");
@@ -46,8 +61,8 @@ async function callCommand(ws, json) {
             sendData(ws, 'replacement', { replacement, departingPlayer: data.departingPlayer });
             break;
         case 'votecount':
-            let voteCount = await screenScraper.scrapeVotes.getDataFromThread(data.gameThread);
-            sendData(ws, 'votecount', { voteCount });
+            let voteCount = await screenScraper.scrapeVotes.getDataFromThread(data.gameThread, (e) => sendData(ws, 'progress', e));
+            sendData(ws, 'votecount', voteCount);
             break;
         default:
             break;
@@ -55,9 +70,10 @@ async function callCommand(ws, json) {
 }
 
 function sendData(ws, cmd, data) {
-    ws.send(JSON.stringify({ cmd, data }));
+    console.log(data);
+    ws.send({ cmd, data });
 }
 
 module.exports = {
-    init: init
+    init: initializeWebSocket
 };
