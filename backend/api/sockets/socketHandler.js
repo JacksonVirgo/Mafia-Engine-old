@@ -22,11 +22,11 @@ async function initializeSocket(socketPkg) {
         });
         socket.on('votecount', async (data) => {
             console.log('%c VoteCount was Called', "background-color: red;");
-            let result = await voteCountHandler.scrapeThread(data.url);
+            let result = await voteCountHandler.scrapeThread(data.url, (e) => socket.emit('progress', e));
             console.log(result);
-            socket.emit('ping', result);
+            socket.emit('votecount', result);
         });
-        socket.on('ping', (data) => { console.log(data); console.log('F'); socket.emit('ping', data) });
+        socket.on('ping', (data) => { console.log(data) });
     } else {
         console.log('SocketIO Failed to Initialize');
     }

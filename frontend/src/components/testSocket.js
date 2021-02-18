@@ -1,4 +1,4 @@
-import React, { useState, setEffect } from 'react'
+import React from 'react'
 import { createSocket } from '../scripts/websockets';
 
 export default function TestSocket() {

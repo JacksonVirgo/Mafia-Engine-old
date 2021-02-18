@@ -32,8 +32,6 @@ function ReplacementForm() {
             <label htmlFor='departingPlayer'>Departing Player</label>
             <input id='departingPlayer' name='departingPlayer' type='text' />
             <br />
-            <a>+1</a>
-            <br />
             <input type='submit' />
             <br />
             <h2>Result <span value={progress} /></h2>

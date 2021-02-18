@@ -44,7 +44,7 @@ class Thread {
             total: []
         };
     }
-    async init() {
+    async init(progressUpdate = (e) => console.log(e)) {
         console.time('Scrape');
         const voteCount = {};
         while (!this.completed) {
@@ -66,8 +66,8 @@ class Thread {
                     }
                 }
             }
-            console.log(this.settings.pageData);
             this.completed = this.settings.pageData.currentPage === this.settings.pageData.lastPage;
+            progressUpdate(this.settings.pageData);
         }
         console.timeEnd('Scrape');
         return { voteCount, settings: this.settings };
@@ -141,7 +141,7 @@ class Thread {
                 url: post.find('div.inner > div.postbody > p.author > a > strong').parent().attr('href'),
                 number: post.find('div.inner > div.postbody > p.author > a > strong:first').text().replace(/\D/g, '')
             },
-            pronoun: 'They/Them',
+            pronoun: 'N/A',
             votes: {}
         };
         if (!this.voteTags.filled) {
@@ -420,8 +420,7 @@ module.exports = {
     getLastPage,
     getVoteSettingsFromUrl,
 
-    scrapeThread: (url) => {
-        let result = new Thread(url).init();
-        return result;
+    scrapeThread: (url, progress = (e) => console.log(e)) => {
+        return new Thread(url).init(progress);
     }
 }
