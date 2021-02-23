@@ -1,6 +1,13 @@
 import React, { useState } from 'react'
 import { createSocket } from '../scripts/websockets';
 import { getCalendarDate } from '../scripts/dateUtilities';
+// eslint-disable-next-line
+import ToolRoot from './ToolRoot';
+
+// class Replacement extends ToolRoot {
+
+// }
+
 
 function ReplacementForm() {
     const [result, setResult] = useState('');

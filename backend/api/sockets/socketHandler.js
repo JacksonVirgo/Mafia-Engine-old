@@ -17,13 +17,19 @@ async function initializeSocket(socketPkg) {
         addSocket(socket);
         socket.on('disconnect', () => removeSocket(socket));
         socket.on('replacement', async (data) => {
-            let result = await replacementHandler.getReplacementFromUrl(data.url);
-            socket.emit('replacement', result);
+            try {
+                let result = await replacementHandler.getReplacementFromUrl(data.url);
+                socket.emit('replacement', result);
+            } catch (err) {
+                console.log('[ERROR] Replacement Form');
+                socket.emit('error', err);
+            }
         });
         socket.on('votecount', async (data) => {
-            console.log('%c VoteCount was Called', "background-color: red;");
+            console.log('VoteCount was Called');
             let result = await voteCountHandler.scrapeThread(data.url, (e) => socket.emit('progress', e));
-            console.log(result);
+
+            socket.emit('ping', result);
             socket.emit('votecount', result);
         });
         socket.on('ping', (data) => { console.log(data) });
