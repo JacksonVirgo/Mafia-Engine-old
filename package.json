@@ -4,7 +4,7 @@
     "description": "A collection of tools to help with Forum Mafia games.",
     "main": "index.js",
     "scripts": {
-        "start": "pm2-runtime start ecosystem.config.js --env production",
+        "start": "PORT=3000 pm2 start index.js",
         "test": "nodemon index.js",
         "exec": "frontend/react-scripts start"
     },
