@@ -13,7 +13,7 @@ export default function Main(auth) {
         <div className='centerModal'>
             <img src={logo} alt='Logo' />
             <h1>Mafia Engine</h1>
-            {renderSubtitle("Version Beta 1.1")}
+            {renderSubtitle("Version Beta 1.2")}
             <br />
             <div className='mainmenu'>
                 <a className='menuoption' href='/rolecard'>Role Card</a>
