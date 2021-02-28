@@ -1,54 +1,22 @@
 import React from 'react'
-import io from 'socket.io-client';
-//import { createSocket } from '../scripts/websockets';
 import { findBestMatch } from 'string-similarity';
+import ToolRoot from './ToolRoot';
+import Vote from '../scripts/Vote';
 
-export default class VoteCount extends React.Component {
-    socket = null;
-    state = {
-        result: '',
-        progress: ''
-    }
-    componentDidMount() {
-        this.initSocketConnection();
-        this.setupSocketListeners();
-    }
-    componentWillUnmount() {
-        this.closeSocketConnection();
-    }
-    initSocketConnection() {
-        this.socket = io.connect()
-    }
-    closeSocketConnection() {
-        this.socket.disconnect();
-    }
-    onClientDisconnected() {
-        console.log('Disconnected from Server');
-    }
-    onReconnection() {
-        console.log('Reconnected to Server');
+export default class VoteCount extends ToolRoot {
+    cache = {};
+    setupSocketListeners() {
+        super.setupSocketListeners();
+        this.socket.on('votecount', this.onVoteCount.bind(this));
+        this.socket.on('progress', this.onProgress.bind(this));
     }
     onVoteCount(data) {
-        let format = formatVoteCount(data.voteCount, data.settings);
-        this.setState({ progress: '', result: format });
-        //new FormatVoteCount(data);
+        this.addCache(data);
+        let cleaned = this.clean();
+        console.log(cleaned);
     }
     onProgress(data) {
         this.setState({ progress: `[${data.currentPage / data.lastPage * 100}%]` });
-    }
-    onPing(data) {
-        console.log('onPing', data);
-    }
-    onError(data) {
-        console.log(data);
-    }
-    setupSocketListeners() {
-        this.socket.on('votecount', this.onVoteCount.bind(this));
-        this.socket.on('progress', this.onProgress.bind(this));
-        this.socket.on('ping', this.onPing.bind(this));
-        this.socket.on('error', this.onError.bind(this));
-        this.socket.on('reconnect', this.onReconnection.bind(this));
-        this.socket.on('disconnected', this.onClientDisconnected.bind(this));
     }
     onFormSubmit(e) {
         e.preventDefault();
@@ -72,8 +40,67 @@ export default class VoteCount extends React.Component {
             </form>
         );
     }
-}
+    clean() {
+        const voteData = { votes: {}, wagons: {} };
+        for (const category in this.cache.voteCount) {
+            if (!voteData.votes[category]) voteData.votes[category] = {};
+            if (!voteData.wagons[category]) voteData.wagons[category] = {};
+            for (const author in this.cache.voteCount[category]) {
+                let voteArray = this.cache.voteCount[category][author];
+                let lastVote = null;
+                let validVote = null;
+                for (let i = 0; i < voteArray.length; i++) {
+                    let vote = new Vote(voteArray[i], category);
+                    vote.clean(this.cache.settings);
+                    if (vote.vote.valid !== undefined)
+                        validVote = vote.getNewest(validVote);
+                    lastVote = vote.getNewest(lastVote);
+                }
+                let valid = validVote.isValid(this.cache.settings);
+                if (valid) {
+                    voteData.votes[category][author] = {
+                        last: lastVote,
+                        valid: validVote
+                    };
+                    if (!voteData.wagons[category][validVote.vote.valid])
+                        voteData.wagons[category][validVote.vote.valid] = []
+                    voteData.wagons[category][validVote.vote.valid].push(validVote);
+                }
+            }
+        }
+        return voteData;
+    }
+    format() {
 
+    }
+    checkValid(votePost, category) {
+        let isCurrent = votePost.number > parseInt(this.cache.settings.days[this.cache.settings.days.length - 1]);
+        let isDead = false;
+        for (let deadUsr of this.cache.settings.dead) {
+            let deadRoot = this.rootUser(deadUsr);
+            let userRoot = this.rootUser(votePost.author);
+            if (deadRoot.target === userRoot.target) {
+                isDead = true;
+            }
+        }
+        return isCurrent && !isDead;
+    }
+    isValidVote(vote) {
+        let valid = false;
+        if (vote) {
+            let cor = this.rootUser(vote);
+            if (cor.rating >= this.cache.settings.correctionWeight || 0.7) {
+                let correctedVote = this.cache.settings.alias[cor.target];
+                if (correctedVote) {
+                    valid = true;
+                }
+            }
+        }
+    }
+    rootUser(user) {
+        return findBestMatch(user, this.cache.settings.totalnames).bestMatch;
+    }
+}
 function formatVoteCount(voteCount, settings) {
     let clean = cleanVoteCount(voteCount, settings);
     let voteCountStr = '[area=Vote Count]';
@@ -95,18 +122,32 @@ function formatVoteCount(voteCount, settings) {
 function cleanVoteCount(voteCount, settings) {
     const voteData = { votes: {}, wagons: {} };
     for (const category in voteCount) {
-        if (!voteData[category]) voteData[category] = {};
         for (const user in voteCount[category]) {
-            let votePost = voteCount[category][user];
-            let voteCorrection = new VoteCorrection(votePost, settings, category);
-            let cor = voteCorrection.correct();
-            if (cor.valid) {
-                let vote = cor.vote.votes[category].vote;
-                if (!voteData.wagons[vote]) voteData.wagons[vote] = [];
-                voteData.wagons[cor.vote.votes[category].vote].push(cor.vote);
-            } else {
-
+            let voteArray = voteCount[category][user];
+            for (let i = voteArray.length - 1; i >= 0; i--) {
+                let votePost = voteArray[i];
+                let voteCorrection = new VoteCorrection(votePost, settings, category);
+                let cor = voteCorrection.correct();
+                if (cor.valid) {
+                    // let vote = cor.vote.votes[category].vote;
+                    // if (!voteData.wagons[vote]) voteData.wagons[vote] = [];
+                    // voteData.wagons[cor.vote.votes[category].vote].push(cor.vote);
+                    break;
+                } else {
+                    console.log(cor);
+                }
             }
+
+            // let votePost = voteCount[category][user];
+            // let voteCorrection = new VoteCorrection(votePost, settings, category);
+            // let cor = voteCorrection.correct();
+            // if (cor.valid) {
+            //     let vote = cor.vote.votes[category].vote;
+            //     if (!voteData.wagons[vote]) voteData.wagons[vote] = [];
+            //     voteData.wagons[cor.vote.votes[category].vote].push(cor.vote);
+            // } else {
+
+            // }
         }
     }
     return voteData;
@@ -122,7 +163,7 @@ class VoteCorrection {
         let corrected = this.spelling();
         let current = this.current(this.votePost.post?.number);
         let dead = this.dead(this.votePost.author);
-        return { vote: corrected.vote, valid: corrected.validity && current && !dead };
+        return { vote: corrected.vote, valid: corrected.validity && current && !dead, data: { corrected, current, dead } };
     }
     dead(user) {
         let isDead = false;
@@ -140,13 +181,19 @@ class VoteCorrection {
     }
     spelling() {
         let result = this.votePost;
-        let vote = result.votes[this.category]?.vote;
+        let voteArray = result.votes[this.category].vote;
         let validity = false;
-        if (vote) {
-            let cor = this.rootUser(vote);
-            if (cor.rating >= this.settings.correctionWeight || 0.7) {
-                result.votes[this.category].vote = this.settings.alias[cor.target];
-                validity = !!result.votes[this.category].vote;
+        if (voteArray) {
+            for (let i = voteArray.length - 1; i >= 0; i--) {
+                let vote = voteArray[voteArray.length - 1];
+                let cor = this.rootUser(vote);
+                if (cor.rating >= this.settings.correctionWeight || 0.7) {
+                    let alias = this.settings.alias[cor.target];
+                    if (alias) {
+                        result.votes[this.category].vote = alias;
+                        validity = true;
+                    }
+                }
             }
         }
         return { vote: result, validity };
@@ -203,6 +250,7 @@ class FormatVoteCount {
             }
         }
         return newArray.concat(this.sortWagon(left), pivot, this.sortWagon(right));
+
     }
 
     generateSlotData(slotData, category, author) {

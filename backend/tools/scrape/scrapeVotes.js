@@ -53,16 +53,11 @@ class Thread {
             let webData = this.scrapePage(html);
             if (webData) {
                 for (const category in webData) {
-                    for (const vote in webData[category]) {
-                        let { author, pronoun, post, votes } = webData[category][vote];
-                        if (!voteCount[category]) {
-                            voteCount[category] = {};
-                        } else {
-                            if (voteCount[category][author]) {
-                                votes = Object.assign(voteCount[category][author].votes, votes);
-                            }
-                        }
-                        voteCount[category][author] = { author, pronoun, post, votes };
+                    if (!voteCount[category]) voteCount[category] = {};
+                    for (const userArray in webData[category]) {
+                        if (!voteCount[category][userArray]) voteCount[category][userArray] = [];
+                        voteCount[category][userArray] = [].concat(voteCount[category][userArray], webData[category][userArray]);
+                        voteCount[category][userArray] = this.sortVotes(voteCount[category][userArray]);
                     }
                 }
             }
@@ -71,6 +66,19 @@ class Thread {
         }
         console.timeEnd('Scrape');
         return { voteCount, settings: this.settings };
+    }
+    sortVotes(array) {
+        for (let i = 1; i < array.length; i++) {
+            for (let j = i - 1; j > -1; j--) {
+                let preInt = parseInt(array[j + 1].post.number);
+                let posInt = parseInt(array[j].post.number);
+
+                if (preInt < posInt) {
+                    [array[j + 1], array[j]] = [array[j], array[j + 1]];
+                }
+            }
+        }
+        return array;
     }
     scrapeSettings($) {
         let voteCountSelector = "Spoiler: VoteCount Settings";
@@ -114,20 +122,15 @@ class Thread {
         else this.settings.pageData = this.getPageData($);
 
         let voteCount = {};
+        // Object with handles for the author names which is an array of ALL votes.
 
         $('div.post').each((i, e) => {
             let voteData = this.scrapePost($, $(e));
             if (voteData) {
-                let { author, pronoun, post, votes } = voteData;
-                for (const voteCategory in votes) {
-                    if (!voteCount[voteCategory]) {
-                        voteCount[voteCategory] = {};
-                    } else {
-                        if (voteCount[voteCategory][author]) {
-                            votes = Object.assign(voteCount[voteCategory][author].votes, votes);
-                        }
-                    }
-                    voteCount[voteCategory][author] = { author, pronoun, post, votes };
+                for (const category in voteData.votes) {
+                    if (!voteCount[category]) voteCount[category] = {};
+                    if (!voteCount[category][voteData.author]) voteCount[category][voteData.author] = [];
+                    voteCount[category][voteData.author].push(voteData);
                 }
             }
         });
@@ -160,10 +163,12 @@ class Thread {
                     if (detachedVote) {
                         let { tag, content } = detachedVote;
                         for (const voteCategory in this.voteTags.votePairs) {
+                            if (!voteData.votes[voteCategory])
+                                voteData.votes[voteCategory] = [];
                             if (tag === this.voteTags.votePairs[voteCategory].vote) {
-                                voteData.votes[voteCategory] = { vote: content };
+                                voteData.votes[voteCategory].push(content);
                             } else if (tag === this.voteTags.votePairs[voteCategory].unvote) {
-                                voteData.votes[voteCategory] = null;
+                                voteData.votes[voteCategory].push(null);
                             }
                         }
                     }
@@ -191,7 +196,6 @@ function detachVoteTag(vote, allVotes) {
     }
     return null;
 }
-
 function convertInt(str) {
     let result = parseInt(str);
     result = isNaN(result) ? null : result;

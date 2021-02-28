@@ -7,6 +7,16 @@ export default class ToolRoot extends React.Component {
         result: '',
         progress: ''
     }
+    cache = {};
+    addCache(obj) {
+        this.cache = Object.assign(obj);
+    }
+    setCache(obj) {
+        this.cache = obj;
+    }
+    clearCache() {
+        this.cache = {};
+    }
     componentDidMount() {
         this.initSocketConnection();
         this.setupSocketListeners();
@@ -34,5 +44,8 @@ export default class ToolRoot extends React.Component {
     }
     addSocketListener(id, func) {
         this.socket.on(id, func);
+    }
+    render() {
+        return (<p>Blank Tool</p>)
     }
 }

@@ -28,7 +28,6 @@ async function initializeSocket(socketPkg) {
         socket.on('votecount', async (data) => {
             console.log('VoteCount was Called');
             let result = await voteCountHandler.scrapeThread(data.url, (e) => socket.emit('progress', e));
-
             socket.emit('ping', result);
             socket.emit('votecount', result);
         });
