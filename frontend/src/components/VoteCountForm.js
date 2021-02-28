@@ -22,7 +22,7 @@ export default class VoteCount extends ToolRoot {
     }
     onFormSubmit(e) {
         e.preventDefault();
-        let gameUrl = e.target.gameUrl.value || 'https://forum.mafiascum.net/viewtopic.php?f=2&t=85556'; // Second value is for testing purposes.
+        let gameUrl = e.target.gameUrl.value; // Second value is for testing purposes.
         console.log(gameUrl);
         this.socket.emit('votecount', { url: gameUrl });
         this.setState({ progress: '[0%]' });
