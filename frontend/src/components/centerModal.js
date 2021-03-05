@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import style from '../css/centermodal.module.css';
 
 export class CenterModal extends Component {
     constructor(props) {
@@ -8,7 +9,7 @@ export class CenterModal extends Component {
     }
     render() {
         return (
-            <div className='centerModal'>
+            <div className={style.centerModal}>
                 <h1>{this.title}</h1>
                 <br />
                 {this.child}

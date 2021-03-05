@@ -1,13 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
+import './css/main.css';
 
 // Pages
 import Main from './pages/Main.js';
 import NotFoundPage from './pages/404.js';
 import Replacement from './pages/replacement.js';
-import Test from './pages/Test.js';
 import VoteCountForm from './pages/VoteCount';
+import RoleCard from './pages/rolecard';
 
 class Doc extends React.Component {
     constructor(props) {
@@ -19,9 +20,9 @@ class Doc extends React.Component {
             <Router>
                 <Switch>
                     <Route exact path='/' component={Main} />
+                    <Route exact path='/rolecard' component={RoleCard} />
                     <Route exact path='/replacement' component={Replacement} />
                     <Route exact path='/votecount' component={VoteCountForm} />
-                    <Route exact path='/test' component={Test} />
                     <Route path='/404' component={NotFoundPage} />
                     <Redirect to='/404' />
                 </Switch>

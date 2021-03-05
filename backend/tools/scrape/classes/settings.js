@@ -7,15 +7,15 @@ const block = ':';
 
 const selectors = {
     players: ['playerList', 'players'],
-    slots: ['slotList', 'slots', 'replacementlist'],
-    alias: ['nicknameList', 'nicknames', 'alias', 'aliases'],
+    slots: ['slotList', 'slots', 'replacementlist', 'replacements'],
+    alias: ['nicknameList', 'nicknames', 'alias', 'aliasList'],
     moderators: ['moderatorList', 'moderators', 'moderatorNames'],
     dead: ['deadList', 'dead', 'eliminated'],
     days: ['dayStartNumbers', 'dayStart', 'days'],
     deadline: ['deadline', 'timer'],
-    prods: ['prods', 'prodTimer'],
+    countdown: ['prods', 'timer', 'prodTimer', 'countdown'],
     pageData: ['pageData'],
-    correctionWeight: ['correctionWeight, correction']
+    correctionWeight: ['correctionWeight, correction'],
 }
 function containsSelector(sel, selRef) {
     return (selRef.includes(sel));
@@ -27,21 +27,6 @@ function findSelector(sel) {
         }
     }
     return null;
-}
-
-function parseVotes(voteTags, unvoteTags) {
-    let finalVoteTags = [];
-    let finalUnvoteTags = [];
-    let votes = voteTags.split(seperator);
-    let unvotes = unvoteTags.split(seperator);
-    let size = (votes.length > unvotes.length ? votes.length : unvotes.length);
-    for (let i = 0; i < size; i++) {
-        let voteTag = votes[i] ? votes[i] : null;
-        let unvoteTag = unvotes[i] ? unvotes[i] : null;
-        finalVoteTags.push(voteTag);
-        finalUnvoteTags.push(unvoteTag);
-    }
-    return { voteTags: finalVoteTags, unvoteTags: finalUnvoteTags };
 }
 
 module.exports = class {
@@ -112,7 +97,7 @@ module.exports = class {
                         break;
                     case 'deadline':
                         break;
-                    case 'prods':
+                    case 'countdown':
                         const prodRef = this.convertCommaDelimiter(data);
                         let prodList = prodRef.list;
                         this.data.prods = [];
