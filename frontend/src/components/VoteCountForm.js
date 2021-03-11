@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { findBestMatch } from 'string-similarity';
 import ToolRoot from './ToolRoot';
 import Vote from '../scripts/Vote';
@@ -17,7 +17,7 @@ export default class VoteCount extends ToolRoot {
         this.setState({ progress: '', result: formatted });
     }
     onProgress(data) {
-        let progress = Math.round(data.currentPage / data.lastPage * 100);
+        let progress = Math.round((data.currentPage / data.lastPage) * 100);
         this.setState({ progress: `[${progress}%]` });
     }
     onFormSubmit(e) {
@@ -31,13 +31,15 @@ export default class VoteCount extends ToolRoot {
     render() {
         return (
             <form onSubmit={this.onFormSubmit.bind(this)}>
-                <label htmlFor='gameUrl'>Link to Game Thread</label>
-                <input id='gameUrl' name='gameUrl' type='text' />
+                <label htmlFor="gameUrl">Link to Game Thread</label>
+                <input id="gameUrl" name="gameUrl" type="text" />
                 <br />
-                <input type='submit' value='Generate' />
+                <input type="submit" value="Generate" />
                 <br />
-                <h2>Result <span>{this.state.progress}</span></h2>
-                <textarea name='result' value={this.state.result} readOnly />
+                <h2>
+                    Result <span>{this.state.progress}</span>
+                </h2>
+                <textarea name="result" value={this.state.result} readOnly />
             </form>
         );
     }
@@ -70,10 +72,9 @@ export default class VoteCount extends ToolRoot {
                     voteData.notVoting.splice(authorIndex, 1);
                     voteData.votes[category][author] = {
                         last: lastVote,
-                        valid: validVote
+                        valid: validVote,
                     };
-                    if (!voteData.wagons[category][validVote.vote.valid])
-                        voteData.wagons[category][validVote.vote.valid] = []
+                    if (!voteData.wagons[category][validVote.vote.valid]) voteData.wagons[category][validVote.vote.valid] = [];
                     voteData.wagons[category][validVote.vote.valid].push(validVote);
                 }
             }
@@ -82,15 +83,14 @@ export default class VoteCount extends ToolRoot {
     }
     format(voteData) {
         const { wagons, notVoting, majority } = voteData;
-        let totalVC = "";
+        let totalVC = '';
         for (const category in wagons) {
             let categoryVotes = '[area]';
             for (const wagonHead in wagons[category]) {
                 let voteArray = wagons[category][wagonHead];
                 let vote = `[b]${wagonHead}[/b] (${voteArray.length}) -> `;
                 for (let i = 0; i < voteArray.length; i++) {
-                    if (i > 0)
-                        vote += ', ';
+                    if (i > 0) vote += ', ';
                     vote += `${voteArray[i].author}`;
                 }
                 categoryVotes += `${vote} [b][E-${majority - voteArray.length}][/b]\n`;
@@ -98,8 +98,7 @@ export default class VoteCount extends ToolRoot {
             if (notVoting.length > 0) {
                 categoryVotes += `\n[b]Not Voting[/b] (${notVoting.length}) -> `;
                 for (let i = 0; i < notVoting.length; i++) {
-                    if (i > 0)
-                        categoryVotes += ', ';
+                    if (i > 0) categoryVotes += ', ';
                     categoryVotes += `${notVoting[i]}`;
                 }
             }
@@ -156,8 +155,7 @@ export default class VoteCount extends ToolRoot {
 
 function containsObject(obj, list) {
     for (let i = 0; i < list.length; i++) {
-        if (list[i] === obj)
-            return true;
+        if (list[i] === obj) return true;
     }
     return false;
 }

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { createSocket } from '../scripts/websockets';
-import { getCalendarDate } from '../scripts/dateUtilities';
-import { CenterModal } from '../components/centerModal';
-import styles from '../css/centermodal.module.css';
+import { createSocket } from '../../scripts/websockets';
+import { getCalendarDate } from '../../scripts/dateUtilities';
+import { CenterModal } from '../centerModal';
+import styles from '../../css/centermodal.module.css';
 
 function ReplacementForm() {
     const [result, setResult] = useState('');

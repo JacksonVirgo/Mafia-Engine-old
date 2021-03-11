@@ -1,6 +1,6 @@
-const replacementHandler = require('../../tools/scrape/scrapeReplacement'),
-    voteCountHandler = require('../../tools/scrape/scrapeVotes');
-
+const replacementHandler = require("../../tools/scrape/scrapeReplacement"),
+    voteCountHandler = require("../../tools/scrape/scrapeVotes"),
+    urlUtil = require("../../util/url");
 const currentSockets = {};
 function addSocket(socket) {
     currentSockets[socket.id] = socket;
@@ -15,29 +15,34 @@ async function initializeSocket(socketPkg) {
     if (socketPkg.io && socketPkg.socket) {
         const { io, socket } = socketPkg;
         addSocket(socket);
-        socket.on('disconnect', () => removeSocket(socket));
-        socket.on('replacement', async (data) => {
+        socket.on("disconnect", () => removeSocket(socket));
+        socket.on("replacement", async (data) => {
+            console.log("F");
+
             try {
+                console.log(urlUtil.getParams(data.url));
                 let result = await replacementHandler.getReplacementFromUrl(data.url);
-                socket.emit('replacement', result);
+                socket.emit("replacement", result);
             } catch (err) {
-                console.log('[ERROR] Replacement Form');
-                socket.emit('error', err);
+                console.log("[ERROR] Replacement Form");
+                socket.emit("error", err);
             }
         });
-        socket.on('votecount', async (data) => {
-            console.log('VoteCount was Called');
+        socket.on("votecount", async (data) => {
+            console.log("VoteCount was Called");
             try {
-                let result = await voteCountHandler.scrapeThread(data.url, (e) => socket.emit('progress', e));
-                socket.emit('ping', result);
-                socket.emit('votecount', result);
+                let result = await voteCountHandler.scrapeThread(data.url, (e) => socket.emit("progress", e));
+                socket.emit("ping", result);
+                socket.emit("votecount", result);
             } catch (err) {
                 console.log(err);
             }
         });
-        socket.on('ping', (data) => { console.log(data) });
+        socket.on("ping", (data) => {
+            console.log(data);
+        });
     } else {
-        console.log('SocketIO Failed to Initialize');
+        console.log("SocketIO Failed to Initialize");
     }
 }
-module.exports = { initializeSocket }
+module.exports = { initializeSocket };

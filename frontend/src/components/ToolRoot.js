@@ -2,12 +2,12 @@ import React from 'react';
 import io from 'socket.io-client';
 
 export default class ToolRoot extends React.Component {
-    socket = null;
-    state = {
-        result: '',
-        progress: ''
+    constructor() {
+        super();
+        this.socket = null;
+        this.cache = {};
     }
-    cache = {};
+
     addCache(obj) {
         this.cache = Object.assign(obj);
     }
@@ -46,6 +46,6 @@ export default class ToolRoot extends React.Component {
         this.socket.on(id, func);
     }
     render() {
-        return (<p>Blank Tool</p>)
+        return <p>Blank Tool</p>;
     }
 }

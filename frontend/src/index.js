@@ -1,35 +1,35 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, Redirect, Link } from 'react-router-dom';
 import './css/main.css';
 
 // Pages
 import Main from './pages/Main.js';
 import NotFoundPage from './pages/404.js';
-import Replacement from './pages/replacement.js';
-import VoteCountForm from './pages/VoteCount';
-import RoleCard from './pages/rolecard';
-
+import Replacement from './components/pages/Replacement.js';
+import VoteCount from './components/pages/VoteCount';
+import AlternateTools from './components/pages/AlternateTools';
 class Doc extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
     }
     render() {
-        return (<>
-            <Router>
-                <Switch>
-                    <Route exact path='/' component={Main} />
-                    <Route exact path='/rolecard' component={RoleCard} />
-                    <Route exact path='/replacement' component={Replacement} />
-                    <Route exact path='/votecount' component={VoteCountForm} />
-                    <Route path='/404' component={NotFoundPage} />
-                    <Redirect to='/404' />
-                </Switch>
-            </Router>
-        </>
+        return (
+            <>
+                <Router>
+                    <Switch>
+                        <Route exact path="/" component={Main} />
+                        <Route exact path="/replacement" component={Replacement} />
+                        <Route exact path="/votecount" component={VoteCount} />
+                        <Route exact path="/test" component={VoteCount} />
 
-        )
+                        <Route path="/404" component={NotFoundPage} />
+                        <Redirect to="/404" />
+                    </Switch>
+                </Router>
+            </>
+        );
     }
 }
 ReactDOM.render(<Doc />, document.getElementById('root'));

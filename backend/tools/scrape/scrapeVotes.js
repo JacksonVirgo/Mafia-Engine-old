@@ -8,7 +8,7 @@ class URL {
         this.baseURL = url;
         this.ppp = ppp;
         this.indent = 0;
-        this.pppURL = url + "&ppp=" + this.ppp;
+        this.pppURL = url + '&ppp=' + this.ppp;
     }
     urlFromPost(postNum) {
         return `${this.pppURL}&start=${postNum}`;
@@ -41,7 +41,7 @@ class Thread {
             votePairs: { reg: { id: 0, vote: 'VOTE: ', unvote: 'UNVOTE: ' } },
             votes: [],
             unvotes: [],
-            total: []
+            total: [],
         };
     }
     async init(progressUpdate = (e) => console.log(e)) {
@@ -81,36 +81,40 @@ class Thread {
         return array;
     }
     scrapeSettings($) {
-        let voteCountSelector = "Spoiler: VoteCount Settings";
-        const settings = {}
+        let voteCountSelector = 'Spoiler: VoteCount Settings';
+        const settings = {};
         settings.pageData = this.getPageData($);
-        $("div.post").first().find("div.inner > div.postbody > div.content > div").each((index, element) => {
-            $(element).find("div.quotetitle").each((index, element) => {
-                let parent = $(element).parent();
-                let handle = $(element).find("b").first().text();
-                let content = parent.find("div.quotecontent").first().find("div").first();
-                if (handle === voteCountSelector) {
-                    content.find("span").each((index, element) => {
-                        let totalString = $(element).text();
-                        let command = totalString.split("=");
-                        settings[command[0]] = command[1];
+        $('div.post')
+            .first()
+            .find('div.inner > div.postbody > div.content > div')
+            .each((index, element) => {
+                $(element)
+                    .find('div.quotetitle')
+                    .each((index, element) => {
+                        let parent = $(element).parent();
+                        let handle = $(element).find('b').first().text();
+                        let content = parent.find('div.quotecontent').first().find('div').first();
+                        if (handle === voteCountSelector) {
+                            content.find('span').each((index, element) => {
+                                let totalString = $(element).text();
+                                let command = totalString.split('=');
+                                settings[command[0]] = command[1];
+                            });
+                        }
                     });
-                }
             });
-        });
         const finalSettings = new Settings(settings);
         this.settings = finalSettings.data;
-
     }
     getPageData($) {
-        let pagination = $(".pagination").first();
-        let currentPage = pagination.find("strong").first();
+        let pagination = $('.pagination').first();
+        let currentPage = pagination.find('strong').first();
         let currentPageNum = convertInt(currentPage.text());
         let lastPage = currentPageNum;
-        if (pagination.find("span").length >= 1) {
-            let lastLink = pagination.find("span > a").last();
+        if (pagination.find('span').length >= 1) {
+            let lastLink = pagination.find('span > a').last();
             let lastLinkNumber = convertInt(lastLink.text());
-            lastPage = (lastPage > lastLinkNumber) ? lastPage : lastLinkNumber;
+            lastPage = lastPage > lastLinkNumber ? lastPage : lastLinkNumber;
         }
 
         const result = { lastPage, currentPage: currentPageNum };
@@ -141,10 +145,10 @@ class Thread {
             author: post.find('.inner > .postprofilecontainer > .postprofile > dt > a').text(),
             post: {
                 url: post.find('div.inner > div.postbody > p.author > a > strong').parent().attr('href'),
-                number: post.find('div.inner > div.postbody > p.author > a > strong:first').text().replace(/\D/g, '')
+                number: post.find('div.inner > div.postbody > p.author > a > strong:first').text().replace(/\D/g, ''),
             },
             pronoun: 'N/A',
-            votes: {}
+            votes: {},
         };
         if (!this.voteTags.filled) {
             for (const category in this.voteTags.votePairs) {
@@ -155,25 +159,28 @@ class Thread {
             this.voteTags.filled = true;
         }
         post.find('div.inner > div.postbody > div.content:first').each((i, e) => {
-            $(e).find('blockquote').each((i, e) => $(e).remove());
-            $(e).find('span.bbvote, span.noboldsig').each((i, e) => {
-                let vote = $(e).text();
-                if (vote) {
-                    let detachedVote = detachVoteTag(vote, this.voteTags.total);
-                    if (detachedVote) {
-                        let { tag, content } = detachedVote;
-                        for (const voteCategory in this.voteTags.votePairs) {
-                            if (!voteData.votes[voteCategory])
-                                voteData.votes[voteCategory] = [];
-                            if (tag === this.voteTags.votePairs[voteCategory].vote) {
-                                voteData.votes[voteCategory].push(content);
-                            } else if (tag === this.voteTags.votePairs[voteCategory].unvote) {
-                                voteData.votes[voteCategory].push(null);
+            $(e)
+                .find('blockquote')
+                .each((i, e) => $(e).remove());
+            $(e)
+                .find('span.bbvote, span.noboldsig')
+                .each((i, e) => {
+                    let vote = $(e).text();
+                    if (vote) {
+                        let detachedVote = detachVoteTag(vote, this.voteTags.total);
+                        if (detachedVote) {
+                            let { tag, content } = detachedVote;
+                            for (const voteCategory in this.voteTags.votePairs) {
+                                if (!voteData.votes[voteCategory]) voteData.votes[voteCategory] = [];
+                                if (tag === this.voteTags.votePairs[voteCategory].vote) {
+                                    voteData.votes[voteCategory].push(content);
+                                } else if (tag === this.voteTags.votePairs[voteCategory].unvote) {
+                                    voteData.votes[voteCategory].push(null);
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
         });
 
         let result = !!Object.keys(voteData.votes).length ? voteData : null;
@@ -205,5 +212,5 @@ function convertInt(str) {
 module.exports = {
     scrapeThread: (url, progress = (e) => console.log(e)) => {
         return new Thread(url).init(progress);
-    }
-}
+    },
+};

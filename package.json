@@ -4,8 +4,8 @@
     "description": "A collection of tools to help with Forum Mafia games.",
     "main": "index.js",
     "scripts": {
-        "start": "node index.js",
-        "test": "nodemon index.js",
+        "start": "node backend/index.js",
+        "test": "nodemon backend/index.js",
         "exec": "frontend/react-scripts start"
     },
     "author": {

@@ -41,8 +41,9 @@
     box-sizing: border-box;
     width: 100%;
 }
-
-.modalLabel, .modalInput, .modalTextarea {
+.modalLabel,
+.modalInput,
+.modalTextarea {
     margin: 0px auto;
     width: 80%;
 }
@@ -56,4 +57,7 @@
 .modalSubmit {
     width: 80%;
     margin-top: 8px;
+}
+.small {
+    font-size: 8px;
 }

@@ -1,79 +1,68 @@
-import React, { setState } from "react";
-import { findBestMatch } from "string-similarity";
-import ToolRoot from "../components/ToolRoot";
-import Vote from "../scripts/Vote";
-import { CenterModal } from "../components/centerModal";
-
-import style from "../css/centermodal.module.css";
-
-class VoteCountForm extends ToolRoot {
+import React from 'react';
+import { findBestMatch } from 'string-similarity';
+import Vote from '../../scripts/Vote';
+import { connectSocket } from '../../network/socket';
+import style from '../../css/centermodal.module.css';
+import { sortArraysBySize } from '../../scripts/sorting';
+export default class VoteCount extends React.Component {
     constructor() {
         super();
-        this.state = {
-            result: "",
-            progress: "",
-        };
+        this.state = {};
+        this.socket = null;
+        this.cache = {};
+    }
+    componentDidMount() {
+        this.startSocketConnection();
+        this.setupSocketListeners();
+    }
+    componentWillUnmount() {
+        this.closeSocketConnection();
+    }
+    startSocketConnection() {
+        this.socket = connectSocket();
+    }
+    closeSocketConnection() {
+        this.socket.disconnect();
     }
     setupSocketListeners() {
-        super.setupSocketListeners();
-        this.socket.on("votecount", this.onVoteCount.bind(this));
-        this.socket.on("progress", this.onProgress.bind(this));
+        this.socket.on('result', this.processVotes.bind(this));
+        this.socket.on('progress', this.processProgress.bind(this));
     }
-    onVoteCount(data) {
-        this.addCache(data);
-        let cleaned = this.clean();
-        let formatted = this.format(cleaned);
-        this.setState({ progress: "", result: formatted });
+    processVotes(data) {
+        console.log(data);
+        this.cache = Object.assign(this.cache, data);
+        let formatted = this.format(this.clean());
+        this.setState({ progress: '', result: formatted });
     }
-    onProgress(data) {
+    processProgress(data) {
         let progress = Math.round((data.currentPage / data.lastPage) * 100);
-        setState({ progress: `[${progress}%]` });
+        this.setState({ progress: `[${progress}%]` });
     }
     onFormSubmit(e) {
         e.preventDefault();
-        let gameUrl = e.target.gameUrl.value; // Second value is for testing purposes.
-        console.log(gameUrl);
-        this.socket.emit("votecount", { url: gameUrl });
-        this.setState({ progress: "[0%]" });
-        console.log("Form Submitted");
+        let gameUrl = e.target.gameUrl.value;
+        this.socket.emit('votecount', { url: gameUrl });
+        this.setState({ progress: '[0%]', result: 'Pending Result...' });
     }
     render() {
         return (
-            <CenterModal
-                title="Vote Counter"
-                child={
-                    <form
-                        className={style.modalForm}
-                        onSubmit={this.onFormSubmit.bind(this)}
-                    >
-                        <label className={style.modalLabel} htmlFor="gameUrl">
-                            Link to Game Thread
-                        </label>
-                        <input
-                            className={style.modalInput}
-                            id="gameUrl"
-                            name="gameUrl"
-                            type="text"
-                        />
-                        <br />
-                        <input
-                            className={style.modalInput}
-                            type="submit"
-                            value="Generate"
-                        />
-                        <br />
-                        <h2>
-                            Result <span>{this.state.progress}</span>
-                        </h2>
-                        <textarea
-                            className={style.modalTextarea}
-                            name="result"
-                            value={this.state.result}
-                            readOnly
-                        />
-                    </form>
-                }
-            />
+            <div className={style.centerModal}>
+                <h1>Vote Counter</h1>
+                <br />
+                <form className={style.modalForm} onSubmit={this.onFormSubmit.bind(this)}>
+                    <label className={style.modalLabel} htmlFor="gameUrl">
+                        Link to Game Thread
+                    </label>
+                    <input className={style.modalInput} id="gameUrl" name="gameUrl" type="text" />
+                    <br />
+                    <input className={style.modalInput} type="submit" value="Generate" />
+                    <br />
+                    <h2>
+                        Result <span>{this.state.progress}</span>
+                    </h2>
+                    <textarea className={style.modalTextarea} name="result" value={this.state.result} />
+                </form>
+            </div>
         );
     }
     clean() {
@@ -106,19 +95,19 @@ class VoteCountForm extends ToolRoot {
                 }
                 let valid = validVote?.isValid(this.cache.settings);
                 if (valid) {
-                    let authorIndex = voteData.notVoting.indexOf(
-                        validVote.author
-                    );
+                    let authorIndex = voteData.notVoting.indexOf(validVote.author);
                     voteData.notVoting.splice(authorIndex, 1);
                     voteData.votes[category][author] = {
                         last: lastVote,
                         valid: validVote,
                     };
-                    if (!voteData.wagons[category][validVote.vote.valid])
-                        voteData.wagons[category][validVote.vote.valid] = [];
-                    voteData.wagons[category][validVote.vote.valid].push(
-                        validVote
-                    );
+                    if (!voteData.wagons[category][validVote.vote.valid]) voteData.wagons[category][validVote.vote.valid] = [];
+
+                    let wagons = voteData.wagons[category][validVote.vote.valid];
+                    wagons.push(validVote);
+                    wagons = sortArraysBySize(wagons);
+                    voteData.wagons[category][validVote.vote.valid] = wagons;
+                    console.log(wagons.length, voteData.majority);
                 }
             }
         }
@@ -126,32 +115,26 @@ class VoteCountForm extends ToolRoot {
     }
     format(voteData) {
         const { wagons, notVoting, majority } = voteData;
-        let totalVC = "";
+        let totalVC = '';
         for (const category in wagons) {
-            let categoryVotes = "[area=VC]";
-            let totalVoteArray = [];
+            let categoryVotes = '[area=VC]';
             for (const wagonHead in wagons[category]) {
                 let voteArray = wagons[category][wagonHead];
                 let vote = `[b]${wagonHead}[/b] (${voteArray.length}) -> `;
                 for (let i = 0; i < voteArray.length; i++) {
-                    if (i > 0) vote += ", ";
+                    if (i > 0) vote += ', ';
                     vote += `${voteArray[i].author}`;
                 }
-                totalVoteArray.push({
-                    size: voteArray.length,
-                    wagon: `${vote} [b][E-${
-                        majority - voteArray.length
-                    }][/b]\n`,
-                });
+                categoryVotes += vote + '\n';
             }
             if (notVoting.length > 0) {
                 categoryVotes += `\n[b]Not Voting[/b] (${notVoting.length}) -> `;
                 for (let i = 0; i < notVoting.length; i++) {
-                    if (i > 0) categoryVotes += ", ";
+                    if (i > 0) categoryVotes += ', ';
                     categoryVotes += `${notVoting[i]}`;
                 }
             }
-            categoryVotes += "[/area]";
+            categoryVotes += '[/area]';
             totalVC += categoryVotes;
         }
         return totalVC;
@@ -161,21 +144,14 @@ class VoteCountForm extends ToolRoot {
         let aliveList = [];
         for (let i = 0; i < players.length; i++) {
             let root = this.getRootAuthor(players[i]);
-            if (
-                !containsObject(root, aliveList) &&
-                !containsObject(root, dead)
-            ) {
+            if (!containsObject(root, aliveList) && !containsObject(root, dead)) {
                 aliveList.push(root);
             }
         }
         return aliveList;
     }
     checkValid(votePost, category) {
-        let isCurrent =
-            votePost.number >
-            parseInt(
-                this.cache.settings.days[this.cache.settings.days.length - 1]
-            );
+        let isCurrent = votePost.number > parseInt(this.cache.settings.days[this.cache.settings.days.length - 1]);
         let isDead = false;
         for (let deadUsr of this.cache.settings.dead) {
             let deadRoot = this.rootUser(deadUsr);
@@ -203,8 +179,7 @@ class VoteCountForm extends ToolRoot {
         return findBestMatch(user, this.cache.settings.totalnames).bestMatch;
     }
     getRootAuthor(author) {
-        let bestMatch = findBestMatch(author, this.cache.settings.totalnames)
-            .bestMatch;
+        let bestMatch = findBestMatch(author, this.cache.settings.totalnames).bestMatch;
         let root = this.cache.settings.alias[bestMatch.target];
         return root || bestMatch.target;
     }
@@ -216,5 +191,3 @@ function containsObject(obj, list) {
     }
     return false;
 }
-
-export default VoteCountForm;
