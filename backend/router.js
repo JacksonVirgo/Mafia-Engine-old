@@ -1,5 +1,7 @@
 const { socketSelector } = require('./config.json');
 const path = require('path');
+const commandHub = require('./api/commands/commandHub');
+
 //#region RESTful API
 const express = require('express'),
     cors = require('cors'),
@@ -42,26 +44,8 @@ async function initializeSocket(socketPkg) {
         addSocket(socket);
         socket.on('disconnect', () => removeSocket(socket));
         socket.on('ping', console.log);
-        socket.on('replacement', async (data) => {
-            console.log('Replacement Called');
-            try {
-                const result = await handler.replacement.getReplacementFromUrl(data.url);
-                socket.emit('replacement', result);
-            } catch (err) {
-                console.log('[ERROR] Replacement Form');
-                socket.emit('error', err);
-            }
-        });
-        socket.on('votecount', async (data) => {
-            console.log(data);
-            try {
-                const result = await handler.votecount.scrapeThread(data.url, (e) => socket.emit('progress', e));
-                console.log(result);
-                socket.emit('result', result);
-            } catch (err) {
-                console.log(err);
-            }
-        });
+        socket.on('replacement', async (data) => commandHub.replacement(socket, data));
+        socket.on('votecount', async (data) => commandHub.votecount(socket, data));
     } else {
         console.log('SocketIO Failed to Initialize');
     }

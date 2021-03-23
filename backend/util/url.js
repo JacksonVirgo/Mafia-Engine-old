@@ -15,14 +15,16 @@ function absolute(base, relative) {
 }
 
 function getParams(url) {
-    let paramsRoot = url.split("?")[1];
+    let splitUrl = url.split('?');
+    let baseUrl = splitUrl[0];
+    let paramsRoot = splitUrl[1];
     let paramsList = paramsRoot.split("&");
     let result = {};
     for (let param of paramsList) {
         let split = param.split("=");
         result[split[0]] = split[1];
     }
-    return result;
+    return { root: baseUrl, params: result };
 }
 
 module.exports = {
