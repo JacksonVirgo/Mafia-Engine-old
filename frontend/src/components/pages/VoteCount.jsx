@@ -163,7 +163,7 @@ export default class VoteCount extends React.Component {
 					categoryVotes += `${notVoting[i]}`;
 				}
 			}
-			categoryVotes += `${this.cache.settings.deadline ? 'Day ends in [countdown]${this.cache.settings.deadline}[/countdown]' : ''}[/area]`;
+			categoryVotes += `${this.cache.settings.deadline ? `\nDay ends in [countdown]${this.cache.settings.deadline}[/countdown]` : ''}[/area]`;
 			totalVC += categoryVotes;
 		}
 		return totalVC;
