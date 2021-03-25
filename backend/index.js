@@ -18,10 +18,13 @@ app.use(cors());
 app.use('/api', router.expressRouter);
 
 console.log(process.env.running);
-if (process.env.running === 'production') {
-	app.use(express.static('../frontend/build'));
+if ((process.env.running = 'production')) {
+	console.log('TEST1');
+	app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 	app.get('*', (req, res) => {
-		res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+		console.log('TEST2');
+		res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
+		console.log('TEST3');
 	});
 }
 
