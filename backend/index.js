@@ -17,8 +17,8 @@ app.use(express.json());
 app.use(cors());
 app.use('/api', router.expressRouter);
 
-console.log(process.env.type);
-if (process.env.type === 'production') {
+console.log(process.env.running);
+if (process.env.running === 'production') {
 	app.use(express.static('../frontend/build'));
 	app.get('*', (req, res) => {
 		res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
