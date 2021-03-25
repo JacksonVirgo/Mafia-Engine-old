@@ -22,10 +22,13 @@ module.exports = async (socket, data) => {
 	socket.emit('result', thread);
 };
 async function checkParams(url) {
-	const { params, root } = urlUtil.getParams(url);
-	const { f, t } = params;
-	if (f && t) {
-		return `${root}?f=${f}&t=${t}`;
+	const p = urlUtil.getParams(url);
+	if (p) {
+		const { params, root } = p;
+		const { f, t } = params;
+		if (hasParams && f && t) {
+			return `${root}?f=${f}&t=${t}`;
+		}
 	}
 	return null;
 }

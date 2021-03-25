@@ -19,12 +19,9 @@ app.use('/api', router.expressRouter);
 
 console.log(process.env.running);
 if ((process.env.running = 'production')) {
-	console.log('TEST1');
 	app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 	app.get('*', (req, res) => {
-		console.log('TEST2');
 		res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
-		console.log('TEST3');
 	});
 }
 

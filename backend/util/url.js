@@ -15,16 +15,20 @@ function absolute(base, relative) {
 }
 
 function getParams(url) {
-	let splitUrl = url.split('?');
-	let baseUrl = splitUrl[0];
-	let paramsRoot = splitUrl[1];
-	let paramsList = paramsRoot.split('&');
-	let result = {};
-	for (let param of paramsList) {
-		let split = param.split('=');
-		result[split[0]] = split[1];
+	if (url.indexOf('?') > -1) {
+		let splitUrl = url.split('?');
+		let baseUrl = splitUrl[0];
+		let paramsRoot = splitUrl[1];
+		let paramsList = paramsRoot.split('&');
+		let result = {};
+		for (let param of paramsList) {
+			let split = param.split('=');
+			result[split[0]] = split[1];
+		}
+		return { root: baseUrl, params: result };
+	} else {
+		return null;
 	}
-	return { root: baseUrl, params: result };
 }
 function validate(url) {
 	let validatedURL;
