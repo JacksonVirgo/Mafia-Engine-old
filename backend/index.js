@@ -17,6 +17,7 @@ app.use(express.json());
 app.use(cors());
 app.use('/api', router.expressRouter);
 
+console.log(process.env.type);
 if (process.env.type === 'production') {
 	app.use(express.static('../frontend/build'));
 	app.get('*', (req, res) => {
