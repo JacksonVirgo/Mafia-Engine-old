@@ -26,7 +26,7 @@ async function checkParams(url) {
 	if (p) {
 		const { params, root } = p;
 		const { f, t } = params;
-		if (hasParams && f && t) {
+		if (f && t) {
 			return `${root}?f=${f}&t=${t}`;
 		}
 	}
