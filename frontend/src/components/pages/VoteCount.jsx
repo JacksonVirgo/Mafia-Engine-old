@@ -43,12 +43,22 @@ export default class VoteCount extends React.Component {
 	}
 	processVotes(data) {
 		this.cache = Object.assign(this.cache, data);
-		let formatted = this.format(this.clean());
-		this.setState({ progress: '', result: formatted });
+		const cleaned = this.clean();
+		if (cleaned) {
+			const format = this.format(cleaned);
+			this.setState({ progress: '', result: format });
+		} else {
+			this.setState({ progress: '[ERROR]', result: 'Thread is not compatible with this tool.' });
+		}
 	}
 	processProgress(data) {
-		let progress = Math.round((data.currentPage / data.lastPage) * 100);
-		this.setState({ progress: `[${progress}%]` });
+		const { currentPage, lastPage, notes } = data;
+		if (currentPage && lastPage) {
+			this.setState({ progress: `[${Math.round((data.currentPage / data.lastPage) * 100)}%]` });
+		}
+		if (notes) {
+			this.setState({ result: `${notes}` });
+		}
 	}
 	processError(data) {
 		this.setState({ progress: '[ERROR]', result: data.type });
@@ -91,56 +101,60 @@ export default class VoteCount extends React.Component {
 		);
 	}
 	clean() {
-		console.log(this.cache.settings);
+		const isValid = this.cache.settings.players.length >= 1;
 		const voteData = {
 			votes: {},
 			wagons: {},
 			notVoting: [],
 			majority: null,
 		};
-		for (const category in this.cache.voteCount) {
-			if (!voteData.votes[category]) voteData.votes[category] = {};
-			if (!voteData.wagons[category]) voteData.wagons[category] = {};
-			let hammerOccured = false;
-			voteData.notVoting = this.getAlive();
-			voteData.majority = Math.ceil(voteData.notVoting.length / 2);
-			for (const author in this.cache.voteCount[category]) {
-				if (!hammerOccured) {
-					let voteArray = this.cache.voteCount[category][author];
-					let lastVote = null;
-					let validVote = null;
-					for (let i = 0; i < voteArray.length; i++) {
-						let vote = new Vote(voteArray[i], category);
-						vote.clean(this.cache.settings);
-						if (vote.vote.valid !== undefined) {
-							if (vote.vote.valid) {
-								validVote = vote.getNewest(validVote);
-							} else {
-								validVote = null;
+		if (isValid) {
+			for (const category in this.cache.voteCount) {
+				if (!voteData.votes[category]) voteData.votes[category] = {};
+				if (!voteData.wagons[category]) voteData.wagons[category] = {};
+				let hammerOccured = false;
+				voteData.notVoting = this.getAlive();
+				voteData.majority = Math.ceil(voteData.notVoting.length / 2);
+				for (const author in this.cache.voteCount[category]) {
+					if (!hammerOccured) {
+						let voteArray = this.cache.voteCount[category][author];
+						let lastVote = null;
+						let validVote = null;
+						for (let i = 0; i < voteArray.length; i++) {
+							let vote = new Vote(voteArray[i], category);
+							vote.clean(this.cache.settings);
+							if (vote.vote.valid !== undefined) {
+								if (vote.vote.valid) {
+									validVote = vote.getNewest(validVote);
+								} else {
+									validVote = null;
+								}
 							}
+							lastVote = vote.getNewest(lastVote);
 						}
-						lastVote = vote.getNewest(lastVote);
-					}
 
-					let valid = validVote?.isValid(this.cache.settings);
-					if (valid && !hammerOccured) {
-						let authorIndex = voteData.notVoting.indexOf(validVote.author);
-						voteData.notVoting.splice(authorIndex, 1);
-						voteData.votes[category][author] = {
-							last: lastVote,
-							valid: validVote,
-						};
-						if (!voteData.wagons[category][validVote.vote.valid]) voteData.wagons[category][validVote.vote.valid] = [];
+						let valid = validVote?.isValid(this.cache.settings);
+						if (valid && !hammerOccured) {
+							let authorIndex = voteData.notVoting.indexOf(validVote.author);
+							voteData.notVoting.splice(authorIndex, 1);
+							voteData.votes[category][author] = {
+								last: lastVote,
+								valid: validVote,
+							};
+							if (!voteData.wagons[category][validVote.vote.valid]) voteData.wagons[category][validVote.vote.valid] = [];
 
-						let wagons = voteData.wagons[category][validVote.vote.valid];
-						wagons.push(validVote);
-						wagons = sortArraysBySize(wagons);
-						voteData.wagons[category][validVote.vote.valid] = wagons;
+							let wagons = voteData.wagons[category][validVote.vote.valid];
+							wagons.push(validVote);
+							wagons = sortArraysBySize(wagons);
+							voteData.wagons[category][validVote.vote.valid] = wagons;
+						}
 					}
 				}
 			}
 		}
-		return voteData;
+
+		let returnVal = this.cache.settings.players.length;
+		return returnVal >= 1 ? voteData : null;
 	}
 	format(voteData) {
 		const { wagons, notVoting, majority } = voteData;

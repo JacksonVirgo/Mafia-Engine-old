@@ -4,17 +4,36 @@ const urlUtil = require('../../util/url');
 
 module.exports = async (socket, data) => {
 	let { url } = data;
-	let hitError = false;
-	try {
-		const { params, root } = urlUtil.getParams(url);
-		const { f, t } = params;
-		if (f && t) {
-			url = `${root}?f=${f}&t=${t}`;
-		}
-		const result = await vc.scrapeThread(url, (e) => socket.emit('progress', e));
-		socket.emit('result', result);
-	} catch (err) {
-		socket.emit('error', { type: 'Invalid Input [URL]' });
-		hitError = true;
+	const val = urlUtil.validate(url);
+	if (!val) {
+		socket.emit('error', { type: '[Invalid URL] URL is not a complete URL' });
+		return;
 	}
+	const validParams = await checkParams(url);
+	if (!validParams) {
+		socket.emit('error', { type: '[Invalid URL] URL Parameters were not what was expected. Bailed' });
+		return;
+	}
+	const thread = await scrapeThread(validParams, socket);
+	if (!thread) {
+		socket.emit('error', { type: '[Invalid Page] Content of the URL does not match that of which was expected. Bailed' });
+		return;
+	}
+	socket.emit('result', thread);
 };
+async function checkParams(url) {
+	const { params, root } = urlUtil.getParams(url);
+	const { f, t } = params;
+	if (f && t) {
+		return `${root}?f=${f}&t=${t}`;
+	}
+	return null;
+}
+async function scrapeThread(url, socket) {
+	try {
+		const scrape = await vc.scrapeThread(url, (e) => socket.emit('progress', e));
+		return scrape;
+	} catch (err) {
+		return null;
+	}
+}

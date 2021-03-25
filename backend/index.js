@@ -26,7 +26,9 @@ if (process.env.type === 'production') {
 	});
 }
 
-io.sockets.on('connection', async (socket) => await router.initializeSocket({ io, socket }));
+io.sockets.on('connection', async (socket) => {
+	await router.initializeSocket({ io, socket });
+});
 server.listen(port, () => {
 	console.log(`Server listening on port ${port}`);
 });
