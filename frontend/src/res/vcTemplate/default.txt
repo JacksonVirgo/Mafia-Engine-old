@@ -1,0 +1,6 @@
+
+[area=VC]
+<wagon>[b]{name} ({votes}) ->[/b] {vote}</wagon>
+
+<countdown>Day ends in {timer}</countdown>
+[/area]

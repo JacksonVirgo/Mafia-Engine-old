@@ -1,10 +1,5 @@
-const scrapeCore = require('../scrapeCore');
-const scrapeVotes = require('../scrapeVotes');
-const cheerio = require('cheerio');
-
 const seperator = ',';
 const block = ':';
-
 const selectors = {
 	players: ['playerList', 'players'],
 	slots: ['slotList', 'slots', 'replacementlist', 'replacements'],
@@ -29,7 +24,12 @@ function findSelector(sel) {
 	return null;
 }
 
-module.exports = class {
+export default (settings) => {
+	let s = new SettingsFormat(settings);
+	return s.data;
+};
+
+class SettingsFormat {
 	constructor(settings = null) {
 		this.data = {
 			players: [],
@@ -38,6 +38,7 @@ module.exports = class {
 			totalnames: [],
 			moderators: [],
 			dead: [],
+			days: ['0'],
 			votes: {
 				reg: {
 					id: '0',
@@ -56,7 +57,7 @@ module.exports = class {
 			},
 			correctionWeight: 0.5,
 		};
-		this.baseUrl;
+		this.baseUrl = '';
 		if (settings) this.parseSettings(settings);
 	}
 	parseSettings(settingsData) {
@@ -176,4 +177,4 @@ module.exports = class {
 		}
 		return { list: author, obj: group };
 	}
-};
+}

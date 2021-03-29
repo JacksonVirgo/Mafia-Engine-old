@@ -103,8 +103,9 @@ class Thread {
 						}
 					});
 			});
-		const finalSettings = new Settings(settings);
-		this.settings = finalSettings.data;
+		//const finalSettings = new Settings(settings);
+		console.log(settings);
+		this.settings = settings;
 	}
 	getPageData($) {
 		let pagination = $('.pagination').first();
