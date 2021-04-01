@@ -15,21 +15,15 @@ export default function Main(auth) {
 			{renderSubtitle('Version Beta 1.2')}
 			<br />
 			<div className='mainmenu'>
-				{/* <a className={styles.menuoption} href='/rolecard'>
+				<a className={styles.menuoption} href='/rolecard'>
 					Role Card
-				</a> */}
+				</a>
 				<a className={styles.menuoption} href='/replacement'>
 					Replacement Form
 				</a>
 				<a className={styles.menuoption} href='/votecount'>
 					Vote Counter
 				</a>
-				{/* <a className={styles.menuoption} href="/info">
-                    Information
-                </a>
-                <a className={styles.menuoption} href="/tools">
-                    Other Links
-                </a> */}
 			</div>
 		</div>
 	);

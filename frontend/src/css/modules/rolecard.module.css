@@ -1,15 +1,19 @@
-.root {
-    width: 100vw;
-    height: 100vh;
+.component {
+	background-color: red;
+	border: 1px solid black;
+	border-radius: 25%;
 }
-.root > nav {
-    height: 100%;
-    width: 250px;
-    background-color: #181818;
-    color: white;
+.sidebarButton {
+	width: 100%;
+	border: 1px solid white;
+	text-align: center;
+	user-select: none; /* supported by Chrome and Opera */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
 }
-.root > nav > ul > li {
-    color: white;
-}
-.importData {
+.sidebarButton :hover {
+	color: gray;
+	border: 1px solid red;
 }

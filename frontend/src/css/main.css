@@ -83,3 +83,36 @@ a:hover {
 	width: 80%;
 	height: 100%;
 }
+.rolecard {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	flex-direction: row;
+}
+.rolecard > * {
+	padding: 4px;
+	color: white;
+}
+.rolecard > .sidebar {
+	background-color: #333;
+	border-right: 2px solid black;
+	width: 25%;
+}
+.rolecard > .content {
+	flex-grow: 1;
+}
+.rolecard > .content > .component {
+	background-color: white;
+	color: black;
+	border: 1px solid black;
+}
+.rolecard > .sidebar > .sidebarButton {
+	width: 100%;
+	border: 1px solid white;
+	text-align: center;
+	user-select: none; /* supported by Chrome and Opera */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+}
