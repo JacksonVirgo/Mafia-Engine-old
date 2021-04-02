@@ -1,11 +1,20 @@
 import React from 'react';
 
-export default (props) => {
-	const { name, label, type } = props;
-	return (
-		<>
-			<label htmlFor={name}>{label}</label>
-			<input id={props.name} type={props.type} />
-		</>
-	);
-};
+export default class extends React.Component {
+	constructor(props) {
+		super(props);
+		this.name = props.name;
+		this.label = props.label;
+		this.type = props.type;
+
+		if (props.accept) this.accept = props.accept;
+	}
+	render() {
+		return (
+			<>
+				<label htmlFor={this.name}>{this.label}</label>
+				<input id={this.name} type={this.type} accept={this.accept || ''} />
+			</>
+		);
+	}
+}
