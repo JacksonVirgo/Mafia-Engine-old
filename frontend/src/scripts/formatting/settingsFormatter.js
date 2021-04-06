@@ -148,8 +148,9 @@ class SettingsFormat {
 			let slot = slots[i];
 			let players = slot.split(':');
 			for (let f = 1; f < players.length; f++) {
-				console.log(f, players[f]);
-				this.slotList[players[f]] = players[0];
+				let cur = players[f],
+					root = players[0];
+				this.slotList[cur] = root;
 			}
 		}
 	}
