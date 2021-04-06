@@ -5,7 +5,7 @@ import './css/main.css';
 
 // Pages
 import Main from './components/pages/Main.jsx';
-import NotFoundPage from './pages/404.js';
+import NotFoundPage from './components/pages/404.jsx';
 import Replacement from './components/pages/Replacement.jsx';
 import VoteCount from './components/pages/VoteCount.jsx';
 import RoleCard from './components/pages/RoleCard.jsx';
