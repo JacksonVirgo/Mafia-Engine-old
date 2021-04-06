@@ -25,6 +25,9 @@ export class MainMenu extends Component {
 					<a className='menuoption' href='/votecount'>
 						Vote Counter
 					</a>
+					<a className='menuoption' href='/credits'>
+						Credits and Attribution
+					</a>
 					{/* <a className="menuoption" href="/tools">
                         Alternative Links
                     </a>

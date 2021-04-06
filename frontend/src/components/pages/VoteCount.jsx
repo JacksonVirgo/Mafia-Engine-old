@@ -6,6 +6,7 @@ import { findBestMatch } from 'string-similarity';
 import Form from '../forms/Form.jsx';
 import Modal from './Modal';
 import settings from '../../scripts/formatting/settingsFormatter';
+
 export default class VoteCount extends React.Component {
 	constructor() {
 		super();
@@ -158,7 +159,7 @@ export default class VoteCount extends React.Component {
 		return returnVal >= 1 ? voteData : null;
 	}
 	format(voteData) {
-		const { wagons, notVoting, majority } = voteData;
+		const { wagons, notVoting } = voteData;
 		let totalVC = '';
 		for (const category in wagons) {
 			let categoryVotes = '[area=VC]';

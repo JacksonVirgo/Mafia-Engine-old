@@ -24,10 +24,11 @@ function findSelector(sel) {
 	return null;
 }
 
-export default (settings) => {
+const defaultFunc = (settings) => {
 	let s = new SettingsFormat(settings);
 	return s.data;
 };
+export default defaultFunc;
 
 class SettingsFormat {
 	constructor(settings = null) {
@@ -114,6 +115,9 @@ class SettingsFormat {
 						break;
 					case 'correctionWeight':
 						this.data.correctionWeight = data;
+						break;
+					default:
+						console.log('Unknown Setting');
 						break;
 				}
 			} else {
