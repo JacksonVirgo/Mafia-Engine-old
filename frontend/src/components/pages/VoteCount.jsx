@@ -159,7 +159,7 @@ export default class VoteCount extends React.Component {
 		return returnVal >= 1 ? voteData : null;
 	}
 	format(voteData) {
-		const { wagons, notVoting } = voteData;
+		const { wagons, notVoting, majority } = voteData;
 		let totalVC = '';
 		for (const category in wagons) {
 			let categoryVotes = '[area=VC]';
@@ -170,6 +170,10 @@ export default class VoteCount extends React.Component {
 					if (i > 0) vote += ', ';
 					vote += `${voteArray[i].author}`;
 				}
+				let eDash = majority - voteArray.length;
+
+				vote += eDash <= 0 ? ` [ELIMINATED]` : ` [E-${eDash}]`;
+
 				categoryVotes += vote + '\n';
 			}
 			if (notVoting.length > 0) {

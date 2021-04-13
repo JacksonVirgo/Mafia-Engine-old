@@ -8,6 +8,7 @@ const selectors = {
 	dead: ['deadList', 'dead', 'eliminated'],
 	days: ['dayStartNumbers', 'dayStart', 'days'],
 	deadline: ['deadline', 'timer'],
+	prods: ['prodTimer', 'prod'],
 	countdown: ['prods', 'timer', 'prodTimer', 'countdown'],
 	pageData: ['pageData'],
 	correctionWeight: ['correctionWeight, correction'],
@@ -116,6 +117,9 @@ class SettingsFormat {
 					case 'correctionWeight':
 						this.data.correctionWeight = data;
 						break;
+					case 'prods':
+						const prodTimerRef = this.convertProds(data);
+						break;
 					default:
 						console.log('Unknown Setting');
 						break;
@@ -176,10 +180,24 @@ class SettingsFormat {
 		for (let i = 0; i < slotRef.length; i++) {
 			let indivPlayers = slotRef[i].split(block);
 			for (let j = 0; j < indivPlayers.length; j++) {
-				author.push(indivPlayers[j]);
-				group[indivPlayers[j]] = indivPlayers[0];
+				const currentPlayer = indivPlayers[0].trim();
+				const playerReference = indivPlayers[j].trim();
+				author.push(playerReference);
+				group[playerReference] = currentPlayer;
 			}
 		}
 		return { list: author, obj: group };
+	}
+	convertProds(data) {
+		const prods = [0, 0, 0, 0];
+		const split = data.split(',');
+		const val = split.length > prods.length ? prods.length : split.length;
+		for (let i = 0; i < val; i++) {
+			let prod = split[i].trim();
+			let int = parseInt(prod);
+			if (!isNaN(int)) {
+				prods[i] = int;
+			}
+		}
 	}
 }

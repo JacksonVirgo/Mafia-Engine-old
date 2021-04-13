@@ -83,7 +83,7 @@ class Thread {
 	scrapeSettings($) {
 		let voteCountSelector = 'Spoiler: VoteCount Settings';
 		let settings = {};
-		if (true) {
+		if (false) {
 			settings.pageData = this.getPageData($);
 			$('div.post')
 				.first()
@@ -109,8 +109,9 @@ class Thread {
 				pageData: this.getPageData($),
 				players: 'Andante,GrandpaMo,Fizz Raab,Irish dancer:Hand of Glory,Ahri,skitter30,PookyTheMagicalBear,WhemeStar:GeorgeBailey,JacksonVirgo',
 				moderators: 'Cadb',
-				days: '7',
-				timer: '2021-04-04 10:14:14 -4.00',
+				dead: 'PookyTheMagicalBear',
+				days: '7,959',
+				timer: '2021-04-14 19:49:39 -4.00',
 			};
 		}
 		console.log(settings);

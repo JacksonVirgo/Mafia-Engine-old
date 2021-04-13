@@ -24,7 +24,7 @@ export default function Main(auth) {
 					Vote Counter
 				</a>
 				<a className='menuoption' href='/credits'>
-					Credits
+					Credits / Contact
 				</a>
 			</div>
 		</div>
