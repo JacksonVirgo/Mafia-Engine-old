@@ -13,13 +13,11 @@ class VoteCount {
 }
 
 export function cleanInput(voteCount, settings) {
-	console.log('F');
 	const voteData = { wagons: {}, votes: {}, notVoting: [] };
 	for (const cat in voteCount) {
 		if (!voteData.votes[cat]) voteData.votes[cat] = {};
 		if (!voteData.wagons[cat]) voteData.wagons[cat] = {};
 		let living = getAlivePlayers(settings);
-		console.log('Potato', living);
 		voteData.notVoting = getAlivePlayers(settings);
 		voteData.majority = Math.ceil(voteData.notVoting.length / 2);
 		console.log(voteData.majority, voteData.notVoting);

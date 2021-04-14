@@ -83,7 +83,7 @@ class Thread {
 	scrapeSettings($) {
 		let voteCountSelector = 'Spoiler: VoteCount Settings';
 		let settings = {};
-		if (false) {
+		if (true) {
 			settings.pageData = this.getPageData($);
 			$('div.post')
 				.first()
