@@ -5,6 +5,7 @@ import { sortArraysBySize } from '../../scripts/sorting.js';
 import { findBestMatch } from 'string-similarity';
 import Form from '../forms/Form.jsx';
 import Modal from './Modal';
+import settings from '../../scripts/formatting/settingsFormatter';
 
 export default class VoteCount extends React.Component {
 	constructor() {
@@ -42,6 +43,7 @@ export default class VoteCount extends React.Component {
 		this.socket.on('error', this.processError.bind(this));
 	}
 	processVotes(data) {
+		data.settings = settings(data.settings);
 		this.cache = Object.assign(this.cache, data);
 		const cleaned = this.clean();
 		if (cleaned) {
@@ -168,6 +170,10 @@ export default class VoteCount extends React.Component {
 					if (i > 0) vote += ', ';
 					vote += `${voteArray[i].author}`;
 				}
+				let eDash = majority - voteArray.length;
+
+				vote += eDash <= 0 ? ` [ELIMINATED]` : ` [E-${eDash}]`;
+
 				categoryVotes += vote + '\n';
 			}
 			if (notVoting.length > 0) {

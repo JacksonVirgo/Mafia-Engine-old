@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default (p) => {
+export default function Modal(p) {
 	const { title, children } = p;
 	return (
 		<div className='modalMain'>
@@ -10,4 +10,4 @@ export default (p) => {
 			})}
 		</div>
 	);
-};
+}

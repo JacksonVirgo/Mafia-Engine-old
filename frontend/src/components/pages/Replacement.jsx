@@ -1,4 +1,4 @@
-import React, { setState } from 'react';
+import React from 'react';
 import { createSocket } from '../../scripts/websockets';
 import { getCalendarDate } from '../../scripts/dateUtilities';
 import Modal from './Modal';

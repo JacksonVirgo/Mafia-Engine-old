@@ -82,29 +82,40 @@ class Thread {
 	}
 	scrapeSettings($) {
 		let voteCountSelector = 'Spoiler: VoteCount Settings';
-		const settings = {};
-		settings.pageData = this.getPageData($);
-		$('div.post')
-			.first()
-			.find('div.inner > div.postbody > div.content > div')
-			.each((index, element) => {
-				$(element)
-					.find('div.quotetitle')
-					.each((index, element) => {
-						let parent = $(element).parent();
-						let handle = $(element).find('b').first().text();
-						let content = parent.find('div.quotecontent').first().find('div').first();
-						if (handle === voteCountSelector) {
-							content.find('span').each((index, element) => {
-								let totalString = $(element).text();
-								let command = totalString.split('=');
-								settings[command[0]] = command[1];
-							});
-						}
-					});
-			});
-		const finalSettings = new Settings(settings);
-		this.settings = finalSettings.data;
+		let settings = {};
+		if (true) {
+			settings.pageData = this.getPageData($);
+			$('div.post')
+				.first()
+				.find('div.inner > div.postbody > div.content > div')
+				.each((index, element) => {
+					$(element)
+						.find('div.quotetitle')
+						.each((index, element) => {
+							let parent = $(element).parent();
+							let handle = $(element).find('b').first().text();
+							let content = parent.find('div.quotecontent').first().find('div').first();
+							if (handle === voteCountSelector) {
+								content.find('span').each((index, element) => {
+									let totalString = $(element).text();
+									let command = totalString.split('=');
+									settings[command[0]] = command[1];
+								});
+							}
+						});
+				});
+		} else {
+			settings = {
+				pageData: this.getPageData($),
+				players: 'Andante,GrandpaMo,Fizz Raab,Irish dancer:Hand of Glory,Ahri,skitter30,PookyTheMagicalBear,WhemeStar:GeorgeBailey,JacksonVirgo',
+				moderators: 'Cadb',
+				dead: 'PookyTheMagicalBear',
+				days: '7,959',
+				timer: '2021-04-14 19:49:39 -4.00',
+			};
+		}
+		console.log(settings);
+		this.settings = settings;
 	}
 	getPageData($) {
 		let pagination = $('.pagination').first();

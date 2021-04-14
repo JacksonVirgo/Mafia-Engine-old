@@ -20,11 +20,27 @@ h2 {
 	font-weight: 700;
 }
 a {
-	display: block;
 	color: black;
 }
 a:hover {
 	color: darkblue;
+}
+.menuoption {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	text-decoration: none;
+	width: 80%;
+	height: 2em;
+	border: 1px solid black;
+	border-radius: 8px;
+	margin: 4px auto;
+}
+.menuoption:hover {
+	background-color: black;
+	color: white;
+	border-color: white;
 }
 
 /* MODAL FORM */
@@ -82,4 +98,60 @@ a:hover {
 	margin: 0 auto;
 	width: 80%;
 	height: 100%;
+}
+.rolecard {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	flex-direction: row;
+}
+.rolecard > * {
+	padding: 4px;
+	color: white;
+}
+.rolecard > .sidebar {
+	background-color: #333;
+	border-right: 2px solid black;
+	width: 25%;
+}
+.rolecard > .content {
+	flex-grow: 1;
+}
+.rolecard > .content > .component {
+	background-color: white;
+	color: black;
+	border: 1px solid black;
+	width: 100%;
+	padding: 8px;
+}
+.component > form {
+	width: 80%;
+	display: block;
+	margin: 0 auto;
+}
+textarea {
+	height: 100px;
+	width: 100%;
+}
+.rolecard > .sidebar > .sidebarButton {
+	width: 100%;
+	border: 1px solid white;
+	text-align: center;
+	user-select: none; /* supported by Chrome and Opera */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+.rolecard > .sidebar > .selected {
+	color: black;
+	background-color: white;
+	border: 1px solid black;
+}
+
+@media (max-width: 600px) {
+	.modalMain {
+		width: 85vw;
+	}
 }

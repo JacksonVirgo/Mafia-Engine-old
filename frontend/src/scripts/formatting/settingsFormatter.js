@@ -1,10 +1,5 @@
-const scrapeCore = require('../scrapeCore');
-const scrapeVotes = require('../scrapeVotes');
-const cheerio = require('cheerio');
-
 const seperator = ',';
 const block = ':';
-
 const selectors = {
 	players: ['playerList', 'players'],
 	slots: ['slotList', 'slots', 'replacementlist', 'replacements'],
@@ -13,6 +8,7 @@ const selectors = {
 	dead: ['deadList', 'dead', 'eliminated'],
 	days: ['dayStartNumbers', 'dayStart', 'days'],
 	deadline: ['deadline', 'timer'],
+	prods: ['prodTimer', 'prod'],
 	countdown: ['prods', 'timer', 'prodTimer', 'countdown'],
 	pageData: ['pageData'],
 	correctionWeight: ['correctionWeight, correction'],
@@ -29,7 +25,13 @@ function findSelector(sel) {
 	return null;
 }
 
-module.exports = class {
+const defaultFunc = (settings) => {
+	let s = new SettingsFormat(settings);
+	return s.data;
+};
+export default defaultFunc;
+
+class SettingsFormat {
 	constructor(settings = null) {
 		this.data = {
 			players: [],
@@ -38,6 +40,7 @@ module.exports = class {
 			totalnames: [],
 			moderators: [],
 			dead: [],
+			days: ['0'],
 			votes: {
 				reg: {
 					id: '0',
@@ -56,7 +59,7 @@ module.exports = class {
 			},
 			correctionWeight: 0.5,
 		};
-		this.baseUrl;
+		this.baseUrl = '';
 		if (settings) this.parseSettings(settings);
 	}
 	parseSettings(settingsData) {
@@ -114,6 +117,12 @@ module.exports = class {
 					case 'correctionWeight':
 						this.data.correctionWeight = data;
 						break;
+					case 'prods':
+						const prodTimerRef = this.convertProds(data);
+						break;
+					default:
+						console.log('Unknown Setting');
+						break;
 				}
 			} else {
 				console.log(`Settings found [${sel}] as an unknown selector.`);
@@ -143,8 +152,9 @@ module.exports = class {
 			let slot = slots[i];
 			let players = slot.split(':');
 			for (let f = 1; f < players.length; f++) {
-				console.log(f, players[f]);
-				this.slotList[players[f]] = players[0];
+				let cur = players[f],
+					root = players[0];
+				this.slotList[cur] = root;
 			}
 		}
 	}
@@ -170,10 +180,24 @@ module.exports = class {
 		for (let i = 0; i < slotRef.length; i++) {
 			let indivPlayers = slotRef[i].split(block);
 			for (let j = 0; j < indivPlayers.length; j++) {
-				author.push(indivPlayers[j]);
-				group[indivPlayers[j]] = indivPlayers[0];
+				const currentPlayer = indivPlayers[0].trim();
+				const playerReference = indivPlayers[j].trim();
+				author.push(playerReference);
+				group[playerReference] = currentPlayer;
 			}
 		}
 		return { list: author, obj: group };
 	}
-};
+	convertProds(data) {
+		const prods = [0, 0, 0, 0];
+		const split = data.split(',');
+		const val = split.length > prods.length ? prods.length : split.length;
+		for (let i = 0; i < val; i++) {
+			let prod = split[i].trim();
+			let int = parseInt(prod);
+			if (!isNaN(int)) {
+				prods[i] = int;
+			}
+		}
+	}
+}
