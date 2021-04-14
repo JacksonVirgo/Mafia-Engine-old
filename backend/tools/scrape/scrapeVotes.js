@@ -104,15 +104,6 @@ class Thread {
 							}
 						});
 				});
-		} else {
-			settings = {
-				pageData: this.getPageData($),
-				players: 'Andante,GrandpaMo,Fizz Raab,Irish dancer:Hand of Glory,Ahri,skitter30,PookyTheMagicalBear,WhemeStar:GeorgeBailey,JacksonVirgo',
-				moderators: 'Cadb',
-				dead: 'PookyTheMagicalBear',
-				days: '7,959',
-				timer: '2021-04-14 19:49:39 -4.00',
-			};
 		}
 		console.log(settings);
 		this.settings = settings;
