@@ -107,6 +107,7 @@ export default class VoteCount extends React.Component {
 		const voteData = {
 			votes: {},
 			wagons: {},
+			orderedWagons: [],
 			notVoting: [],
 			majority: null,
 		};
@@ -152,6 +153,13 @@ export default class VoteCount extends React.Component {
 						}
 					}
 				}
+				for (const wagonHandle in voteData.wagons[category]) {
+					const wagon = voteData.wagons[category][wagonHandle];
+					if (!voteData.orderedWagons[category]) voteData.orderedWagons[category] = [];
+					if (!voteData.orderedWagons[category][wagon.length]) voteData.orderedWagons[category][wagon.length] = {};
+					voteData.orderedWagons[category][wagon.length][wagonHandle] = wagon;
+				}
+				voteData.orderedWagons[category].reverse();
 			}
 		}
 
@@ -159,22 +167,28 @@ export default class VoteCount extends React.Component {
 		return returnVal >= 1 ? voteData : null;
 	}
 	format(voteData) {
-		const { wagons, notVoting, majority } = voteData;
+		const { wagons, notVoting, orderedWagons, majority } = voteData;
+		const { edash, edashOnTop } = this.cache.settings;
 		let totalVC = '';
+
 		for (const category in wagons) {
 			let categoryVotes = '[area=VC]';
-			for (const wagonHead in wagons[category]) {
-				let voteArray = wagons[category][wagonHead];
-				let vote = `[b]${wagonHead}[/b] (${voteArray.length}) -> `;
-				for (let i = 0; i < voteArray.length; i++) {
-					if (i > 0) vote += ', ';
-					vote += `${voteArray[i].author}`;
+
+			const wagonArray = orderedWagons[category];
+			for (let i = 0; i < wagonArray.length; i++) {
+				for (const wagonHead in wagonArray[i]) {
+					let vote = wagonArray[i][wagonHead];
+					let voteStr = `[b]${wagonHead}[/b] (${vote.length}) -> `;
+					for (let i = 0; i < vote.length; i++) {
+						if (i > 0) voteStr += ', ';
+						voteStr += `${vote[i].author}`;
+					}
+					let eDash = majority - vote.length;
+					console.log(eDash, edash);
+					const showEdash = i <= edashOnTop - 1 || eDash <= edash;
+					if (showEdash) voteStr += eDash <= 0 ? ' [ELIMINATED]' : ` [E-${eDash}]`;
+					categoryVotes += `${voteStr}\n`;
 				}
-				let eDash = majority - voteArray.length;
-
-				vote += eDash <= 0 ? ` [ELIMINATED]` : ` [E-${eDash}]`;
-
-				categoryVotes += vote + '\n';
 			}
 			if (notVoting.length > 0) {
 				categoryVotes += `\n[b]Not Voting[/b] (${notVoting.length}) -> `;

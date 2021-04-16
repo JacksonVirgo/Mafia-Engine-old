@@ -1,1 +1,1 @@
-export const serverUrl = "http://mafiaengine.com";
+export const serverUrl = 'https://mafiaengine.com';

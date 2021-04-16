@@ -4,6 +4,8 @@ import SidebarButton from '../rolecard/SidebarButton.jsx';
 import Papa from 'papaparse';
 import { createSocket } from '../../scripts/websockets';
 
+import roleCardConfig from '../../config/roleCardConfig';
+
 import Import from '../rolecard/sections/Import.jsx';
 import Template from '../rolecard/sections/Template.jsx';
 
@@ -11,21 +13,21 @@ export default class RoleCard extends Component {
 	constructor() {
 		super();
 		this.state = {
-			import: false,
-			globals: false,
-			template: false,
+			showImport: false,
+			showGlobals: false,
+			showTemplate: false,
 			roleData: [],
 		};
 		this.socket = createSocket();
 	}
 	toggleImport() {
-		this.setState({ import: !this.state.import });
+		this.setState({ import: !this.state.showImport });
 	}
 	toggleGlobal() {
-		this.setState({ globals: !this.state.globals });
+		this.setState({ globals: !this.state.showGlobals });
 	}
 	toggleTemplate() {
-		this.setState({ template: !this.state.template });
+		this.setState({ template: !this.state.showTemplate });
 	}
 	submitImport(e) {
 		e.preventDefault();
@@ -58,9 +60,9 @@ export default class RoleCard extends Component {
 					<SidebarButton name='Process' onclick={this.toggleTemplate.bind(this)} />
 				</div>
 				<div className='content'>
-					{this.state.import && <RolecardComponent child={<Import formSubmit={this.submitImport.bind(this)} />} />}
-					{this.state.globals && <RolecardComponent child={<span>Global Component</span>} />}
-					{this.state.template && <RolecardComponent child={<Template onChange={this.templateChange.bind(this)} />} />}
+					{this.state.showImport && <RolecardComponent child={<Import formSubmit={this.submitImport.bind(this)} />} />}
+					{this.state.showGlobals && <RolecardComponent child={<span>Global Component</span>} />}
+					{this.state.showTemplate && <RolecardComponent child={<Template onChange={this.templateChange.bind(this)} template={roleCardConfig.template} />} />}
 				</div>
 			</div>
 		);
