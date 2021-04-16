@@ -14,9 +14,6 @@ export default function Main(auth) {
 			{renderSubtitle('Version Beta 1.2')}
 			<br />
 			<div className='mainmenu'>
-				<a className='menuoption' href='/rolecard'>
-					Role Card
-				</a>
 				<a className='menuoption' href='/replacement'>
 					Replacement Form
 				</a>
