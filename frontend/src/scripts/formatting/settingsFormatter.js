@@ -59,8 +59,8 @@ class SettingsFormat {
 			voteWeight: {
 				reg: 1,
 			},
-			edash: -1,
-			edashOnTop: -1,
+			edash: 2,
+			edashOnTop: 1,
 			correctionWeight: 0.5,
 		};
 		this.baseUrl = '';
@@ -127,10 +127,12 @@ class SettingsFormat {
 					case 'edash':
 						const edashInt = parseInt(data);
 						if (!isNaN(edashInt)) this.data.edash = edashInt;
+						else this.data.edash = -1;
 						break;
 					case 'edashOnTop':
 						const edashOnTopInt = parseInt(data);
 						if (!isNaN(edashOnTopInt)) this.data.edashOnTop = edashOnTopInt;
+						else this.data.edashOnTop = -1;
 						break;
 					default:
 						console.log('Unknown Setting');
