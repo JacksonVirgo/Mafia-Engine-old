@@ -178,6 +178,7 @@ export default class VoteCount extends React.Component {
 				}
 			}
 		}
+		console.log(newArray);
 		return newArray;
 	}
 	format(voteData) {
