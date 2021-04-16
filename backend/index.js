@@ -25,6 +25,8 @@ if (running == 'production') {
 	app.get('*', (req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
 	});
+} else {
+	require('dotenv').config();
 }
 io.sockets.on('connection', async (socket) => {
 	await router.initializeSocket({ io, socket });

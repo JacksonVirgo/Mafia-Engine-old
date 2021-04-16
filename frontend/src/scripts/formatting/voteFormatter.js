@@ -2,6 +2,45 @@ import Vote from '../Vote';
 import { sortArraysBySize } from '../sorting.js';
 import { findBestMatch } from 'string-similarity';
 
+export default function formatVoteCount(voteCount, settings) {
+	const vc = new VoteCount(voteCount, settings);
+	const result = vc.run();
+}
+const clean = (voteCount, settings) => {
+	const isValid = settings.players.length >= 1;
+	const voteData = {
+		votes: {},
+		wagons: {},
+		orderedWagons: [],
+		notVoting: [],
+		majority: null,
+	};
+	if (isValid) {
+		for (const category in voteCount) {
+			if (!voteData.votes[category]) voteData.votes[category] = {};
+			if (!voteData.wagons[category]) voteData.wagons[category] = {};
+			let hammerOccured = false;
+			voteData.notVoting = getLivingPlayers(settings);
+		}
+	} else {
+	}
+};
+const getLivingPlayers = ({ players, dead, totalnames, alias }) => {
+	let livingList = [];
+	for (let i = 0; i < players.length; i++) {
+		let root = getNewestPlayerFromSlot(players, totalnames, alias);
+		if (!containsObject(root, livingList) && !containsObject(root, dead)) {
+			livingList.push(root);
+		}
+	}
+	return livingList;
+};
+const getNewestPlayerFromSlot = (user, totalnames, alias) => {
+	const bestMatch = findBestMatch(user, totalnames).bestMatch;
+	const root = alias[bestMatch.target];
+	return root || bestMatch.target;
+};
+
 class VoteCount {
 	constructor(voteCount, settings) {
 		this.voteCount = voteCount;
@@ -12,7 +51,7 @@ class VoteCount {
 	format() {}
 }
 
-export function cleanInput(voteCount, settings) {
+function cleanInput(voteCount, settings) {
 	const voteData = { wagons: {}, votes: {}, notVoting: [] };
 	for (const cat in voteCount) {
 		if (!voteData.votes[cat]) voteData.votes[cat] = {};
@@ -50,9 +89,10 @@ export function cleanInput(voteCount, settings) {
 			}
 		}
 	}
+	console.log(voteData);
 	return voteData;
 }
-export function formatInput(voteData, settings) {
+function formatInput(voteData, settings) {
 	const { wagons, notVoting } = voteData;
 	let totalVC = '';
 	for (const category in wagons) {

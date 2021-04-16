@@ -107,6 +107,7 @@ export default class VoteCount extends React.Component {
 		const voteData = {
 			votes: {},
 			wagons: {},
+			orderedWagons: [],
 			notVoting: [],
 			majority: null,
 		};
@@ -152,29 +153,55 @@ export default class VoteCount extends React.Component {
 						}
 					}
 				}
+				for (const wagonHandle in voteData.wagons[category]) {
+					let wagon = this.sortWagonByPostNumber(voteData.wagons[category][wagonHandle]);
+					if (!voteData.orderedWagons[category]) voteData.orderedWagons[category] = [];
+					if (!voteData.orderedWagons[category][wagon.length]) voteData.orderedWagons[category][wagon.length] = {};
+					voteData.orderedWagons[category][wagon.length][wagonHandle] = wagon;
+					console.log(wagon);
+				}
+				voteData.orderedWagons[category].reverse();
 			}
 		}
-
 		let returnVal = this.cache.settings.players.length;
 		return returnVal >= 1 ? voteData : null;
 	}
+	sortWagonByPostNumber(wagon) {
+		let newArray = wagon;
+		let length = newArray.length;
+		for (let i = 0; i < length; i++) {
+			for (let j = 0; j < length - i - 1; j++) {
+				if (newArray[j].number > newArray[j + 1].number) {
+					let tmp = newArray[j];
+					newArray[j] = newArray[j + 1];
+					newArray[j + 1] = tmp;
+				}
+			}
+		}
+		return newArray;
+	}
 	format(voteData) {
-		const { wagons, notVoting, majority } = voteData;
+		const { wagons, notVoting, orderedWagons, majority } = voteData;
+		const { edash, edashOnTop } = this.cache.settings;
 		let totalVC = '';
+
 		for (const category in wagons) {
 			let categoryVotes = '[area=VC]';
-			for (const wagonHead in wagons[category]) {
-				let voteArray = wagons[category][wagonHead];
-				let vote = `[b]${wagonHead}[/b] (${voteArray.length}) -> `;
-				for (let i = 0; i < voteArray.length; i++) {
-					if (i > 0) vote += ', ';
-					vote += `${voteArray[i].author}`;
+
+			const wagonArray = orderedWagons[category];
+			for (let i = 0; i < wagonArray.length; i++) {
+				for (const wagonHead in wagonArray[i]) {
+					let vote = wagonArray[i][wagonHead];
+					let voteStr = `[b]${wagonHead}[/b] (${vote.length}) -> `;
+					for (let i = 0; i < vote.length; i++) {
+						if (i > 0) voteStr += ', ';
+						voteStr += `${vote[i].author}`;
+					}
+					let eDash = majority - vote.length;
+					const showEdash = i <= edashOnTop - 1 || eDash <= edash;
+					if (showEdash) voteStr += eDash <= 0 ? ' [ELIMINATED]' : ` [E-${eDash}]`;
+					categoryVotes += `${voteStr}\n`;
 				}
-				let eDash = majority - voteArray.length;
-
-				vote += eDash <= 0 ? ` [ELIMINATED]` : ` [E-${eDash}]`;
-
-				categoryVotes += vote + '\n';
 			}
 			if (notVoting.length > 0) {
 				categoryVotes += `\n[b]Not Voting[/b] (${notVoting.length}) -> `;

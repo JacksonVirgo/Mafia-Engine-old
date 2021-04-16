@@ -12,6 +12,8 @@ const selectors = {
 	countdown: ['prods', 'timer', 'prodTimer', 'countdown'],
 	pageData: ['pageData'],
 	correctionWeight: ['correctionWeight, correction'],
+	edash: ['edash', 'edashweight'],
+	edashOnTop: ['edashOnTop'],
 };
 function containsSelector(sel, selRef) {
 	return selRef.includes(sel);
@@ -57,6 +59,8 @@ class SettingsFormat {
 			voteWeight: {
 				reg: 1,
 			},
+			edash: -1,
+			edashOnTop: -1,
 			correctionWeight: 0.5,
 		};
 		this.baseUrl = '';
@@ -119,6 +123,14 @@ class SettingsFormat {
 						break;
 					case 'prods':
 						const prodTimerRef = this.convertProds(data);
+						break;
+					case 'edash':
+						const edashInt = parseInt(data);
+						if (!isNaN(edashInt)) this.data.edash = edashInt;
+						break;
+					case 'edashOnTop':
+						const edashOnTopInt = parseInt(data);
+						if (!isNaN(edashOnTopInt)) this.data.edashOnTop = edashOnTopInt;
 						break;
 					default:
 						console.log('Unknown Setting');
