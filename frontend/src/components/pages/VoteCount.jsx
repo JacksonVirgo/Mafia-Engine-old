@@ -154,17 +154,31 @@ export default class VoteCount extends React.Component {
 					}
 				}
 				for (const wagonHandle in voteData.wagons[category]) {
-					const wagon = voteData.wagons[category][wagonHandle];
+					let wagon = this.sortWagonByPostNumber(voteData.wagons[category][wagonHandle]);
 					if (!voteData.orderedWagons[category]) voteData.orderedWagons[category] = [];
 					if (!voteData.orderedWagons[category][wagon.length]) voteData.orderedWagons[category][wagon.length] = {};
 					voteData.orderedWagons[category][wagon.length][wagonHandle] = wagon;
+					console.log(wagon);
 				}
 				voteData.orderedWagons[category].reverse();
 			}
 		}
-
 		let returnVal = this.cache.settings.players.length;
 		return returnVal >= 1 ? voteData : null;
+	}
+	sortWagonByPostNumber(wagon) {
+		let newArray = wagon;
+		let length = newArray.length;
+		for (let i = 0; i < length; i++) {
+			for (let j = 0; j < length - i - 1; j++) {
+				if (newArray[j].number > newArray[j + 1].number) {
+					let tmp = newArray[j];
+					newArray[j] = newArray[j + 1];
+					newArray[j + 1] = tmp;
+				}
+			}
+		}
+		return newArray;
 	}
 	format(voteData) {
 		const { wagons, notVoting, orderedWagons, majority } = voteData;
@@ -184,7 +198,6 @@ export default class VoteCount extends React.Component {
 						voteStr += `${vote[i].author}`;
 					}
 					let eDash = majority - vote.length;
-					console.log(eDash, edash);
 					const showEdash = i <= edashOnTop - 1 || eDash <= edash;
 					if (showEdash) voteStr += eDash <= 0 ? ' [ELIMINATED]' : ` [E-${eDash}]`;
 					categoryVotes += `${voteStr}\n`;
