@@ -158,9 +158,9 @@ export default class VoteCount extends React.Component {
 					if (!voteData.orderedWagons[category]) voteData.orderedWagons[category] = [];
 					if (!voteData.orderedWagons[category][wagon.length]) voteData.orderedWagons[category][wagon.length] = {};
 					voteData.orderedWagons[category][wagon.length][wagonHandle] = wagon;
-					console.log(wagon);
 				}
 				voteData.orderedWagons[category].reverse();
+				console.log(voteData.orderedWagons);
 			}
 		}
 		let returnVal = this.cache.settings.players.length;
