@@ -60,7 +60,7 @@ class SettingsFormat {
 				reg: 1,
 			},
 			edash: -1,
-			edashOnTop: 2,
+			edashOnTop: -1,
 			correctionWeight: 0.5,
 		};
 		this.baseUrl = '';
