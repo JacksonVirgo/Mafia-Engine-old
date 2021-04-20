@@ -1,9 +1,11 @@
-const vc = require('../../tools/scrape/scrapeVotes');
+const scrapeVotes = require('../../tools/scrape/scrapeVotes');
+console.log(scrapeVotes);
 const config = require('./config.json');
 const urlUtil = require('../../util/url');
 
 module.exports = async (socket, data) => {
 	let { url } = data;
+	console.log(data, url);
 	const val = urlUtil.validate(url);
 	if (!val) {
 		socket.emit('error', { type: '[Invalid URL] URL is not a complete URL' });
@@ -22,21 +24,26 @@ module.exports = async (socket, data) => {
 	socket.emit('result', thread);
 };
 async function checkParams(url) {
+	let result = null;
 	const p = urlUtil.getParams(url);
 	if (p) {
 		const { params, root } = p;
 		const { f, t } = params;
+		console.log(f, t);
 		if (f && t) {
-			return `${root}?f=${f}&t=${t}`;
+			result = `${root}?f=${f}&t=${t}`;
 		}
 	}
-	return null;
+	return result;
 }
 async function scrapeThread(url, socket) {
 	try {
-		const scrape = await vc.scrapeThread(url, (e) => socket.emit('progress', e));
+		console.log('TEST');
+		const scrape = await scrapeVotes.scrapeThread(url, (e) => socket.emit('progress', e));
+		console.log('Scrape', scrape);
 		return scrape;
 	} catch (err) {
+		console.log(err);
 		return null;
 	}
 }

@@ -7,6 +7,9 @@ import Form from '../forms/Form.jsx';
 import Modal from './Modal';
 import settings from '../../scripts/formatting/settingsFormatter';
 
+/*
+ */
+
 export default class VoteCount extends React.Component {
 	constructor() {
 		super();

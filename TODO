@@ -1,0 +1,11 @@
+1. Rework the way the data scraping works.
+    - Scrape the very first page of the thread to get the settings.
+    - If the settings are invalid or don't exist, return that to the user.
+    - Upon invalid settings, prompt one of the following actions
+        - Abandon Process.
+        - Create a settings spoiler with a new form.
+        - Return a list of all votes in the thread in order.
+    - If a post url is inputted, convert that to a thread URL from that post.
+
+2. Split the logic in the scraping to avoid repitition and
+    allow easy scaling.
