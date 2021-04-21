@@ -3,6 +3,10 @@ const cheerio = require('cheerio');
 const fetch = require('node-fetch');
 const Settings = require('./classes/settings');
 
+const ref = {
+	settingsSelector: 'Spoiler: VoteCount Settings',
+};
+
 class URL {
 	constructor(url, ppp) {
 		this.baseURL = url;
@@ -211,8 +215,35 @@ function convertInt(str) {
 	return result;
 }
 
+const fetchSettingsFromUrl = (url) => {};
+const findSettingsInPost = (post) => {
+	const settings = null;
+	post.find('div.inner > div.postbody > div.content > div').each((i, el) => {
+		$(element)
+			.find('div.quotetitle')
+			.each((i, el) => {
+				let parent = $(el).parent();
+				let handle = $(el).find('b').first().text();
+				let content = parent.find('div.quotecontent').first().find('div').first();
+				if (handle === ref.settingsSelector) {
+					settings = {};
+					content.find('span').each((i, el) => {
+						let totalString = $(el).text();
+						let command = totalString.split('=');
+						settings[command[0]] = command[1];
+					});
+				}
+			});
+	});
+	return settings;
+};
+
 module.exports = {
-	scrapeThread: (url, progress = (e) => console.log(e)) => {
+	findSettingsInPost,
+
+	scrapeThread: (url, progress) => {
+		console.log(url);
 		return new Thread(url).init(progress);
 	},
+	fetchSettingsFromUrl,
 };

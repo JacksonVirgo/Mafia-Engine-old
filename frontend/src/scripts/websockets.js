@@ -1,8 +1,7 @@
 import socketIOClient from 'socket.io-client';
-import { serverUrl } from './reference';
-
+import { getServerURL } from '../network/network';
 export function createSocket(commands = []) {
-	const socket = socketIOClient(process.env.SERVER_URL);
+	const socket = socketIOClient(getServerURL());
 	return socket;
 }
 // Create a managable abstraction over this.
