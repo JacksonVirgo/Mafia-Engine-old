@@ -4,7 +4,7 @@ const config = require('./config.json');
 const urlUtil = require('../../util/url');
 
 module.exports = async (socket, data) => {
-	let { url, raw } = data;
+	let { url, post, raw } = data;
 	const val = urlUtil.validate(url);
 	if (!val) {
 		socket.emit('error', { type: '[Invalid URL] URL is not a complete URL' });

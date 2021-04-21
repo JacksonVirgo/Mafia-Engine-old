@@ -36,8 +36,9 @@ class URL {
 }
 
 class Thread {
-	constructor(url) {
+	constructor(url, post = null) {
 		this.url = new URL(url, 200);
+		this.post = 25;
 		this.completed = false;
 		this.settings = null;
 		this.voteTags = {
@@ -54,7 +55,7 @@ class Thread {
 		while (!this.completed) {
 			let currentUrl = this.url.getNextUrlAndIndent();
 			let html = await getHTML(currentUrl);
-			let webData = this.scrapePage(html);
+			let { webData, lastPage } = this.scrapePage(html, this.post);
 			if (webData) {
 				for (const category in webData) {
 					if (!voteCount[category]) voteCount[category] = {};
@@ -65,7 +66,7 @@ class Thread {
 					}
 				}
 			}
-			this.completed = this.settings.pageData.currentPage === this.settings.pageData.lastPage;
+			this.completed = lastPage || this.settings.pageData.currentPage === this.settings.pageData.lastPage;
 			progressUpdate(this.settings.pageData);
 		}
 		console.timeEnd('Scrape');
@@ -126,7 +127,7 @@ class Thread {
 		const result = { lastPage, currentPage: currentPageNum };
 		return result;
 	}
-	scrapePage(html) {
+	scrapePage(html, post) {
 		const $ = cheerio.load(html);
 		if (!this.settings) this.scrapeSettings($);
 		else this.settings.pageData = this.getPageData($);
@@ -134,17 +135,23 @@ class Thread {
 		let voteCount = {};
 		// Object with handles for the author names which is an array of ALL votes.
 
+		let pageNumber = $('.pagination').find('strong').first().html();
+		let hasScrapedLastPage = false;
 		$('div.post').each((i, e) => {
-			let voteData = this.scrapePost($, $(e));
-			if (voteData) {
-				for (const category in voteData.votes) {
-					if (!voteCount[category]) voteCount[category] = {};
-					if (!voteCount[category][voteData.author]) voteCount[category][voteData.author] = [];
-					voteCount[category][voteData.author].push(voteData);
+			let postNumber = (pageNumber - 1) * 25 + i;
+			if (post && post >= postNumber) {
+				hasScrapedLastPage = true;
+				let voteData = this.scrapePost($, $(e));
+				if (voteData) {
+					for (const category in voteData.votes) {
+						if (!voteCount[category]) voteCount[category] = {};
+						if (!voteCount[category][voteData.author]) voteCount[category][voteData.author] = [];
+						voteCount[category][voteData.author].push(voteData);
+					}
 				}
 			}
 		});
-		return voteCount;
+		return { webData: voteCount, lastPage: hasScrapedLastPage };
 	}
 	scrapePost($, post) {
 		const voteData = {
