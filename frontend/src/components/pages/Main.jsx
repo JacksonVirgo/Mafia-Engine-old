@@ -24,10 +24,6 @@ export default function Main(auth) {
 				<a className='menuoption' href='/credits'>
 					Credits / Contact
 				</a>
-
-				<div className='centeredDiv'>
-					<DonateForm />
-				</div>
 			</div>
 		</div>
 	);
