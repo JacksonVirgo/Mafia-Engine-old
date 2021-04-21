@@ -4,8 +4,7 @@ const config = require('./config.json');
 const urlUtil = require('../../util/url');
 
 module.exports = async (socket, data) => {
-	let { url } = data;
-	console.log(data, url);
+	let { url, raw } = data;
 	const val = urlUtil.validate(url);
 	if (!val) {
 		socket.emit('error', { type: '[Invalid URL] URL is not a complete URL' });
@@ -20,6 +19,9 @@ module.exports = async (socket, data) => {
 	if (!thread) {
 		socket.emit('error', { type: '[Invalid Page] Content of the URL does not match that of which was expected. Bailed' });
 		return;
+	}
+	let result = thread;
+	if (!raw) {
 	}
 	socket.emit('result', thread);
 };

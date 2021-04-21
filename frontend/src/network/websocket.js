@@ -1,6 +1,6 @@
-import socketIOClient from 'socket.io-client';
-import { getServerURL } from './network';
+import { io } from 'socket.io-client';
+import { getServerURL, isLocalURL } from './network';
 export function createSocket() {
-	const socket = socketIOClient(getServerURL());
-	return socket;
+	let serverUrl = getServerURL();
+	return isLocalURL(serverUrl) ? io(serverUrl) : io();
 }
