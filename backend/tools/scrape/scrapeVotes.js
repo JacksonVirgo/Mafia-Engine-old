@@ -38,7 +38,7 @@ class URL {
 class Thread {
 	constructor(url, post = null) {
 		this.url = new URL(url, 200);
-		this.post = 25;
+		this.post = post;
 		this.completed = false;
 		this.settings = null;
 		this.voteTags = {
