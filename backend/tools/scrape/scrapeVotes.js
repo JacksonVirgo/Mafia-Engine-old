@@ -55,7 +55,7 @@ class Thread {
 		while (!this.completed) {
 			let currentUrl = this.url.getNextUrlAndIndent();
 			let html = await getHTML(currentUrl);
-			let { webData, lastPage } = this.scrapePage(html, this.post);
+			let { webData, hasScrapedLastPage } = this.scrapePage(html, this.post);
 			if (webData) {
 				for (const category in webData) {
 					if (!voteCount[category]) voteCount[category] = {};
@@ -66,7 +66,7 @@ class Thread {
 					}
 				}
 			}
-			this.completed = lastPage || this.settings.pageData.currentPage === this.settings.pageData.lastPage;
+			this.completed = hasScrapedLastPage || this.settings.pageData.currentPage === this.settings.pageData.lastPage;
 			progressUpdate(this.settings.pageData);
 		}
 		console.timeEnd('Scrape');
@@ -133,25 +133,24 @@ class Thread {
 		else this.settings.pageData = this.getPageData($);
 
 		let voteCount = {};
-		// Object with handles for the author names which is an array of ALL votes.
 
-		let pageNumber = $('.pagination').find('strong').first().html();
 		let hasScrapedLastPage = false;
 		$('div.post').each((i, e) => {
-			let postNumber = (pageNumber - 1) * 25 + i;
-			if (post && post >= postNumber) {
-				hasScrapedLastPage = true;
+			if (!hasScrapedLastPage) {
 				let voteData = this.scrapePost($, $(e));
-				if (voteData) {
+				let pageNumber = voteData.post.number;
+				if (pageNumber >= this.post) hasScrapedLastPage = true;
+
+				if (!!Object.keys(voteData.votes).length) {
 					for (const category in voteData.votes) {
 						if (!voteCount[category]) voteCount[category] = {};
 						if (!voteCount[category][voteData.author]) voteCount[category][voteData.author] = [];
 						voteCount[category][voteData.author].push(voteData);
 					}
-				}
+				} else voteData = null;
 			}
 		});
-		return { webData: voteCount, lastPage: hasScrapedLastPage };
+		return { webData: voteCount, hasScrapedLastPage };
 	}
 	scrapePost($, post) {
 		const voteData = {
@@ -196,8 +195,7 @@ class Thread {
 				});
 		});
 
-		let result = !!Object.keys(voteData.votes).length ? voteData : null;
-		return result;
+		return voteData;
 	}
 }
 
