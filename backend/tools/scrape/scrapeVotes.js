@@ -246,9 +246,8 @@ const findSettingsInPost = (post) => {
 module.exports = {
 	findSettingsInPost,
 
-	scrapeThread: (url, progress) => {
-		console.log(url);
-		return new Thread(url).init(progress);
+	scrapeThread: (url, progress, post) => {
+		return new Thread(url, post).init(progress);
 	},
 	fetchSettingsFromUrl,
 };
