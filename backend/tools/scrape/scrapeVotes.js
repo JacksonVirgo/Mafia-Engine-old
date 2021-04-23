@@ -71,7 +71,7 @@ class Thread {
 			progressUpdate(this.settings.pageData);
 		}
 		console.timeEnd('Scrape');
-		return { voteCount, settings: this.settings };
+		return { voteCount, settings: this.settings, post: this.post };
 	}
 	sortVotes(array) {
 		for (let i = 1; i < array.length; i++) {
