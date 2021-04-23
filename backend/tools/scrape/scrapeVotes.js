@@ -39,6 +39,7 @@ class Thread {
 	constructor(url, post = null) {
 		this.url = new URL(url, 200);
 		this.post = post;
+		console.log('POST', this.post);
 		this.completed = false;
 		this.settings = null;
 		this.voteTags = {
@@ -55,7 +56,7 @@ class Thread {
 		while (!this.completed) {
 			let currentUrl = this.url.getNextUrlAndIndent();
 			let html = await getHTML(currentUrl);
-			let { webData, hasScrapedLastPage } = this.scrapePage(html, this.post);
+			let { webData, hasScrapedLastPage } = this.scrapePage(html);
 			if (webData) {
 				for (const category in webData) {
 					if (!voteCount[category]) voteCount[category] = {};
@@ -127,27 +128,27 @@ class Thread {
 		const result = { lastPage, currentPage: currentPageNum };
 		return result;
 	}
-	scrapePage(html, post) {
+	scrapePage(html) {
 		const $ = cheerio.load(html);
 		if (!this.settings) this.scrapeSettings($);
 		else this.settings.pageData = this.getPageData($);
 
 		let voteCount = {};
-
 		let hasScrapedLastPage = false;
 		$('div.post').each((i, e) => {
-			if (!hasScrapedLastPage) {
-				let voteData = this.scrapePost($, $(e));
-				let pageNumber = voteData.post.number;
-				// if (pageNumber >= this.post) hasScrapedLastPage = true;
-
-				if (!!Object.keys(voteData.votes).length) {
-					for (const category in voteData.votes) {
-						if (!voteCount[category]) voteCount[category] = {};
-						if (!voteCount[category][voteData.author]) voteCount[category][voteData.author] = [];
-						voteCount[category][voteData.author].push(voteData);
-					}
-				} else voteData = null;
+			let voteData = this.scrapePost($, $(e));
+			if (!!Object.keys(voteData.votes).length) {
+				for (const category in voteData.votes) {
+					if (!voteCount[category]) voteCount[category] = {};
+					if (!voteCount[category][voteData.author]) voteCount[category][voteData.author] = [];
+					voteCount[category][voteData.author].push(voteData);
+				}
+			}
+			if (this.post) {
+				if (this.post <= voteData.post.number) {
+					hasScrapedLastPage = true;
+					return false;
+				}
 			}
 		});
 		return { webData: voteCount, hasScrapedLastPage };
@@ -246,7 +247,7 @@ const findSettingsInPost = (post) => {
 module.exports = {
 	findSettingsInPost,
 
-	scrapeThread: (url, progress, post) => {
+	scrapeThread: (url, post, progress) => {
 		return new Thread(url, post).init(progress);
 	},
 	fetchSettingsFromUrl,
