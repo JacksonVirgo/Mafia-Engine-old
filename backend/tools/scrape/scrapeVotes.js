@@ -139,7 +139,7 @@ class Thread {
 			if (!hasScrapedLastPage) {
 				let voteData = this.scrapePost($, $(e));
 				let pageNumber = voteData.post.number;
-				if (pageNumber >= this.post) hasScrapedLastPage = true;
+				// if (pageNumber >= this.post) hasScrapedLastPage = true;
 
 				if (!!Object.keys(voteData.votes).length) {
 					for (const category in voteData.votes) {
