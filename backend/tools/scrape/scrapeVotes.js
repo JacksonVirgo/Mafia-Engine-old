@@ -147,7 +147,6 @@ class Thread {
 			if (this.post) {
 				if (this.post <= voteData.post.number) {
 					hasScrapedLastPage = true;
-					return false;
 				}
 			}
 		});
