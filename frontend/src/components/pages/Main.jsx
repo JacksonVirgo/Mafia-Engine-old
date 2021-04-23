@@ -1,5 +1,4 @@
 import React from 'react';
-import DonateForm from '../paypal/DonateForm';
 import logo from '../../img/logo.png';
 
 function renderSubtitle(subtitle) {
