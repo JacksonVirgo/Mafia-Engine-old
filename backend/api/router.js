@@ -7,6 +7,7 @@ const config = require('../config.json');
 let authToken = process.env.DEV_KEY || config.DEV_KEY;
 
 router.use(cors());
+router.use('/test', require('./testRoute'));
 router.get('ping', (req, res) => res.send('pong'));
 router.get('/replacement/:thread', async (req, res) => {
 	console.log(req.params);
