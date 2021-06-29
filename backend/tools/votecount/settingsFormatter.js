@@ -1,3 +1,5 @@
+const { Namespace } = require('socket.io');
+
 const selectors = {
     comma: ',',
     colon: ':',
@@ -38,6 +40,7 @@ const defaultSettings = {
     slots: {},
     alias: {},
     totalplayers: [],
+    slotReference: {},
     moderators: [],
     dead: [],
     deadPost: {},
@@ -46,13 +49,12 @@ const defaultSettings = {
     edash: 2,
     edashOnTop: 1,
     correctionWeight: 0.85,
+    deadline: null,
 };
 
 function parseSettings(settingsData) {
-    console.log('Start Settings Parse');
     const settingsValue = defaultSettings;
     for (const handle in settingsData) {
-        console.log('handle', handle);
         let setting = getSetting(handle);
         let data = settingsData[handle];
 
@@ -97,9 +99,24 @@ function parseSettings(settingsData) {
                 case 'correctionWeight':
                     settingsValue.correctionWeight;
                     break;
+                case 'deadline':
+                    settingsValue.deadline = data;
+                    break;
             }
         }
     }
+    const removeDuplicatePlayers = (array) => {
+        let unique = {};
+        array.forEach((i) => {
+            if (!unique[i]) {
+                unique[i] = true;
+            }
+        });
+        return Object.keys(unique);
+    };
+    settingsValue.totalplayers = removeDuplicatePlayers([].concat(settingsValue.players, Object.keys(settingsValue.slots), Object.keys(settingsValue.alias)));
+    settingsValue.slotReference = Object.assign(settingsValue.slots, settingsValue.alias);
+
     return settingsValue;
 }
 
