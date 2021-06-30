@@ -1,11 +1,10 @@
-const { socketSelector } = require('./config.json');
 const path = require('path');
 const commandHub = require('./api/commands/commandHub');
 
 //#region RESTful API
-const express = require('express'),
-	cors = require('cors'),
-	router = express.Router();
+const express = require('express');
+const cors = require('cors');
+const router = express.Router();
 
 router.use(cors());
 router.get('ping', (req, res) => res.send('pong'));

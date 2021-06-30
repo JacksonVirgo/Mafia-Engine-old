@@ -36,8 +36,10 @@ class URL {
 }
 
 class Thread {
-	constructor(url) {
+	constructor(url, post = null) {
 		this.url = new URL(url, 200);
+		this.post = post;
+		console.log('POST', this.post);
 		this.completed = false;
 		this.settings = null;
 		this.voteTags = {
@@ -54,7 +56,7 @@ class Thread {
 		while (!this.completed) {
 			let currentUrl = this.url.getNextUrlAndIndent();
 			let html = await getHTML(currentUrl);
-			let webData = this.scrapePage(html);
+			let { webData, hasScrapedLastPage } = this.scrapePage(html);
 			if (webData) {
 				for (const category in webData) {
 					if (!voteCount[category]) voteCount[category] = {};
@@ -65,11 +67,11 @@ class Thread {
 					}
 				}
 			}
-			this.completed = this.settings.pageData.currentPage === this.settings.pageData.lastPage;
+			this.completed = hasScrapedLastPage || this.settings.pageData.currentPage === this.settings.pageData.lastPage;
 			progressUpdate(this.settings.pageData);
 		}
 		console.timeEnd('Scrape');
-		return { voteCount, settings: this.settings };
+		return { voteCount, settings: this.settings, post: this.post };
 	}
 	sortVotes(array) {
 		for (let i = 1; i < array.length; i++) {
@@ -132,19 +134,23 @@ class Thread {
 		else this.settings.pageData = this.getPageData($);
 
 		let voteCount = {};
-		// Object with handles for the author names which is an array of ALL votes.
-
+		let hasScrapedLastPage = false;
 		$('div.post').each((i, e) => {
 			let voteData = this.scrapePost($, $(e));
-			if (voteData) {
+			if (!!Object.keys(voteData.votes).length) {
 				for (const category in voteData.votes) {
 					if (!voteCount[category]) voteCount[category] = {};
 					if (!voteCount[category][voteData.author]) voteCount[category][voteData.author] = [];
 					voteCount[category][voteData.author].push(voteData);
 				}
 			}
+			if (this.post) {
+				if (this.post <= voteData.post.number) {
+					hasScrapedLastPage = true;
+				}
+			}
 		});
-		return voteCount;
+		return { webData: voteCount, hasScrapedLastPage };
 	}
 	scrapePost($, post) {
 		const voteData = {
@@ -189,8 +195,7 @@ class Thread {
 				});
 		});
 
-		let result = !!Object.keys(voteData.votes).length ? voteData : null;
-		return result;
+		return voteData;
 	}
 }
 
@@ -241,9 +246,8 @@ const findSettingsInPost = (post) => {
 module.exports = {
 	findSettingsInPost,
 
-	scrapeThread: (url, progress) => {
-		console.log(url);
-		return new Thread(url).init(progress);
+	scrapeThread: (url, post, progress) => {
+		return new Thread(url, post).init(progress);
 	},
 	fetchSettingsFromUrl,
 };

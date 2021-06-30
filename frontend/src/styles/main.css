@@ -25,6 +25,9 @@ a {
 a:hover {
 	color: darkblue;
 }
+li {
+	display: inline;
+}
 .centeredDiv {
 	display: flex;
 	align-items: center;
@@ -167,4 +170,7 @@ textarea {
 	.modalMain {
 		width: 85vw;
 	}
+}
+ul {
+	list-style-type: none;
 }

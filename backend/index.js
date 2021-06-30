@@ -15,18 +15,22 @@ const options = {
 const server = canRunHTTPS ? http.createServer(options, app) : http.createServer(app);
 const io = socketio(server, { cors: { origin: '*' } });
 
+require('./test.js')();
+
 mongoose.connect(database || 'mongodb://localhost:27017/mern', { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log('Connected to MongoDB database'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 app.use('/api', router.expressRouter);
+app.get('/test/rolecard', (req, res) => {
+	res.sendFile(path.join(__dirname, '..', 'old_frontend', 'tools', 'rolecard', 'rolecard.html'));
+});
 if (running == 'production') {
 	app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 	app.get('*', (req, res) => {
 		res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
 	});
 } else {
-	require('dotenv').config();
 }
 io.sockets.on('connection', async (socket) => {
 	await router.initializeSocket({ io, socket });

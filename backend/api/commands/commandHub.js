@@ -1,6 +1,7 @@
 const voteCount = require('./votecount');
 const replacement = require('./replacement');
 const rolecard = require('./rolecard');
+const parseVotecount = require('./formatting/parseVotecount');
 module.exports = {
 	addCommands: (socket) => {
 		socket.on('ping', (data) => socket.emit('ping', data));
