@@ -10,6 +10,7 @@ import Replacement from './components/pages/Replacement.jsx';
 import VoteCount from './components/pages/VoteCount.jsx';
 import RoleCard from './components/pages/RoleCard.jsx';
 import Credit from './components/pages/Credits.jsx';
+import ModeratorPanel from './pages/ModeratorPanel';
 
 function App() {
 	return (
@@ -22,6 +23,7 @@ function App() {
 					<Route exact path='/rolecard' component={RoleCard} />
 					<Route exact path='/credits' component={Credit} />
 					<Route exact path='/test' component={VoteCount} />
+					<Route exact path='/moderator' component={ModeratorPanel} />
 
 					<Route path='/404' component={NotFoundPage} />
 					<Redirect to='/404' />

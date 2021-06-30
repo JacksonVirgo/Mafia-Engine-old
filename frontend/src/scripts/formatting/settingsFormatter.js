@@ -122,7 +122,7 @@ class SettingsFormat {
 						this.data.correctionWeight = data;
 						break;
 					case 'prods':
-						const prodTimerRef = this.convertProds(data);
+						// const prodTimerRef = this.convertProds(data);
 						break;
 					case 'edash':
 						const edashInt = parseInt(data);
