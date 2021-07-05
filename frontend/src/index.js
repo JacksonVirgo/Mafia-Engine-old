@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import './css/main.css';
@@ -12,25 +12,41 @@ import RoleCard from './components/pages/RoleCard.jsx';
 import Credit from './components/pages/Credits.jsx';
 import ModeratorPanel from './pages/ModeratorPanel';
 
-function App() {
-	return (
-		<>
-			<Router>
-				<Switch>
-					<Route exact path='/' component={Main} />
-					<Route exact path='/replacement' component={Replacement} />
-					<Route exact path='/votecount' component={VoteCount} />
-					<Route exact path='/rolecard' component={RoleCard} />
-					<Route exact path='/credits' component={Credit} />
-					<Route exact path='/test' component={VoteCount} />
-					<Route exact path='/moderator' component={ModeratorPanel} />
+import Login from './pages/Login';
+import Register from './pages/Register';
+import GlobalProvider, { useGlobals } from './GlobalProvider';
 
-					<Route path='/404' component={NotFoundPage} />
-					<Redirect to='/404' />
-				</Switch>
-			</Router>
-		</>
+function SubsetApp() {
+	const globalState = useGlobals();
+	return (
+		<Router>
+			<Switch>
+				<Route exact path='/' component={Main} />
+				<Route exact path='/replacement' component={Replacement} />
+				<Route exact path='/votecount' component={VoteCount} />
+				<Route exact path='/rolecard' component={RoleCard} />
+				<Route exact path='/credits' component={Credit} />
+				<Route exact path='/test' component={VoteCount} />
+				<Route exact path='/moderator' component={ModeratorPanel}>
+					{globalState.jwt ? <ModeratorPanel /> : <Redirect to='login' />}
+				</Route>
+				<Route exact path='/login' component={Login} />
+				<Route exact path='/register' component={Register} />
+
+				<Route path='/404' component={NotFoundPage} />
+				<Redirect to='/404' />
+			</Switch>
+		</Router>
 	);
 }
 
+function App() {
+	return (
+		<>
+			<GlobalProvider>
+				<SubsetApp />
+			</GlobalProvider>
+		</>
+	);
+}
 ReactDOM.render(<App />, document.getElementById('root'));

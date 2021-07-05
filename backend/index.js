@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { PORT, running, database, cert, privateKey } = process.env;
 const canRunHTTPS = cert && privateKey;
 const express = require('express');
@@ -15,9 +16,7 @@ const options = {
 const server = canRunHTTPS ? http.createServer(options, app) : http.createServer(app);
 const io = socketio(server, { cors: { origin: '*' } });
 
-require('./test.js')();
-
-mongoose.connect(database || 'mongodb://localhost:27017/mern', { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log('Connected to MongoDB database'));
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log('Connected to MongoDB database'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
@@ -35,6 +34,10 @@ if (running == 'production') {
 io.sockets.on('connection', async (socket) => {
 	await router.initializeSocket({ io, socket });
 });
-server.listen(PORT || 5000, () => {
-	console.log(`Server listening on port ${PORT || 5000}`);
-});
+
+(async () => {
+	await require('./test.js')();
+	server.listen(PORT || 5000, () => {
+		console.log(`Server listening on port ${PORT || 5000}`);
+	});
+})();

@@ -1,12 +1,16 @@
 import React from 'react';
 import logo from '../../img/logo.png';
 
+import { useGlobals } from '../../GlobalProvider';
+
 function renderSubtitle(subtitle) {
 	let subtitleCmpt = <h2>{subtitle}</h2>;
 	return subtitle ? subtitleCmpt : null;
 }
 
 export default function Main(auth) {
+	const globalState = useGlobals();
+	console.log(globalState.jwt);
 	return (
 		<div className='modalMain'>
 			<img src={logo} alt='Logo' />
@@ -14,11 +18,14 @@ export default function Main(auth) {
 			{renderSubtitle('Version Beta 1.5')}
 			<br />
 			<div className='mainmenu'>
-				<a className='menuoption' href='/replacement'>
-					Replacement Form
-				</a>
 				<a className='menuoption' href='/votecount'>
 					Vote Counter
+				</a>
+				<a className='menuoption' href='/moderator'>
+					Moderator Panel
+				</a>
+				<a className='menuoption' href='/replacement'>
+					Replacement Form
 				</a>
 				<a className='menuoption' href='/credits'>
 					Credits / Contact
