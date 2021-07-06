@@ -14,7 +14,7 @@ function moderatorReducer(state, action) {
 		case ACTIONS.THREAD_CHANGE:
 			return { ...state, thread: action.payload.thread };
 		case ACTIONS.ADD_PLAYER:
-			return { ...state, players: [...state.players, action.payload.players] };
+			return { ...state, players: [].concat(state.players, [action.payload.player]) };
 		case ACTIONS.SET_PLAYER_LIST:
 			return { ...state, players: action.payload.players };
 		default:
@@ -22,7 +22,6 @@ function moderatorReducer(state, action) {
 	}
 }
 const exampleReducerInit = {
-	saved: {},
 	_id: null,
 	thread: '',
 	players: [],
@@ -37,6 +36,7 @@ export default function ModeratorProvider({ children }) {
 	const { axios, jwt } = useGlobals();
 	const [state, dispatch] = useReducer(moderatorReducer, exampleReducerInit);
 	const [stateChanged, setChangeState] = useState(false);
+	const [prevState, setPrevState] = useState({});
 	const setState = (action, data) => dispatch({ type: action, payload: data });
 	useEffect(() => {
 		const updateValues = (data) => {
@@ -49,22 +49,26 @@ export default function ModeratorProvider({ children }) {
 			.get('api/game/')
 			.then((res) => updateValues(res.data))
 			.catch((err) => console.log(err));
-
-		const interval = setInterval(() => {
-			console.log(stateChanged);
-		}, 2000);
-
-		return () => {
-			clearInterval(interval);
-		};
 	}, []);
+
 	useEffect(() => {
-		setChangeState(true);
-		console.log('Here');
+		const ignoreHandles = ['_id'];
+		let hasChanged = false;
+		const changedValues = {};
+		for (const handle in state) {
+			if (ignoreHandles.includes(handle)) continue;
+			if (state[handle] !== prevState[handle]) {
+				hasChanged = true;
+				changedValues[handle] = state[handle];
+			}
+		}
+
+		if (hasChanged) {
+			axios.put(`/api/game/${state._id}`, changedValues);
+		}
+
+		setPrevState(Object.assign(prevState, state));
 	}, [state]);
-	useEffect(() => {
-		console.log('Saved Change');
-	}, [stateChanged]);
 
 	return (
 		<ModeratorContext.Provider value={state}>

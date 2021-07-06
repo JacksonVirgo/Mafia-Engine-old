@@ -10,7 +10,7 @@ export default function Players() {
 	const addUser = (e) => {
 		e.preventDefault();
 		const user = e.target.enterUsername.value;
-		dispatch({ type: ACTIONS.ADD_PLAYER, payload: { players: [user] } });
+		dispatch({ type: ACTIONS.ADD_PLAYER, payload: { player: user } });
 		e.target.enterUsername.value = '';
 	};
 	return (

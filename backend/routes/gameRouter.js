@@ -28,10 +28,8 @@ Router.route('/').get(authenticateToken, async (req, res) => {
 	res.status(200).json(requestedData);
 });
 Router.route('/:id').put(authenticateToken, async (req, res) => {
-	console.log('Here');
 	const { _id, username } = req.user;
-	const { title, threadURL, players } = req.body;
-	const body = { title, threadURL, players };
+	const { title, thread, players } = req.body;
 
 	const user = await UserSchema.schema.findOne({ _id, username });
 	if (!user) return res.status(409).send();
@@ -39,7 +37,9 @@ Router.route('/:id').put(authenticateToken, async (req, res) => {
 	let game = await GameSchema.schema.findOne({ _id: user.games });
 	if (!game) return res.status(404).send();
 
-	if (threadURL) game.threadURL = threadURL;
+	if (thread) game.threadURL = thread;
+	if (players) game.players = players;
+	if (title) game.title = title;
 
 	try {
 		const savedGame = await game.save();
