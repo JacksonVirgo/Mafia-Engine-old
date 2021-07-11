@@ -4,8 +4,8 @@ const { authenticateToken } = require('../util/authManager');
 const UserSchema = require('../database/models/UserSchema');
 const GameSchema = require('../database/models/GameSchema');
 
-function getGameValues({ _id, moderators, players, threadURL, title }) {
-	return { _id, moderators, players, threadURL, title };
+function getGameValues({ _id, moderators, players, threadURL, title, prodTimer }) {
+	return { _id, moderators, players, threadURL, title, prodTimer };
 }
 
 Router.route('/create', authenticateToken, async (req, res) => {
@@ -29,7 +29,7 @@ Router.route('/').get(authenticateToken, async (req, res) => {
 });
 Router.route('/:id').put(authenticateToken, async (req, res) => {
 	const { _id, username } = req.user;
-	const { title, thread, players } = req.body;
+	const { title, thread, players, prodTimer } = req.body;
 
 	const user = await UserSchema.schema.findOne({ _id, username });
 	if (!user) return res.status(409).send();
@@ -40,6 +40,7 @@ Router.route('/:id').put(authenticateToken, async (req, res) => {
 	if (thread) game.threadURL = thread;
 	if (players) game.players = players;
 	if (title) game.title = title;
+	if (prodTimer) game.prodTimer = prodTimer;
 
 	try {
 		const savedGame = await game.save();

@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
 
+/* 
+Day Start -> Day Number + Post Number
+Players -> Players, Nicknames and Replacements.
+Deadlines -> Phase + Prods
+*/
+
 const GameSchema = new mongoose.Schema({
 	title: {
 		type: String,
@@ -15,6 +21,19 @@ const GameSchema = new mongoose.Schema({
 		type: [String],
 		required: false,
 		default: [],
+	},
+	days: {
+		type: Object,
+		required: false,
+		default: { 1: 0 },
+	},
+	phaseDeadline: {
+		type: Number,
+		required: false,
+	},
+	prodTimer: {
+		type: Number,
+		required: false,
 	},
 	threadURL: {
 		type: String,

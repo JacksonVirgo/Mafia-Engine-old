@@ -32,6 +32,7 @@ export default function Login(props) {
 							break;
 						case 500:
 							setError('Server error occurred');
+							break;
 						default:
 							setError('Unexpected error occurred');
 							break;

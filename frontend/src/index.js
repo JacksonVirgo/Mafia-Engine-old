@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import './css/main.css';
@@ -27,7 +27,7 @@ function SubsetApp() {
 				<Route exact path='/rolecard' component={RoleCard} />
 				<Route exact path='/credits' component={Credit} />
 				<Route exact path='/test' component={VoteCount} />
-				<Route exact path='/moderator' component={ModeratorPanel}>
+				<Route exact path='/moderator'>
 					{globalState.jwt ? <ModeratorPanel /> : <Redirect to='login' />}
 				</Route>
 				<Route exact path='/login' component={Login} />

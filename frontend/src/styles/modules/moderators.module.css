@@ -113,12 +113,21 @@
 	display: flex;
 	flex-direction: row;
 	width: calc(100% - 16px);
-	height: auto;
 }
 .modPage > div {
-	flex-grow: 1;
 }
 
+.singleColumn {
+	display: flex;
+	flex-direction: column;
+}
+
+.timezone {
+	color: black;
+}
+.timezone * {
+	color: black;
+}
 @media screen and (max-width: 1000px) {
 	.modPage {
 		flex-direction: column !important;
