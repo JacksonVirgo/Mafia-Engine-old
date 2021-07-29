@@ -1,20 +1,12 @@
-import React, { useState } from 'react';
-import styles from '../../styles/modules/moderators.module.css';
-import TimezoneSelect from 'react-timezone-select';
-import DatePicker from 'react-datepicker';
+import React from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 
 export default function PhaseTimer() {
-	const [timezone, setTimezone] = useState({});
-	const [startDate, setStartDate] = useState(new Date());
-	const setPhaseTimer = (e) => {
-		e.preventDefault();
-	};
-	return (
-		<div>
-			<h3>Phase Deadline</h3>
-			<div>-- In Development --</div>
-			{/* <h3>Phase Deadline</h3>
+    return (
+        <div>
+            <h3>Phase Deadline</h3>
+            <div>-- In Development --</div>
+            {/* <h3>Phase Deadline</h3>
 			<div>{JSON.stringify(timezone)}</div>
 			<div>{startDate.toUTCString()}</div>
 			<br />
@@ -25,6 +17,6 @@ export default function PhaseTimer() {
 			<form onSubmit={setPhaseTimer}>
 				<input className={styles.editableButton} type='submit' value='Set Phase Deadline' />
 			</form> */}
-		</div>
-	);
+        </div>
+    );
 }

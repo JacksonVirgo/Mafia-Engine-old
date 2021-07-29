@@ -1,5 +1,3 @@
-const { Namespace } = require('socket.io');
-
 const selectors = {
     comma: ',',
     colon: ':',
