@@ -54,23 +54,24 @@
 }
 .content {
 	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
+	flex-direction: column;
 	flex-grow: 1;
 	padding: 10px;
-
 	align-items: flex-start;
+	flex-wrap: nowrap;
+	overflow-y: scroll;
 }
 .content > * {
 	flex: 1 1 40%;
-	background-color: red;
 	margin: 4px;
-	border: 2px solid white;
 }
 .modpanel {
 	background-color: var(--midground);
 	border-radius: 5px;
 	border: 1px solid black;
+	width: calc(100% - 16px);
+	margin: 0 auto;
+	margin-top: 8px;
 }
 .modpanel > span {
 	display: block;
@@ -102,4 +103,33 @@
 }
 .panelList {
 	list-style-type: none;
+}
+
+.editableButton [type='submit'] {
+	display: block;
+}
+
+.modPage {
+	display: flex;
+	flex-direction: row;
+	width: calc(100% - 16px);
+}
+.modPage > div {
+}
+
+.singleColumn {
+	display: flex;
+	flex-direction: column;
+}
+
+.timezone {
+	color: black;
+}
+.timezone * {
+	color: black;
+}
+@media screen and (max-width: 1000px) {
+	.modPage {
+		flex-direction: column !important;
+	}
 }

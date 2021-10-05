@@ -20,17 +20,22 @@
 	"homepage": "http://www.mafiaengine.com",
 	"license": "MIT",
 	"dependencies": {
-		"cheerio": "^1.0.0-rc.5",
+		"@hapi/joi": "^17.1.1",
+		"bcryptjs": "^2.4.3",
+		"cheerio": "^1.0.0-rc.10",
 		"cors": "^2.8.5",
-		"dotenv": "^8.2.0",
+		"discord.js": "^13.1.0",
+		"dotenv": "^8.6.0",
 		"express": "^4.17.1",
 		"express-fileupload": "^1.2.1",
+		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^5.11.15",
 		"node-fetch": "^2.6.1",
+		"nodemon": "^2.0.9",
 		"pm2": "^4.5.6",
 		"socket.io": "^3.1.1",
 		"string-similarity": "^4.0.4",
-		"ws": "^7.4.3"
+		"ws": "^7.5.1"
 	},
 	"keywords": [
 		"tool"

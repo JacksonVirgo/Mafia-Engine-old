@@ -1,16 +1,5 @@
-const path = require('path');
 const commandHub = require('./api/commands/commandHub');
 
-//#region RESTful API
-const express = require('express');
-const cors = require('cors');
-const router = express.Router();
-
-router.use(cors());
-router.get('ping', (req, res) => res.send('pong'));
-//#endregion
-
-//#region Socket Handler
 const currentSockets = {};
 function addSocket(socket) {
 	currentSockets[socket.id] = socket;
@@ -33,7 +22,8 @@ async function initializeSocket(socketPkg) {
 	}
 }
 
-//#endregion
+const router = require('express').Router();
+router.use('/', require('./routes/mainRouter'));
 
 module.exports = {
 	expressRouter: router,
