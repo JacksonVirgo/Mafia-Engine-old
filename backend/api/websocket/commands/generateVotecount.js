@@ -4,9 +4,23 @@ const scrapeCore = require('../../../tools/scrape/scrapeCore');
 const voteCounter = require('../../../tools/votecount/voteCounter');
 const voteFormatter = require('../../../tools/votecount/voteFormatter');
 
+const screenScraper = require('../../../util/screenScraper');
+
 const settings = require('../../../tools/formatting/settingsFormat');
 const RES = {
     INVALID_URL: { error: true, message: 'Invalid URL' },
+};
+
+const scrapeSelectors = {
+    root: [
+        { selector: 'h2 > a', type: 'text', label: 'title' },
+        { selector: 'div.pagination', type: 'full', label: 'pagination', options: { first: true } },
+        { selector: '#page-body', type: 'full', label: 'pageBody' },
+    ],
+    pagination: [
+        { selector: 'a', type: 'text', label: 'lastAnchor', options: { last: true } },
+        { selector: 'span', type: 'text', label: 'lastSpan', options: { last: true } },
+    ],
 };
 
 const getLastVotes = (voteData) => {
@@ -49,32 +63,41 @@ const formatVoteCount = (voteData, settings) => {
 module.exports = Command('genVoteCount', async (socket, data, tag) => {
     const { url, raw } = data;
     console.log(data);
-    const response = {};
 
-    // Validate URL
-    const urlValidate = urlUtil.validate(url);
-    if (!urlValidate) return socket.emit(tag, RES.INVALID_URL);
+    if (!url) return;
 
-    // Request Data
-    const voteData = await voteCounter.getThreadDataFromURL(url);
-    response.rawData = voteData;
-    if (raw) return socket.emit(tag, response);
+    const { title, pagination, pageBody } = await screenScraper.getElementsFromUri(url, scrapeSelectors.root);
 
-    // Validate Settings
-    let settingsValue = voteData.settings[0];
-    if (settingsValue) {
-        console.log(settingsValue.information.postNumber);
-        if (settingsValue.information.postNumber != '0') settingsValue = null;
-        else {
-            const newSettings = settings(settingsValue);
-            console.log(newSettings);
-            settingsValue = newSettings;
-        }
-        response.settings = settingsValue;
-    }
+    const { lastAnchor, lastSpan } = await screenScraper.getElements(pagination, scrapeSelectors.pagination);
 
-    if (!settingsValue) response.lastVotes = getLastVotes(voteData.scrapedPages);
-    else response.lastValidVotes = formatVoteCount(voteData.scrapedPages, settingsValue);
+    console.log(title, lastAnchor);
 
-    socket.emit(tag, response);
+    // const response = {};
+
+    // // Validate URL
+    // const urlValidate = urlUtil.validate(url);
+    // if (!urlValidate) return socket.emit(tag, RES.INVALID_URL);
+
+    // // Request Data
+    // const voteData = await voteCounter.getThreadDataFromURL(url);
+    // response.rawData = voteData;
+    // if (raw) return socket.emit(tag, response);
+
+    // // Validate Settings
+    // let settingsValue = voteData.settings[0];
+    // if (settingsValue) {
+    //     console.log(settingsValue.information.postNumber);
+    //     if (settingsValue.information.postNumber != '0') settingsValue = null;
+    //     else {
+    //         const newSettings = settings(settingsValue);
+    //         console.log(newSettings);
+    //         settingsValue = newSettings;
+    //     }
+    //     response.settings = settingsValue;
+    // }
+
+    // if (!settingsValue) response.lastVotes = getLastVotes(voteData.scrapedPages);
+    // else response.lastValidVotes = formatVoteCount(voteData.scrapedPages, settingsValue);
+
+    // socket.emit(tag, response);
 });

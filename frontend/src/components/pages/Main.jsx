@@ -15,10 +15,10 @@ export default function Main(auth) {
         <div className='modalMain'>
             <img src={logo} alt='Logo' />
             <h1>Mafia Engine</h1>
-            {renderSubtitle('Version Beta 1.5')}
+            {renderSubtitle('Version Beta 1.5\nFeatures currently disabled for development')}
             <br />
             <div className='mainmenu'>
-                <a className='menuoption' href='/votecount'>
+                {/* <a className='menuoption' href='/votecount'>
                     Vote Counter
                 </a>
                 <a className='menuoption' href='/replacement'>
@@ -26,6 +26,9 @@ export default function Main(auth) {
                 </a>
                 <a className='menuoption' href='/'>
                     Discord Bot [inactive]
+                </a> */}
+                <a className='menuoption' href='/discord-archive'>
+                    Discord Archive
                 </a>
                 <a className='menuoption' href='/credits'>
                     Credits / Contact

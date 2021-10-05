@@ -15,6 +15,7 @@ import ModeratorPanel from './pages/ModeratorPanel';
 import Replace from './pages/Replace';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import DiscordArchive from './pages/DiscordArchive';
 
 import TestSocketPage from './pages/testing/SocketTest';
 
@@ -34,6 +35,7 @@ function SubsetApp() {
                 <Route exact path='/moderator'>
                     {globalState.jwt ? <ModeratorPanel /> : <Redirect to='login' />}
                 </Route>
+                <Route exact path='/discord-archive' component={DiscordArchive} />
                 <Route exact path='/login' component={Login} />
                 <Route exact path='/register' component={Register} />
                 <Route exact path='/testSocket' component={TestSocketPage} />
