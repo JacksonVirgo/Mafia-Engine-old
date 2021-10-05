@@ -3,7 +3,6 @@ const cors = require('cors');
 const path = require('path');
 const router = express.Router();
 
-const r = require('../../frontend');
 router.use(cors());
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
