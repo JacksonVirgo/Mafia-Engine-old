@@ -1,45 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import style from '../styles/modules/archive.module.css';
 
-const mainDiv = {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100vw',
-    height: '100vh',
-    color: '#FFF',
-    padding: '10px',
-};
-const form = {
-    display: 'flex',
-    flexDirection: 'column',
-};
-const textArea = {
-    width: '80%',
-};
-const button = {
-    width: '100px',
-};
+import exampleArchive from '../resources/exampleArchive.json';
 
 export default function DiscordArchive() {
     const [pastedData, setPastedData] = useState([]);
+    const [accounts, setAccounts] = useState([]);
+
     const pasteData = (e) => {
         e.preventDefault();
         const data = e.target.archiveData.value;
         setPastedData(JSON.parse(data).messages);
     };
+    const onFileChange = (e) => {
+        e.preventDefault();
+        let reader = new FileReader();
+        reader.onload = async (event) => {
+            const json = JSON.parse(event.target.result);
+            setPastedData(json.messages);
+            setAccounts(json.accounts);
+        };
+        reader.readAsText(e.target.files[0]);
+    };
+
+    useEffect(() => {
+        // setPastedData(exampleArchive.messages);
+        // setAccounts(exampleArchive.accounts);
+    }, []);
+
+    const parseMessage = (message) => {
+        let newMessage = message;
+
+        // Check for player pings.
+        let pings = matchRegex(newMessage, /<@!*&*[0-9]+>/g);
+        for (let i = 0; i < pings.length; i++) {
+            let pingHandle = pings[i][0];
+            let userID = pingHandle.slice(0, -1).substring(2);
+            if (accounts[userID]) {
+                newMessage = newMessage.replace(pingHandle, `@${accounts[userID].username}`);
+            } else {
+            }
+        }
+
+        return newMessage;
+    };
+
+    const matchRegex = (string, regex) => {
+        let list = [];
+        let matches;
+        while ((matches = regex.exec(string)) != null) {
+            list.push(matches);
+        }
+        return list;
+    };
 
     return (
-        <div style={mainDiv}>
-            <form style={form} onSubmit={pasteData}>
+        <div className={style.main}>
+            <form onSubmit={pasteData}>
                 <label htmlFor='archiveData'>Archive Data</label>
-                <textarea style={textArea} id='archiveData' name='archiveData'></textarea>
-                <input style={button} type='submit' value='Submit' />
+                <input type='file' name='archiveData' id='archiveData' onChange={onFileChange} />
             </form>
 
             <ul>
                 {pastedData.map((value, index) => {
                     return (
-                        <li key={index}>
-                            <span style={{ color: '#F00' }}>{value.author.username}</span> {value.content}
+                        <li key={index} id={`message_${value.id}`}>
+                            <div className={style.contentRoot}>
+                                <div className={style.avatar}>
+                                    <img src={`https://cdn.discordapp.com/avatars/${value.author.id}/${value.author.avatar}.jpg`} />
+                                </div>
+                                <div className={style.message}>
+                                    <div className={style.username}>{value.author.username}</div>
+                                    <div>{value.content}</div>
+                                </div>
+                            </div>
                         </li>
                     );
                 })}
