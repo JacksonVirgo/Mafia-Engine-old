@@ -1,5 +1,5 @@
 {
-    "name": "forum-mafia-helper",
+    "name": "mafia-engine",
     "version": "1.0.0",
     "description": "A collection of tools to help with Forum Mafia games.",
     "main": "index.js",
