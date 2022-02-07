@@ -1,7 +1,0 @@
-{
-    "selectors": {
-        "result": "result",
-        "progress": "progress",
-        "error": "error"
-    }
-}
