@@ -4,9 +4,10 @@
 	"description": "A collection of tools to help with Forum Mafia games.",
 	"main": "index.js",
 	"scripts": {
-		"build": "tsc",
+		"build": "npm run tsc",
 		"start": "npm run build && node ./dist/index.js",
-		"dev": "nodemon ./src/index.ts"
+		"dev": "nodemon ./src/index.ts",
+		"tsc": "tsc"
 	},
 	"author": {
 		"name": "Jack Nash",
