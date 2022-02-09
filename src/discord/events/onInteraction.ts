@@ -2,7 +2,7 @@ import { ButtonInteraction, Interaction, Message } from 'discord.js';
 import { LFGUpdate, LFGUpdateOptions } from '../structures/LFG';
 import { Config } from '../..';
 
-const onInteractButton = (i: ButtonInteraction) => {
+const onInteractButton = async (i: ButtonInteraction) => {
 	let customId: string = i.customId;
 	console.log('[Handled Interaction]', customId);
 
@@ -20,7 +20,7 @@ const onInteractButton = (i: ButtonInteraction) => {
 
 		console.log(update);
 
-		LFGUpdate(i.message as Message, update);
+		await LFGUpdate(i.message as Message, update);
 		i.update({});
 	}
 };
@@ -32,7 +32,7 @@ export default {
 		try {
 			if ((!Config.isDevelopment && isDevGuild) || (Config.isDevelopment && !isDevGuild)) return;
 
-			if (i.isButton()) onInteractButton(i);
+			if (i.isButton()) await onInteractButton(i);
 		} catch (err) {
 			console.log('Caught');
 			console.log('Interaction Root Error', err);
