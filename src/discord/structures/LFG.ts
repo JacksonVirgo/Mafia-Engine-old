@@ -130,7 +130,6 @@ export const onLfgButton = async (i: ButtonInteraction) => {
 	const embed: MessageEmbed = i.message.embeds[0] as MessageEmbed;
 
 	let lfgData = extractLFG(embed);
-	if (!((lfgData.development && Config.isDevelopment) || (!lfgData.development && !Config.isDevelopment))) return;
 	if (!lfgData.categories) return;
 
 	lfgData.categories.forEach((v) => {
