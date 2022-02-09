@@ -160,8 +160,9 @@ export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, save
 
 	let allUpdatedUsers: string[] = update.removedUsers || [];
 	if (update.addedUsers) {
-		let keys = Object.keys(update.addedUsers);
-		allUpdatedUsers = allUpdatedUsers.concat(keys);
+		for (const key in update.addedUsers) {
+			allUpdatedUsers = allUpdatedUsers.concat(update.addedUsers[key]);
+		}
 	}
 
 	// TODO: Ensure added users are unique
