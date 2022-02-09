@@ -17,6 +17,7 @@ The main goal of this project is that there should be no necessary preperation _
 -   NodeJS
 -   ExpressJS
 -   Socket.IO
+-   Discord.JS
 
 **Database**
 
