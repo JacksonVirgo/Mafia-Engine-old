@@ -1,12 +1,28 @@
-import { ButtonInteraction, Interaction } from 'discord.js';
-import { onLfgButton } from '../structures/LFG';
+import { ButtonInteraction, Interaction, Message } from 'discord.js';
+import { LFGUpdate, LFGUpdateOptions } from '../structures/LFG';
 import { Config } from '../..';
 
 const onInteractButton = (i: ButtonInteraction) => {
 	let customId: string = i.customId;
 	console.log('[Handled Interaction]', customId);
 
-	if (customId.startsWith('lfg-button') || customId.startsWith('lfg-leave-button')) onLfgButton(i);
+	if (customId.startsWith('lfg-button') || customId.startsWith('lfg-leave-button')) {
+		const isLeave: boolean = i.customId.startsWith('lfg-leave-button');
+		const joined: string | null = isLeave ? null : i.customId.substring('lfg-button-'.length);
+
+		const update: LFGUpdateOptions = {};
+
+		if (isLeave) update.removedUsers = [i.user.id];
+		else if (joined) {
+			update.addedUsers = {};
+			update.addedUsers[joined] = [i.user.id];
+		}
+
+		console.log(update);
+
+		LFGUpdate(i.message as Message, update);
+		i.update({});
+	}
 };
 
 export default {

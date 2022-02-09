@@ -1,8 +1,8 @@
-import { Config } from '../..';
-import { ButtonInteraction, Constants, MessageActionRow, MessageButton, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
+import { Constants, Message, MessageActionRow, MessageButton, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
 export interface LFGCategory {
 	title: string;
 	users: string[];
+	maximum?: number;
 }
 export interface LFG {
 	title?: string;
@@ -44,7 +44,7 @@ export const createLFG = (lfgData: LFG): MessageOptions => {
 		fields: [],
 		color: Constants.Colors.BLURPLE,
 		footer: {
-			text: Config.discordPrefix != 'dev!' ? 'Mafia Engine LFG' : 'Mafia Engine Dev LFG',
+			text: 'Mafia Engine LFG',
 		},
 		timestamp: new Date(),
 	};
@@ -53,7 +53,8 @@ export const createLFG = (lfgData: LFG): MessageOptions => {
 	if (lfgData.categories)
 		for (const category of lfgData.categories) {
 			let parsedCategory: string = category.title.toLowerCase();
-			// let amount: number | undefined = category.users.length;
+			let amount: number | undefined = category.users.length;
+			let maximum: number | undefined = category.maximum;
 
 			if (completedCategories.includes(parsedCategory)) continue;
 			completedCategories.push(parsedCategory);
@@ -68,7 +69,7 @@ export const createLFG = (lfgData: LFG): MessageOptions => {
 				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 				.join(' ');
 
-			// if (amount) formattedLabel += ` [${amount}]`;
+			if (amount) formattedLabel += ` [${amount}${maximum ? `/${maximum}` : ''}]`;
 
 			embedData.fields?.push({
 				name: formattedLabel,
@@ -103,9 +104,11 @@ export const extractLFG = (lfgData: MessageEmbed): LFG => {
 
 	for (const field of lfgData.fields) {
 		const { name, value } = field;
+		let parsed = parseRequestedCategoryTitle(name);
 		let lfgCat: LFGCategory = {
-			title: parseRequestedCategoryTitle(name).title,
+			title: parsed.title,
 			users: [],
+			maximum: parsed.maximum,
 		};
 
 		let users = value.trim().split('\n');
@@ -124,19 +127,37 @@ export const extractLFG = (lfgData: MessageEmbed): LFG => {
 	return lfg;
 };
 
-export const onLfgButton = async (i: ButtonInteraction) => {
-	const isLeave: boolean = i.customId.startsWith('lfg-leave-button');
-	const joined: string | null = isLeave ? null : i.customId.substring('lfg-button-'.length);
-	const embed: MessageEmbed = i.message.embeds[0] as MessageEmbed;
+export interface LFGUpdateOptions {
+	removedUsers?: string[];
+	addedUsers?: Record<string, string[]>;
+	changeCategoryMax?: Record<string, number>;
+}
+
+export const LFGUpdate = async (message: Message, update: LFGUpdateOptions) => {
+	const embed: MessageEmbed = message.embeds[0] as MessageEmbed;
 
 	let lfgData = extractLFG(embed);
 	if (!lfgData.categories) return;
 
-	lfgData.categories.forEach((v) => {
-		v.users = v.users.filter((v) => v != i.user.id);
-		if (v.title.toLowerCase() === joined) v.users.push(i.user.id);
+	let allUpdatedUsers: string[] = update.removedUsers || [];
+	if (update.addedUsers) {
+		let keys = Object.keys(update.addedUsers);
+		allUpdatedUsers = allUpdatedUsers.concat(keys);
+	}
+
+	lfgData.categories.forEach((v, _i) => {
+		v.users = v.users.filter((v2) => !allUpdatedUsers.includes(v2));
+		if (update.addedUsers) {
+			for (const joinedCategories in update.addedUsers) {
+				if (v.title.toLowerCase() == joinedCategories.toLowerCase()) {
+					update.addedUsers[joinedCategories].forEach((user) => {
+						v.users.push(user);
+					});
+				}
+			}
+		}
 	});
 
 	let createdLFG = createLFG(lfgData);
-	await i.update({ embeds: createdLFG.embeds });
+	await message.edit({ embeds: createdLFG.embeds });
 };
