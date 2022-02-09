@@ -4,7 +4,7 @@
 	"description": "A collection of tools to help with Forum Mafia games.",
 	"main": "index.js",
 	"scripts": {
-		"build": "npm run tsc",
+		"build": "tsc",
 		"start": "node ./dist/index.js",
 		"dev": "nodemon ./src/index.ts",
 		"postinstall": "npm run build"
