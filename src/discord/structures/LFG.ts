@@ -1,4 +1,4 @@
-import { Constants, Message, MessageActionRow, MessageButton, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
+import { ButtonInteraction, Constants, Message, MessageActionRow, MessageButton, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
 export interface LFGCategory {
 	title: string;
 	users: string[];
@@ -132,8 +132,27 @@ export interface LFGUpdateOptions {
 	addedUsers?: Record<string, string[]>;
 	changeCategoryMax?: Record<string, number>;
 }
+interface PostLFGSave {
+	(data: any): void;
+}
+export const LFGUpdateButton = async (i: ButtonInteraction) => {
+	const isLeave: boolean = i.customId.startsWith('lfg-leave-button');
+	const joined: string | null = isLeave ? null : i.customId.substring('lfg-button-'.length);
 
-export const LFGUpdate = async (message: Message, update: LFGUpdateOptions) => {
+	const update: LFGUpdateOptions = {};
+
+	if (isLeave) update.removedUsers = [i.user.id];
+	else if (joined) {
+		update.addedUsers = {};
+		update.addedUsers[joined] = [i.user.id];
+	}
+
+	await LFGUpdate(i.message as Message, update, (data) => {
+		i.update(data);
+	});
+};
+
+export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, saveFunc: PostLFGSave | null = null) => {
 	const embed: MessageEmbed = message.embeds[0] as MessageEmbed;
 
 	let lfgData = extractLFG(embed);
@@ -160,5 +179,5 @@ export const LFGUpdate = async (message: Message, update: LFGUpdateOptions) => {
 	});
 
 	let createdLFG = createLFG(lfgData);
-	await message.edit({ embeds: createdLFG.embeds });
+	if (saveFunc) saveFunc({ embeds: createdLFG.embeds });
 };

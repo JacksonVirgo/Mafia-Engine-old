@@ -1,5 +1,5 @@
-import { ButtonInteraction, Interaction, Message } from 'discord.js';
-import { LFGUpdate, LFGUpdateOptions } from '../structures/LFG';
+import { ButtonInteraction, Interaction } from 'discord.js';
+import { LFGUpdateButton } from '../structures/LFG';
 import { Config } from '../..';
 
 const onInteractButton = async (i: ButtonInteraction) => {
@@ -7,21 +7,7 @@ const onInteractButton = async (i: ButtonInteraction) => {
 	console.log('[Handled Interaction]', customId);
 
 	if (customId.startsWith('lfg-button') || customId.startsWith('lfg-leave-button')) {
-		const isLeave: boolean = i.customId.startsWith('lfg-leave-button');
-		const joined: string | null = isLeave ? null : i.customId.substring('lfg-button-'.length);
-
-		const update: LFGUpdateOptions = {};
-
-		if (isLeave) update.removedUsers = [i.user.id];
-		else if (joined) {
-			update.addedUsers = {};
-			update.addedUsers[joined] = [i.user.id];
-		}
-
-		console.log(update);
-
-		await LFGUpdate(i.message as Message, update);
-		i.update({});
+		LFGUpdateButton(i);
 	}
 };
 
