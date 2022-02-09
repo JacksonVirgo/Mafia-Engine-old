@@ -10,7 +10,11 @@ const onInteractButton = (i: ButtonInteraction) => {
 export default {
 	tag: 'interactionCreate',
 	run: async (i: Interaction) => {
-		console.log('Here.');
-		if (i.isButton()) onInteractButton(i);
+		try {
+			if (i.isButton()) onInteractButton(i);
+		} catch (err) {
+			console.log('Caught');
+			console.log('Interaction Root Error', err);
+		}
 	},
 };
