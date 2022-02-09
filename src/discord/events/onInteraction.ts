@@ -3,8 +3,9 @@ import { onLfgButton } from '../structures/LFG';
 import { Config } from '../..';
 
 const onInteractButton = (i: ButtonInteraction) => {
-	console.log(i.customId);
 	let customId: string = i.customId;
+	console.log('[Handled Interaction]', customId);
+
 	if (customId.startsWith('lfg-button') || customId.startsWith('lfg-leave-button')) onLfgButton(i);
 };
 
@@ -14,6 +15,7 @@ export default {
 		let isDevGuild = i.guildId != '929949297892540417';
 		try {
 			if ((!Config.isDevelopment && isDevGuild) || (Config.isDevelopment && !isDevGuild)) return;
+
 			if (i.isButton()) onInteractButton(i);
 		} catch (err) {
 			console.log('Caught');
