@@ -125,15 +125,13 @@ export const extractLFG = (lfgData: MessageEmbed): LFG => {
 };
 
 export const onLfgButton = async (i: ButtonInteraction) => {
-	i.deferUpdate();
-
 	const isLeave: boolean = i.customId.startsWith('lfg-leave-button');
 	const joined: string | null = isLeave ? null : i.customId.substring('lfg-button-'.length);
 	const embed: MessageEmbed = i.message.embeds[0] as MessageEmbed;
 
 	let lfgData = extractLFG(embed);
-	if (!((lfgData.development && Config.isDevelopment) || (!lfgData.development && !Config.isDevelopment))) return i.update({});
-	if (!lfgData.categories) return i.update({});
+	if (!((lfgData.development && Config.isDevelopment) || (!lfgData.development && !Config.isDevelopment))) return;
+	if (!lfgData.categories) return;
 
 	lfgData.categories.forEach((v) => {
 		v.users = v.users.filter((v) => v != i.user.id);
