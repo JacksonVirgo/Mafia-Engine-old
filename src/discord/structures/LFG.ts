@@ -145,6 +145,7 @@ export const LFGUpdate = async (message: Message, update: LFGUpdateOptions) => {
 		allUpdatedUsers = allUpdatedUsers.concat(keys);
 	}
 
+	// TODO: Ensure added users are unique
 	lfgData.categories.forEach((v, _i) => {
 		v.users = v.users.filter((v2) => !allUpdatedUsers.includes(v2));
 		if (update.addedUsers) {
