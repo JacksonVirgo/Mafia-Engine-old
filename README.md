@@ -24,7 +24,7 @@ The main goal of this project is that there should be no necessary preperation _
 -   MongoDB
 
 You can see a visual representation of the tech-stack here.
-![tech stack architecture](https://github.com/JacksonVirgo/Mafia-Engine/blob/main/main_architecture.png?raw=true)
+![tech stack architecture](https://github.com/JacksonVirgo/Mafia-Engine/blob/main/blob/main_architecture.png?raw=true)
 
 ## Usage
 
