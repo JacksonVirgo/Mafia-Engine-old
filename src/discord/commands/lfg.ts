@@ -1,44 +1,49 @@
 import { Command } from '../../interfaces/Command';
-import { Message, MessageActionRow, MessageButton } from 'discord.js';
-import { createLFG, extractLFG } from '../structures/LFG';
+import { Message, MessageActionRow, MessageButton, CommandInteraction } from 'discord.js';
+import { createLFG } from '../structures/LFG';
+import { DiscordServers } from '../..';
 
 export default {
 	tag: 'lookingforgroup',
 	alias: ['lfg', 'signups'],
 	description: 'Manage a LFG embed.',
+	serverPermissions: [DiscordServers.DISCORD_MAFIA, DiscordServers.DEVELOPMENT],
 	permission: {
 		regularUser: false,
 		custom: (_message: Message) => true,
 	},
-	runMsg: async (message: Message, args: string[]): Promise<any> => {
-		let secondaryCommand = args.shift();
-		switch (secondaryCommand) {
-			case 'create':
-				let categories = [];
-				let buttons = new MessageActionRow();
-				for (const arg of args) {
-					categories.push({ title: arg, users: [] });
-					buttons.addComponents(new MessageButton().setCustomId(`lfg-button-${arg.toLowerCase()}`).setLabel(arg).setStyle('SECONDARY'));
-				}
+	slashPermissions: [
+		{
+			id: '943131009338204161',
+			type: 'ROLE',
+			permission: true,
+		},
+		{
+			id: '797960436053311519',
+			type: 'ROLE',
+			permission: true,
+		},
+	],
+	options: [
+		{
+			name: 'categories',
+			description: 'List of categories seperated by a space.',
+			type: 'STRING',
+			required: false,
+		},
+	],
+	runSlash: async (i: CommandInteraction): Promise<any> => {
+		i.deferReply();
+		const rawCategories = (i.options.getString('categories') || 'players backups').split(/\s+/g);
+		const categories = [];
 
-				let lfg = createLFG({ categories });
-				message.channel.send(lfg);
-
-				break;
-			case 'get':
-				let requestedMessageId = args.shift();
-				if (!requestedMessageId) break;
-
-				let fetchedMessage = await message.channel.messages.fetch(requestedMessageId);
-				const embed = fetchedMessage.embeds[0];
-
-				if (!embed) return message.channel.send(`Message ${requestedMessageId} does not contain a valid LFG`);
-				if (embed.footer?.text != 'Mafia Engine LFG') return message.channel.send(`Message ${requestedMessageId} does not contain a valid LFG`);
-
-				const lfgData = extractLFG(embed);
-
-				message.channel.send(JSON.stringify(lfgData));
-				break;
+		let buttons = new MessageActionRow();
+		for (const category of rawCategories) {
+			categories.push({ title: category, users: [] });
+			buttons.addComponents(new MessageButton().setCustomId(`lfg-button-${category.toLowerCase()}`).setLabel(category).setStyle('SECONDARY'));
 		}
+		let lfg = createLFG({ categories });
+		i.channel?.send(lfg);
+		i.deleteReply();
 	},
 } as Command;

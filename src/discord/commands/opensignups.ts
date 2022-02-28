@@ -4,6 +4,8 @@ import { createLFG } from '../structures/LFG';
 
 export default {
 	tag: 'opensignups',
+	developmentOnly: true,
+
 	alias: ['opensignup', 'open', 'os'],
 	description: 'Open a signup in the current channel.',
 	permission: {

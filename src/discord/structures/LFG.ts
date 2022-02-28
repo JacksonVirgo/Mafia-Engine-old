@@ -131,7 +131,11 @@ export interface LFGUpdateOptions {
 	removedUsers?: string[];
 	addedUsers?: Record<string, string[]>;
 	changeCategoryMax?: Record<string, number>;
+
+	changedTitle?: string;
+	changedDescription?: string;
 }
+
 interface PostLFGSave {
 	(data: any): void;
 }
@@ -154,6 +158,7 @@ export const LFGUpdateButton = async (i: ButtonInteraction) => {
 
 export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, saveFunc: PostLFGSave | null = null) => {
 	const embed: MessageEmbed = message.embeds[0] as MessageEmbed;
+	const guild = message.guild;
 
 	let lfgData = extractLFG(embed);
 	if (!lfgData.categories) return;
@@ -166,7 +171,16 @@ export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, save
 	}
 
 	// TODO: Ensure added users are unique
-	lfgData.categories.forEach((v, _i) => {
+	for (let i = 0; i < lfgData.categories.length; i++) {
+		const v = lfgData.categories[i];
+
+		for (let f = 0; f < v.users.length; f++) {
+			let member = await guild?.members.fetch(v.users[f]);
+			if (member) {
+				// let isBanned = member.roles.cache.get('945319707517534218');
+			}
+		}
+
 		v.users = v.users.filter((v2) => !allUpdatedUsers.includes(v2));
 		if (update.addedUsers) {
 			for (const joinedCategories in update.addedUsers) {
@@ -177,7 +191,10 @@ export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, save
 				}
 			}
 		}
-	});
+	}
+
+	if (update.changedTitle) lfgData.title = update.changedTitle;
+	if (update.changedDescription) lfgData.description = update.changedDescription;
 
 	let createdLFG = createLFG(lfgData);
 	if (saveFunc) saveFunc({ embeds: createdLFG.embeds });

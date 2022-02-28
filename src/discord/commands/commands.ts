@@ -1,11 +1,11 @@
-import { Command } from '../../interfaces/Command';
+import { Command, commandHandles, commandDescriptions, commandAlias, messageCommands as commands, getClosestCommand } from '../../interfaces/Command';
 import { Message, MessageEmbed } from 'discord.js';
-import { commandHandles, commandDescriptions, commandAlias, commands, getClosestCommand } from '../events/messageCreate';
 
 const noArgs = (message: Message, _args: string[]) => {
 	let mainCommands: string[] = [];
 	let alias: Record<string, string[]> = {};
-	for (const command of commandHandles) {
+	for (const commandHandle of commandHandles) {
+		let { command } = commandHandle;
 		let fetchAlias = commandAlias[command];
 		if (!fetchAlias) mainCommands.push(command);
 		else {

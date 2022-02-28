@@ -35,5 +35,7 @@ export const init = async () => {
 		}
 	}
 
-	Client.login(Config.discordToken);
+	let connected = (await Client.login(Config.discordToken)) === Config.discordToken;
+	if (connected) console.log('Discord Connected');
+	else console.log('Discord failed to connect.');
 };
