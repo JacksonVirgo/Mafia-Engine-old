@@ -36,5 +36,5 @@
 		"skipLibCheck": true /* Skip type checking of declaration files. */,
 		"forceConsistentCasingInFileNames": true
 	},
-	"exclude": ["./client", "./dist"]
+	"exclude": ["./client", "./dist", "./production/backend"]
 }

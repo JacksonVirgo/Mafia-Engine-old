@@ -3,6 +3,7 @@ confidential.json
 *.code-workspace
 _bash/
 totalrun.sh
+production/*
 
 # Logs
 logs
