@@ -27,9 +27,9 @@ let file = {
 
 		for (const slash in slashCommands) {
 			const command = slashCommands[slash];
+			let loadedServers: string[] = [];
 			let perms = command.serverPermissions || [];
 			for (const server of perms) {
-				console.log('ServerID', server);
 				if (DiscordServers[server]) {
 					const commands = discordServers[DiscordServers[server]];
 					const appCommand = await commands.create({
@@ -39,12 +39,16 @@ let file = {
 						defaultPermission: false,
 					});
 
+					loadedServers.push(server);
+
 					if (command.slashPermissions)
 						appCommand?.permissions.add({
 							permissions: command.slashPermissions,
 						});
 				}
 			}
+
+			console.log(`${command.tag} loaded on ${loadedServers.join(', ')}`);
 		}
 
 		console.log(Client?.user?.username + ' is online');

@@ -31,10 +31,18 @@ export default {
 			type: 'STRING',
 			required: false,
 		},
+		{
+			name: 'title',
+			description: 'Title for the LFG embed.',
+			type: 'STRING',
+			required: false,
+		},
 	],
 	runSlash: async (i: CommandInteraction): Promise<any> => {
 		i.deferReply();
 		const rawCategories = (i.options.getString('categories') || 'players backups').split(/\s+/g);
+		const title = (i.options.getString('title') || 'Looking For Group').trim();
+
 		const categories = [];
 
 		let buttons = new MessageActionRow();
@@ -42,7 +50,7 @@ export default {
 			categories.push({ title: category, users: [] });
 			buttons.addComponents(new MessageButton().setCustomId(`lfg-button-${category.toLowerCase()}`).setLabel(category).setStyle('SECONDARY'));
 		}
-		let lfg = createLFG({ categories });
+		let lfg = createLFG({ title, categories });
 		i.channel?.send(lfg);
 		i.deleteReply();
 	},
