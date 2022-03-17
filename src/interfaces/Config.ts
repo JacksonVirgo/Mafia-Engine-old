@@ -18,12 +18,13 @@ export interface Config {
 }
 
 export const fetchConfig = (): Config => {
-	const { discordToken, databaseToken, PORT, discordPrefix, developmentGuild, databaseUrl, isDevelopment } = process.env;
+	const { discordToken, discordAuthToken, databaseToken, PORT, discordPrefix, developmentGuild, databaseUrl, isDevelopment } = process.env;
 	return {
 		discordToken,
 		databaseToken,
 		PORT: PORT || 5000,
 		discordPrefix: discordPrefix || 'dev!',
+		discordAuthToken,
 
 		isDevelopment: !!isDevelopment,
 		developmentGuild,

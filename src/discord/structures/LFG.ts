@@ -1,4 +1,7 @@
 import { ButtonInteraction, Constants, Message, MessageActionRow, MessageButton, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
+import LFG, { LFGSchema, RawLFGSchema } from '../../database/discord/LookingForGroup';
+import lfg from '../commands/lfg';
+
 export interface LFGCategory {
 	title: string;
 	users: string[];
@@ -36,7 +39,7 @@ export const parseRequestedCategoryTitle = (req: string): CategoryTitleParseResp
 	return { title, maximum } as CategoryTitleParseResponse;
 };
 
-export const createLFG = (lfgData: LFG): MessageOptions => {
+export const createLFG = (lfgData: LFGSchema): MessageOptions => {
 	let result: MessageOptions = {};
 	let embedData: MessageEmbedOptions = {
 		title: lfgData.title || 'Looking For Group',
@@ -52,15 +55,16 @@ export const createLFG = (lfgData: LFG): MessageOptions => {
 	const actionRow = new MessageActionRow();
 	if (lfgData.categories)
 		for (const category of lfgData.categories) {
-			let parsedCategory: string = category.title.toLowerCase();
-			let amount: number | undefined = category.users.length;
-			let maximum: number | undefined = category.maximum;
+			const { players, title, limit } = category;
+			let parsedCategory: string = title.toLowerCase();
+			let amount: number | undefined = players.length;
+			let maximum: number | undefined = limit;
 
 			if (completedCategories.includes(parsedCategory)) continue;
 			completedCategories.push(parsedCategory);
 
 			let categoryValue: string = '';
-			category.users.forEach((val) => (categoryValue += `<@${val}>\n`));
+			players.forEach((val) => (categoryValue += `<@${val}>\n`));
 			if (categoryValue === '') categoryValue = 'N/A';
 
 			let formattedLabel = category.title
@@ -160,7 +164,8 @@ export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, save
 	const embed: MessageEmbed = message.embeds[0] as MessageEmbed;
 	const guild = message.guild;
 
-	let lfgData = extractLFG(embed);
+	const lfgData: RawLFGSchema | null = (await LFG.findOne({ messageID: message.id })) as RawLFGSchema;
+	if (!lfgData) return;
 	if (!lfgData.categories) return;
 
 	let allUpdatedUsers: string[] = update.removedUsers || [];

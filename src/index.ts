@@ -1,10 +1,12 @@
 import express from 'express';
 import protocol from 'http';
-import path from 'path';
+// import path from 'path';
 import { config as loadEnvironment } from 'dotenv';
-import { init as discordInit } from './discord';
+// import { init as discordInit } from './discord';
 import { fetchConfig } from './interfaces/Config';
 import { databaseInit } from './database';
+
+import apiRouter from './routes/apiRouter';
 
 loadEnvironment();
 export const Config = fetchConfig();
@@ -18,15 +20,17 @@ export const DiscordServers: Record<string, string> = {
 
 (async () => {
 	await databaseInit();
-	await discordInit();
+	// await discordInit();
 
 	const app = express();
 	const server = protocol.createServer(app);
 
-	app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
-	app.get('*', (_req, res) => {
-		res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
-	});
+	// app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
+	// app.get('*', (_req, res) => {
+	// 	res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
+	// });
+
+	app.use('/api', apiRouter);
 
 	server.listen(Config.PORT, () => {
 		console.log(`REST Client Connected. PORT=${Config.PORT}`);

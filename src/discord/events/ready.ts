@@ -2,7 +2,7 @@ import { Client } from '../';
 import { addCommand, slashCommands } from '../../interfaces/Command';
 import { loadFilesRecursive } from '../../util/filesystem';
 import { Config, DiscordServers } from '../..';
-import { GuildApplicationCommandManager } from 'discord.js';
+import { ApplicationCommandManager, GuildApplicationCommandManager } from 'discord.js';
 
 let file = {
 	tag: 'ready',
@@ -18,37 +18,29 @@ let file = {
 			}
 		}
 
-		const discordServers: Record<string, GuildApplicationCommandManager> = {};
-		for (const discordServer in DiscordServers) {
-			let discordId = DiscordServers[discordServer];
-			let guild = Client.guilds.cache.get(discordId);
-			if (guild) discordServers[discordId] = guild.commands;
-		}
+		let slashCommandManager: ApplicationCommandManager<any> | GuildApplicationCommandManager | undefined;
+
+		slashCommandManager = Client.guilds.cache.get(!isDevelopment ? DiscordServers.DEVELOPMENT : DiscordServers.DISCORD_MAFIA)?.commands;
+		if (!slashCommandManager) Client.application?.commands;
+
+		Client.application?.commands.cache.each((v) => v.delete());
+		slashCommandManager?.cache.each((v) => v.delete());
 
 		for (const slash in slashCommands) {
 			const command = slashCommands[slash];
-			let loadedServers: string[] = [];
-			let perms = command.serverPermissions || [];
-			for (const server of perms) {
-				if (DiscordServers[server]) {
-					const commands = discordServers[DiscordServers[server]];
-					const appCommand = await commands.create({
-						name: command.tag,
-						description: command.description,
-						options: command.options,
-						defaultPermission: false,
-					});
+			const appCommand = await slashCommandManager?.create({
+				name: command.tag,
+				description: command.description,
+				options: command.options,
+				defaultPermission: false,
+			});
 
-					loadedServers.push(server);
+			if (command.slashPermissions)
+				appCommand?.permissions.add({
+					permissions: command.slashPermissions,
+				});
 
-					if (command.slashPermissions)
-						appCommand?.permissions.add({
-							permissions: command.slashPermissions,
-						});
-				}
-			}
-
-			console.log(`${command.tag} loaded on ${loadedServers.join(', ')}`);
+			console.log(`Loaded ${appCommand?.name}`);
 		}
 
 		console.log(Client?.user?.username + ' is online');

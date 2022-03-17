@@ -15,10 +15,11 @@ const onInteractButton = async (i: ButtonInteraction) => {
 const onInteractCommand = async (i: CommandInteraction) => {
 	let slash = slashCommands[i.commandName];
 
+	console.log('Hello', slashCommands);
+
 	if (slash && slash.runSlash) slash.runSlash(i);
 	else {
-		console.log(i);
-		i.reply('Unknown Command');
+		i.reply('Unknown Command - ' + i.commandName);
 	}
 };
 
@@ -28,6 +29,9 @@ export default {
 		let isDevGuild = i.guildId == Config.developmentGuild;
 		let isValid = Config.isDevelopment && isDevGuild;
 		isValid = isValid || (!Config.isDevelopment && !isDevGuild);
+
+		isValid = true;
+
 		try {
 			if (!isValid) return;
 			if (i.isCommand()) await onInteractCommand(i);
