@@ -1,7 +1,7 @@
 import express, { NextFunction } from 'express'
 import axios, { AxiosError } from 'axios';
 import { Config } from '..';
-import fetch from 'node-fetch'
+import fetch, { BodyInit } from 'node-fetch'
 
 interface DiscordAuth {
     accessToken?: string;
@@ -18,6 +18,8 @@ interface DiscordAuthRequest extends express.Request {
 const DISCORD_API = 'https://discord.com/api';
 
 export async function authMiddleware(request: express.Request, response: express.Response, next: NextFunction): Promise<any> {
+    console.log('here1')
+
     const { accessToken, refreshToken } = request.cookies;
     if (!accessToken && !refreshToken) return response.status(401).json({ cookies: request.cookies });
 
@@ -37,6 +39,8 @@ export async function authMiddleware(request: express.Request, response: express
 }
 
 export async function mafiascumAuthMiddleware(request: DiscordAuthRequest, response: express.Response, next: NextFunction): Promise<any> {
+    console.log('here2')
+
     const mafiaScumURI = DISCORD_API + '/users/@me/guilds/611331534389116942/member';
 
     try {
@@ -129,7 +133,7 @@ router.get('/login', async (req, res): Promise<any> => {
 
     const request = await fetch('https://discord.com/api/oauth2/token', {
         method: 'post',
-        body: params,
+        body: params as BodyInit,
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 

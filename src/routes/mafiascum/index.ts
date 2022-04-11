@@ -81,6 +81,8 @@ const getPageHTML = async (query: MafiaScumQuery): Promise<MafiascumPageResponse
 Router.get('/page', authMiddleware, mafiascumAuthMiddleware, async (req, res): Promise<any> => {
     if (!req.query) return res.status(400).json({ hasError: true, error: 'No query parameters supplied.' })
 
+    console.log('here3')
+
     const queryRoot = req.query as unknown as MafiaScumQuery;
 
     const response = await getPageHTML(queryRoot);

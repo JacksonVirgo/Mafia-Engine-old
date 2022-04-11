@@ -1,6 +1,0 @@
-{
-    "core": "http://mafiaengine.com",
-    "vcFormat": {
-        "default": "[area={number}]\n{votes}\n\nDay ends in {time}[/area]"
-    }
-}
