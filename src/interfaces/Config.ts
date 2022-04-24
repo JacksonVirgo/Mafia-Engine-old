@@ -22,7 +22,7 @@ export const fetchConfig = (): Config => {
 	return {
 		discordToken,
 		databaseToken,
-		PORT: PORT || 5000,
+		PORT: PORT || 3001,
 		discordPrefix: discordPrefix || 'dev!',
 		discordAuthToken,
 

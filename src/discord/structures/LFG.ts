@@ -1,6 +1,5 @@
 import { ButtonInteraction, Constants, Message, MessageActionRow, MessageButton, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
 import LFG, { LFGSchema, RawLFGSchema } from '../../database/discord/LookingForGroup';
-import lfg from '../commands/lfg';
 
 export interface LFGCategory {
 	title: string;
@@ -39,11 +38,11 @@ export const parseRequestedCategoryTitle = (req: string): CategoryTitleParseResp
 	return { title, maximum } as CategoryTitleParseResponse;
 };
 
-export const createLFG = (lfgData: LFGSchema): MessageOptions => {
+export const createLFG = (lfgData: RawLFGSchema): MessageOptions => {
 	let result: MessageOptions = {};
 	let embedData: MessageEmbedOptions = {
 		title: lfgData.title || 'Looking For Group',
-		description: 'Interact with a button below to join a group, if there are no buttons notify staff.',
+		description: 'Interact with a buttosn below to join a group, if there are no buttons notify staff.',
 		fields: [],
 		color: Constants.Colors.BLURPLE,
 		footer: {
@@ -161,10 +160,10 @@ export const LFGUpdateButton = async (i: ButtonInteraction) => {
 };
 
 export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, saveFunc: PostLFGSave | null = null) => {
-	const embed: MessageEmbed = message.embeds[0] as MessageEmbed;
+	// const embed: MessageEmbed = message.embeds[0] as MessageEmbed;
 	const guild = message.guild;
 
-	const lfgData: RawLFGSchema | null = (await LFG.findOne({ messageID: message.id })) as RawLFGSchema;
+	const lfgData: RawLFGSchema | null = (await LFG.findOne({ messageID: message.id })) as LFGSchema;
 	if (!lfgData) return;
 	if (!lfgData.categories) return;
 
@@ -179,19 +178,19 @@ export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, save
 	for (let i = 0; i < lfgData.categories.length; i++) {
 		const v = lfgData.categories[i];
 
-		for (let f = 0; f < v.users.length; f++) {
-			let member = await guild?.members.fetch(v.users[f]);
+		for (let f = 0; f < v.players.length; f++) {
+			let member = await guild?.members.fetch(v.players[f]);
 			if (member) {
 				// let isBanned = member.roles.cache.get('945319707517534218');
 			}
 		}
 
-		v.users = v.users.filter((v2) => !allUpdatedUsers.includes(v2));
+		v.players = v.players.filter((v2) => !allUpdatedUsers.includes(v2));
 		if (update.addedUsers) {
 			for (const joinedCategories in update.addedUsers) {
 				if (v.title.toLowerCase() == joinedCategories.toLowerCase()) {
 					update.addedUsers[joinedCategories].forEach((user) => {
-						v.users.push(user);
+						v.players.push(user);
 					});
 				}
 			}
@@ -199,8 +198,6 @@ export const LFGUpdate = async (message: Message, update: LFGUpdateOptions, save
 	}
 
 	if (update.changedTitle) lfgData.title = update.changedTitle;
-	if (update.changedDescription) lfgData.description = update.changedDescription;
-
 	let createdLFG = createLFG(lfgData);
 	if (saveFunc) saveFunc({ embeds: createdLFG.embeds });
 };

@@ -1,7 +1,11 @@
 import { Document, Schema, model } from 'mongoose';
 
 export interface RawLFGSchema {
+<<<<<<< HEAD
 	messageID: string;
+=======
+	messageID?: string;
+>>>>>>> development
 	title?: string;
 	categories?: {
 		title: string;
@@ -11,11 +15,19 @@ export interface RawLFGSchema {
 		locked?: boolean;
 	}[];
 	locked?: boolean;
+<<<<<<< HEAD
 	hosts: string[];
 	banned: string[];
 }
 
 export interface LFGSchema extends RawLFGSchema, Document {}
+=======
+	hosts?: string[];
+	banned?: string[];
+}
+
+export interface LFGSchema extends RawLFGSchema, Document { }
+>>>>>>> development
 
 export default model(
 	'discord-lfg',

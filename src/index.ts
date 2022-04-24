@@ -4,7 +4,7 @@ import protocol from 'http';
 import { config as loadEnvironment } from 'dotenv';
 // import { init as discordInit } from './discord';
 import { fetchConfig } from './interfaces/Config';
-import { databaseInit } from './database';
+import cors from 'cors';
 
 import apiRouter from './routes/apiRouter';
 
@@ -19,7 +19,6 @@ export const DiscordServers: Record<string, string> = {
 };
 
 (async () => {
-	await databaseInit();
 	// await discordInit();
 
 	const app = express();
@@ -30,6 +29,7 @@ export const DiscordServers: Record<string, string> = {
 	// 	res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
 	// });
 
+	app.use(cors({}))
 	app.use('/api', apiRouter);
 
 	server.listen(Config.PORT, () => {

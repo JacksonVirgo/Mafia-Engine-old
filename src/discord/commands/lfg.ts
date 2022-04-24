@@ -47,7 +47,7 @@ export default {
 
 		let buttons = new MessageActionRow();
 		for (const category of rawCategories) {
-			categories.push({ title: category, users: [] });
+			categories.push({ title: category, players: [] });
 			buttons.addComponents(new MessageButton().setCustomId(`lfg-button-${category.toLowerCase()}`).setLabel(category).setStyle('SECONDARY'));
 		}
 		let lfg = createLFG({ title, categories });
