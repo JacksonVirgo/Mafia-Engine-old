@@ -55,30 +55,50 @@ export default function Login(props) {
                 else latestDay = latestDay.count > count ? latestDay : day;
             }
 
-            requestedURL.searchParams.append('start', latestDay.post);
 
+            let start = latestDay.post;
             let allPagesDone = false;
             let currentPage = null;
-            let lastPage = null;
             let allVotes = [];
 
+
+            let firstPageScraped = null;
+            let pagesScraped = 0;
+            let lastPage = null;
+
+            let i = 0;
+
             do {
+                requestedURL.searchParams.set('start', start);
                 const msRequest = FORUM_REQUEST_URI + requestedURL.search;
                 const msResponse = await axios.get(msRequest);
-                const posts = msResponse.data.posts;
+                const msData = msResponse.data;
+
+                currentPage = msData.currentPageNum;
+                lastPage = msData.lastPageNum;
+                if (!firstPageScraped) firstPageScraped = currentPage;
+
+                const posts = msData.posts;
                 posts.forEach((value, index) => {
                     if (value.votes.length > 0) {
                         const formattedVote = {
                             voter: value.author,
                             timestamp: value.timestamp,
-                            voteData: value.votes
+                            voteData: value.votes,
+                            postNum: value.postNum
                         }
 
                         allVotes.push(formattedVote)
                     }
                 })
 
-                allPagesDone = true;
+                allPagesDone = currentPage == lastPage;
+                start += 200;
+                pagesScraped += 1;
+
+                let percent = (currentPage - firstPageScraped + 1) / (lastPage - firstPageScraped + 1);
+                console.log(`Process -> ${percent * 100}%`)
+
             } while (!allPagesDone);
 
             console.log(allVotes)

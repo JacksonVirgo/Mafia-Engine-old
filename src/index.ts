@@ -29,7 +29,6 @@ export const DiscordServers: Record<string, string> = {
 	// 	res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
 	// });
 
-
 	app.use(cors({}))
 	app.use('/api', apiRouter);
 

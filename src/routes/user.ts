@@ -18,8 +18,6 @@ interface DiscordAuthRequest extends express.Request {
 const DISCORD_API = 'https://discord.com/api';
 
 export async function authMiddleware(request: express.Request, response: express.Response, next: NextFunction): Promise<any> {
-    console.log('here1')
-
     const { accessToken, refreshToken } = request.cookies;
     if (!accessToken && !refreshToken) return response.status(401).json({ cookies: request.cookies });
 
@@ -39,8 +37,6 @@ export async function authMiddleware(request: express.Request, response: express
 }
 
 export async function mafiascumAuthMiddleware(request: DiscordAuthRequest, response: express.Response, next: NextFunction): Promise<any> {
-    console.log('here2')
-
     const mafiaScumURI = DISCORD_API + '/users/@me/guilds/611331534389116942/member';
 
     try {

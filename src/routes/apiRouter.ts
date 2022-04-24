@@ -9,9 +9,10 @@ export default router;
 
 router.use(cors({
 	credentials: true,
-	origin: 'http://localhost:3000'
+	origin: '*'
 }))
-router.use(cookieParser())
+router.use(cookieParser());
+router.get('/ping', (_req, res) => res.send('Pinged.'));
 router.use('/ms', MafiaScumRouter);
 router.use('/user', UserRouter);
 

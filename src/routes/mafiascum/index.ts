@@ -1,7 +1,9 @@
 import axios from 'axios';
 import express from 'express'
 import { load as loadHTML } from 'cheerio'
-import { authMiddleware, mafiascumAuthMiddleware } from '../user';
+//import { authMiddleware, mafiascumAuthMiddleware } from '../user';
+import { VoteCountSettings as VoteCountSettings } from '../../database/mafiascum/VoteCount';
+
 const Router = express.Router();
 
 interface MafiaScumQuery {
@@ -34,27 +36,6 @@ interface MSVote {
     isUnvote?: boolean;
 }
 
-interface Replacement {
-    before: string;
-    after: string;
-    post: number;
-}
-
-interface Phases {
-    label?: string;
-    post: number;
-    count: number;
-    endPost?: number;
-}
-
-export interface VoteCountSettings {
-    hosts: string[];
-    players: string[];
-    dead?: string[];
-    replacements?: Replacement[];
-    dayStarts?: Phases[];
-}
-
 export const MafiaScumURI = 'https://forum.mafiascum.net/viewtopic.php';
 
 interface MafiascumPageResponse {
@@ -78,10 +59,10 @@ const getPageHTML = async (query: MafiaScumQuery): Promise<MafiascumPageResponse
     return result;
 }
 
-Router.get('/page', authMiddleware, mafiascumAuthMiddleware, async (req, res): Promise<any> => {
+Router.get('/page', /* authMiddleware, mafiascumAuthMiddleware,*/ async (req, res): Promise<any> => {
     if (!req.query) return res.status(400).json({ hasError: true, error: 'No query parameters supplied.' })
 
-    console.log('here3')
+    console.log('here3');
 
     const queryRoot = req.query as unknown as MafiaScumQuery;
 
@@ -111,12 +92,17 @@ Router.get('/page', authMiddleware, mafiascumAuthMiddleware, async (req, res): P
             let userProfile = p.find('.postprofile');
             const postBody = p.find('.postbody');
             let content = postBody.find('.content')
+            const author = postBody.find('.author');
+
+            const firstStrong = author.find('strong').first();
+            const postNumber = parseInt(firstStrong.text().substring(1));
+            if (!isNaN(postNumber)) post.postNum = postNumber;
+            else { console.log(postNumber) }
 
             post.cleanContent = content.text();
 
             // Get Timestamp
-            const dateString = postBody.find('.author');
-            let scrapedDate = dateString.text().replace(/\s\s+/g, ' ').split('»')[1].trim() + ' CDT';
+            let scrapedDate = author.text().replace(/\s\s+/g, ' ').split('»')[1].trim() + ' CDT';
             const utcDate = new Date(scrapedDate)
             post.timestamp = utcDate.getTime();
 
@@ -163,9 +149,15 @@ Router.get('/settings', async (req, res): Promise<any> => {
     if (!t) return res.status(400).json({ error: 'Thread ID (t) not supplied. ' })
 
     const fakeVC: VoteCountSettings = {
+        thread: '',
         hosts: ['Nero Cain', 'Jingle'],
         players: ['StrangeMatter', 'Toogeloo', 'Enchant', 'MathBlade', 'Cat Scratch Fever', 'Greeting', 'Malakittens', 'Dwlee99', 'wavemode', 'JacksonVirgo', 'momo', 'Roden', 'MegAzuramill'],
-        dead: ['momo', 'Roden'],
+        dead: [
+            { player: 'momo', post: 361 },
+            { player: 'Roden', post: 364 },
+            { player: 'MegAzumarill', post: 831 },
+            { player: 'MathBlade', post: 832 }
+        ],
         dayStarts: [
             {
                 post: 1,
