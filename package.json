@@ -6,7 +6,9 @@
 	"scripts": {
 		"start": "node src/index.js",
 		"dev": "nodemon src/index.ts",
-		"exec": "frontend/react-scripts start"
+		"exec": "frontend/react-scripts start",
+		"postinstall": "tsc .",
+		"build": "cd client && npm run build"
 	},
 	"author": {
 		"name": "Jack Nash",
